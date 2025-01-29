@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, sendEmailVerification, fetchSignInMethodsForEmail, updatePassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
+import { createUserWithEmailAndPassword, setPersistence, browserLocalPersistence, sendEmailVerification, fetchSignInMethodsForEmail, updatePassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
 import app from './firebaseConfig.js'
 import { getAuth } from "firebase/auth";
 import dbServices from './firebaseDb.js'
@@ -9,22 +9,34 @@ class Auth {
     auth;
     constructor() {
         this.auth = getAuth(app)
+        this.auth.setPersistence(browserLocalPersistence);
     }
 
     // Register new user
-    async register(email, password) {
+    async register(email, password, name, userRole) {
         try {
             const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
             const user = userCredential.user;
             console.log("User registered:", user.uid, user.email);
             console.log(user.id, user)
-            await dbServices.addDocument('users', user.uid, { email: user.email })
+            await dbServices.addDocument('users', user.uid, { email: user.email, name: name, userRole: userRole })
             return user;
         } catch (error) {
             console.error("Firebase Auth : register() ::", error.message);
             throw error;
         }
     };
+
+    // Check if user already exists
+    async isUserExists(email) {
+        try {
+            const signInMethods = await fetchSignInMethodsForEmail(this.auth, email);
+            return signInMethods.length > 0;
+        } catch (error) {
+            console.error("Auth Error [isUserExists]:", error.code, error.message);
+            throw this.error;
+        }
+    }
 
     // login user
     async login(email, password) {
@@ -71,22 +83,13 @@ class Auth {
     // forget password
     async sendPasswordReset(email) {
         try {
-            const methods = await fetchSignInMethodsForEmail(this.auth, email);
-
-            if (methods.length === 0) {
-                console.log("Email is not registered.");
-                alert("This email is not registered. Please use a valid email address.");
-                return;
-            }
-
-            // If email is registered, send the password reset email
             await sendPasswordResetEmail(this.auth, email);
             console.log("Password reset email sent");
-            alert("If the email is registered, you will receive a password reset link shortly.");
+            console.log("If the email is registered, you will receive a password reset link shortly.");
 
         } catch (error) {
             console.error("Firebase Auth : sendPasswordReset() ::", error.message);
-            alert("Error sending password reset email. Please try again.");
+            throw error(error.message);
         }
     }
 
@@ -100,10 +103,10 @@ class Auth {
 
             await updatePassword(user, newPassword);
             console.log("Password updated successfully.");
-            alert("Your password has been updated.");
+            
         } catch (error) {
             console.error("Firebase Auth : updatePassword() ::", error.message);
-            alert("Error updating password. Please try again.");
+            throw error(error.message);
         }
     }
 
@@ -114,14 +117,13 @@ class Auth {
                 await deleteUser(user);
                 console.log("User deleted successfully");
                 await dbServices.deleteDocument('users', user.uid)
-                alert("Your account has been deleted.");
             } catch (error) {
                 console.error("Firebase Auth : deleteUser() ::", error.message);
-                alert("Error deleting account. Please try again.");
+                throw error(error.message);
             }
         } else {
             console.log("No user is signed in.");
-            alert("You need to be logged in to delete your account.");
+            throw new Error("No user is signed in to delete.");
         }
     }
 
@@ -133,9 +135,11 @@ class Auth {
                 console.log("Verification email sent");
             } catch (error) {
                 console.error("Firebase Auth : sendVeficationEmail() ::", error.message);
+                throw new Error(error.message);
             }
         } else {
             console.log("No user is signed in to verify.");
+            throw new Error("No user is signed in to verify.");            
         }
     };
 }

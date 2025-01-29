@@ -1,57 +1,155 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import userAuth from "../firebase/firebaseAuth";
+import dbServices from "../firebase/firebaseDb";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../store/authSlice";
+import { Loader, ErrorAlert, LeftSide } from "../components";
 
 function Login() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // Handle login logic here
-    console.log('Email:', email, 'Password:', password)
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const isUserLoggedIn = useSelector((state) => state.auth.status);
+
+  useEffect(() => {
+    const unsubscribe = userAuth.auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        try {
+          const userData = await dbServices.getDocument("users", user.uid);
+          dispatch(login({ userData }));
+          navigate("/dashboard");
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [dispatch, navigate]);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      setError(null);
+      setLoading(true);
+      await userAuth.login(email, password);
+    } catch (error) {
+      setLoading(false);
+      setError("Invalid email or password");
+      console.error("Error:", error.message);
+    }
+  };
+
+  if (isUserLoggedIn) {
+    return null; // Already handled by useEffect redirect
   }
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
-        <h2 className="text-2xl font-semibold text-center text-gray-700 mb-6">Login</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-600 text-sm font-medium">Email</label>
-            <input 
-              type="email" 
-              id="email" 
-              className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required 
-            />
+    <>
+      {/* Error message */}
+      {error && <ErrorAlert message={error} />}
+
+      {/* Loading spinner */}
+      {loading && <Loader />}
+
+      {/* Login form */}
+      <div
+        className="flex justify-evenly bg-black-600 h-[100vh] box-content overflow-hidden "
+        onClick={() => setError(null)}
+      >
+        {/* left side */}
+        <LeftSide />
+
+        {/* right side login form */}
+        <div className="w-[70vw] bg-black text-white">
+          <div className="p-14 text-start">
+            <div className="text-3xl mb-6 font-bold">
+              <p>Login to your account</p>
+            </div>
+
+            <div className="text-white">
+              <form onSubmit={handleLogin} className="flex flex-col gap-5">
+                <div className="mb-4">
+                  <div className="text-start">
+                    <label
+                      htmlFor="email"
+                      className="block text-white text-xl font-medium"
+                    >
+                      Email
+                    </label>
+                  </div>
+                  <input
+                    type="email"
+                    id="email"
+                    className="w-[60%] p-1 mt-2 text-black border bg-gray-300 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <div className="text-start">
+                    <label
+                      htmlFor="password"
+                      className="block text-white text-xl font-medium"
+                    >
+                      Password
+                    </label>
+                  </div>
+                  <input
+                    type="password"
+                    id="password"
+                    className="w-[60%] p-1 mt-2 border bg-gray-300 text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="flex justify-start">
+                  <button
+                    type="submit"
+                    className="w-[60%] px-4 py-1 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200"
+                  >
+                    Login
+                  </button>
+                </div>
+                <div className="mt-4 text-start flex">
+                  <p className="text-sm text-gray-500">
+                    Forgot your password?{" "}
+                    <Link
+                      to="/forgot-password"
+                      className="font-medium text-blue-500 transition-all duration-200 hover:underline"
+                    >
+                      Reset here
+                    </Link>
+                  </p>
+                </div>
+              </form>
+              <div className="mt-7 text-start ">
+                <p className="text-sm text-gray-500">
+                  Don't have an account?{" "}
+                  <Link
+                    to="/signup"
+                    className="font-medium text-blue-500 transition-all duration-200 hover:underline"
+                  >
+                    Sign up
+                  </Link>
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="mb-6">
-            <label htmlFor="password" className="block text-gray-600 text-sm font-medium">Password</label>
-            <input 
-              type="password" 
-              id="password" 
-              className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" 
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required 
-            />
-          </div>
-          <button 
-            type="submit" 
-            className="w-full py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-200"
-          >
-            Login
-          </button>
-        </form>
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-500">Don't have an account? <a href="/register" className="text-blue-500 hover:underline">Sign Up</a></p>
         </div>
       </div>
-    </div>
-  )
+    </>
+  );
 }
 
-export default Login
+export default Login;
