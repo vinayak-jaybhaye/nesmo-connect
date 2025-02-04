@@ -103,7 +103,7 @@ function Register() {
                         <input
                           type="radio"
                           name="userRole"
-                          className="block peer"
+                          className="hidden peer"
                           id="student"
                           value="student"
                           onChange={(e) => setUserRole(e.target.value)}
@@ -124,7 +124,7 @@ function Register() {
                         <input
                           type="radio"
                           name="userRole"
-                          className="block peer"
+                          className="hidden peer"
                           id="alumnus"
                           value="alumnus"
                           onChange={(e) => setUserRole(e.target.value)}
@@ -145,7 +145,7 @@ function Register() {
                         <input
                           type="radio"
                           name="userRole"
-                          className="block peer"
+                          className="hidden peer"
                           id="admin"
                           value="admin"
                           onChange={(e) => setUserRole(e.target.value)}
