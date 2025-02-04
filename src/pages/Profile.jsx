@@ -53,8 +53,8 @@ function Profile() {
       {/* Banner Section */}
       <div className="flex h-[35%] bg-gray-800 overflow-hidden">
         <img
-          src="/cat.jpeg"
-          className="w-full h-full object-cover opacity-75"
+          src="cover.png"
+          className="w-full h-full object-cover opacity-40"
           alt="Banner"
         />
       </div>
@@ -66,7 +66,7 @@ function Profile() {
           {/* Profile Avatar */}
           <div className="absolute rounded-full h-33 w-33 md:h-[280px] md:w-[280px] -top-28  md:-top-36 left-1/2 md:left-20 transform -translate-x-1/2 md:translate-x-0 shadow-xl z-[1]">
             <img
-              src="/dog.jpeg"
+              src="/avatar.png"
               className="rounded-full w-full h-full object-cover"
               alt="Profile"
             />
@@ -89,19 +89,31 @@ function Profile() {
               </div>
 
               <div className="flex gap-5 text-gray-400 justify-center md:justify-start items-center pl-2">
-                <a href= {userData?.linkedin || "https://in.linkedin.com/"} className="hover:text-blue-400">
+                <a
+                  href={userData?.linkedin || "https://in.linkedin.com/"}
+                  className="hover:text-blue-400"
+                >
                   <img src="/linkedin.svg" alt="LinkedIn" className="w-6 h-6" />
                 </a>
-                <a href= {userData?.email || 'mailto:example@example.com'} className="hover:text-blue-400">
+                <a
+                  href={
+                    `https://mail.google.com/mail/?view=cm&fs=1&to=${userData?.email}&su=Hello%20there&body=Hi%20there,%20I%20wanted%20to%20reach%20out%20about%20...` ||
+                    "#"
+                  }
+                  className="hover:text-blue-400"
+                >
                   <img src="/gmail.svg" alt="Email" className="w-6 h-6" />
                 </a>
-                <a href= {userData?.twitter || 'https://x.com/home?lang=en'} className="hover:text-blue-400">
+                <a
+                  href={userData?.twitter || "https://x.com/home?lang=en"}
+                  className="hover:text-blue-400"
+                >
                   <img src="/twitter.svg" alt="Twitter" className="w-6 h-6" />
                 </a>
               </div>
             </div>
 
-            <button className="w-full md:w-[30%] h-fit px-6 py-2 bg-gray-700 border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0">
+            <button className="w-full md:w-[30%] h-fit px-6 py-2 bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0">
               Edit Profile
             </button>
           </div>
@@ -114,11 +126,15 @@ function Profile() {
               <div className="space-y-2">
                 <div>
                   <label className="text-gray-400 text-sm">Education</label>
-                  <p className="font-medium">{ userData?.education || 'Not Specified' }</p>
+                  <p className="font-medium">
+                    {userData?.education || "Not Specified"}
+                  </p>
                 </div>
                 <div>
                   <label className="text-gray-400 text-sm">Location</label>
-                  <p className="font-medium">{userData?.location || 'Not Specified'}</p>
+                  <p className="font-medium">
+                    {userData?.location || "Not Specified"}
+                  </p>
                 </div>
               </div>
 
@@ -126,7 +142,9 @@ function Profile() {
                 <label className="text-gray-400 text-sm">
                   Current Position
                 </label>
-                <p className="font-medium">{userData?.position || 'not specified'}</p>
+                <p className="font-medium">
+                  {userData?.position || "not specified"}
+                </p>
               </div>
             </div>
 
@@ -134,7 +152,8 @@ function Profile() {
               <h2 className="text-xl font-semibold text-gray-100">About</h2>
               <div className="overflow-auto scrollbar-hide p-2">
                 <p className="text-gray-400 max-h-[40vh] leading-relaxed">
-                  {userData?.about || 'User has not provided any information about themselves'}
+                  {userData?.about ||
+                    "User has not provided any information about themselves"}
                 </p>
               </div>
             </div>
