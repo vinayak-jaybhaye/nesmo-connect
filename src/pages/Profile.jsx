@@ -16,11 +16,17 @@ function Profile() {
       async (firebaseUser) => {
         if (firebaseUser) {
           try {
-            const userData = await dbServices.getDocument(
+            const user = await dbServices.getDocument(
               "users",
               firebaseUser.uid
             );
-            dispatch(login({ userData }));
+            const userData = {
+              uid: firebaseUser.uid,
+              name: user.name,
+              email: user.email,
+              userRole: user.userRole,
+            };
+            dispatch(login({ userData: userData }));
           } catch (error) {
             console.error("Error fetching user data:", error);
             navigate("/login");

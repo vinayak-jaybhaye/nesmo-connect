@@ -24,7 +24,16 @@ function Register() {
       if (user) {
         try {
           const userData = await dbServices.getDocument("users", user.uid);
-          dispatch(login({ userData }));
+          dispatch(
+            login({
+              userData: {
+                uid: user.uid,
+                name: userData.name,
+                email: userData.email,
+                userRole: userData.userRole,
+              },
+            })
+          );
           navigate("/dashboard");
         } catch (error) {
           console.error("Error fetching user data:", error);

@@ -1,28 +1,41 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import userAuth from "../firebase/firebaseAuth";
 import dbServices from "../firebase/firebaseDb";
 import { login, logout } from "../store/authSlice";
-import { Loader } from "../components";
+import { AllPosts, Loader } from "../components";
+import { setVars } from "../store/varSlice";
+
+import { NewPost } from "../components";
 
 function Dashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.auth.userData);
 
-  const [selectPost, setSelectPost] = useState("myPosts");
+  const selectPost = useSelector((state) => state.vars.selectPost || "allPosts");
+
+  const onSelectionChange = (e) => {
+    dispatch(setVars({ selectPost: e.target.value }));
+  }
 
   useEffect(() => {
     const unsubscribe = userAuth.auth.onAuthStateChanged(
       async (firebaseUser) => {
         if (firebaseUser) {
           try {
-            const userData = await dbServices.getDocument(
+            const user = await dbServices.getDocument(
               "users",
               firebaseUser.uid
             );
-            dispatch(login({ userData }));
+            const userData = {
+              uid: firebaseUser.uid,
+              name: user.name,
+              email: user.email,
+              userRole: user.userRole,
+            };
+            dispatch(login({ userData: userData }));
           } catch (error) {
             console.error("Error fetching user data:", error);
             navigate("/login");
@@ -51,7 +64,7 @@ function Dashboard() {
   }
 
   return (
-    <div className="flex w-full h-screen justify-start bg-gray-900 text-gray-100">
+    <div className="flex w-full min-h-screen justify-start h-full bg-gray-900 text-gray-100">
       {/* Left Sidebar */}
       <div className="w-[15%] min-w-[200px] bg-gray-800 p-4 border-r border-gray-700">
         <div className="mb-8 text-xl font-bold text-gray-100">
@@ -137,7 +150,7 @@ function Dashboard() {
                   className="hidden peer"
                   id="myPosts"
                   value="myPosts"
-                  onChange={(e) => setSelectPost(e.target.value)}
+                  onChange={(e) => onSelectionChange(e)}
                   checked={selectPost === "myPosts"}
                 />
                 <label
@@ -160,7 +173,7 @@ function Dashboard() {
                   className="hidden peer"
                   id="allPosts"
                   value="allPosts"
-                  onChange={(e) => setSelectPost(e.target.value)}
+                  onChange={(e) =>onSelectionChange(e)}
                   checked={selectPost === "allPosts"}
                 />
                 <label
@@ -172,33 +185,11 @@ function Dashboard() {
               </div>
             </div>
 
-            <div className="bg-gray-800 p-4 rounded-lg shadow">
-              <div className="font-semibold mb-2">Add Post</div>
-              <input
-                type="text"
-                placeholder="What's on your mind?"
-                className="w-full p-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 bg-gray-700 text-gray-300"
-              />
-            </div>
+            {/* add new post */}
+            <NewPost user={userData} />
+
             {/* Posts */}
-            <div>
-              <div className="bg-gray-800 p-4 rounded-lg shadow space-y-4">
-                <div className="p-4 border-b border-gray-700">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className="h-10 w-10 rounded-full bg-gray-600"></div>
-                    <div>
-                      <div className="font-semibold text-gray-100">
-                        John Doe
-                      </div>
-                      <div className="text-sm text-gray-400">2 hours ago</div>
-                    </div>
-                  </div>
-                  <p className="text-gray-300">
-                    Sample post content goes here...
-                  </p>
-                </div>
-              </div>
-            </div>
+            <AllPosts  userId={userData.uid} />
           </div>
 
           {/* Right Column - Chats */}

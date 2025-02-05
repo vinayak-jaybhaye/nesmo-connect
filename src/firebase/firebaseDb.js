@@ -1,4 +1,4 @@
-import { getFirestore, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, collection } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, collection, addDoc, query, where, orderBy } from "firebase/firestore";
 import app from './firebaseConfig.js';
 
 class DB {
@@ -64,9 +64,10 @@ class DB {
     async addWithAutoId(collectionName, data) {
         try {
             const colRef = collection(this.db, collectionName);
+            data.createdBy = doc(this.db, "users", data.createdBy);
             const docRef = await addDoc(colRef, data);
             console.log("Document written with ID: ", docRef.id);
-            return docRef.id;
+            return docRef;
         } catch (error) {
             console.error("Firebase DB services : addWithAutoId ::", error);
             throw error;
@@ -77,17 +78,63 @@ class DB {
     async getAllAlumni() { }
 
     // get all users
-    async getAllUsers() {
+    async getAllDocuments(collectionName) {
         try {
-            const usersCollection = collection(this.db, "users");
+            const usersCollection = collection(this.db, collectionName);
             const querySnapshot = await getDocs(usersCollection);
             const users = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
             console.log("Users fetched successfully:", users);
-            return users; 
+            return users;
         } catch (error) {
             console.error("Error fetching users:", error.message);
-            throw error; 
+            throw error;
+        }
+    }
+
+    async getAllPosts(userId = null) {
+        try {
+            const postsCollection = collection(this.db, "posts");
+            
+            // If userId is provided, filter posts by "createdBy"
+            const queryRef = userId 
+                ? query(postsCollection, where("createdBy", "==", userId)) 
+                : postsCollection;
+    
+            const querySnapshot = await getDocs(queryRef);
+    
+            return querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+            return [];
+        }
+    }
+
+    async getMyPosts(userId) {
+        try {
+            // Fetch user document
+            const userDoc = await this.getDocument("users", userId);
+            
+            // Get post references
+            const postRefs = userDoc?.posts || [];
+    
+            // Fetch all posts using their references
+            const posts = await Promise.all(
+                postRefs.map(async (postRef) => {
+                    const postSnap = await getDoc(postRef);
+                    return postSnap.exists() ? { id: postSnap.id, ...postSnap.data() } : null;
+                })
+            );
+    
+            // Remove any null values (in case some posts were deleted)
+            return posts.filter(post => post !== null);
+        } catch (error) {
+            console.error("Error fetching user posts:", error);
+            return [];
         }
     }
 }
