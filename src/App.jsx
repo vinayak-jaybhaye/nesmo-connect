@@ -6,13 +6,12 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-import FileUpload from "./FileUpload";
 import { Login, Register, Dashboard, ForgotPassword, VerfiyEmail, Profile} from "./pages";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-    <Route path="/" element={<FileUpload />} />
+    <Route path="/" element={<Dashboard />} />
     <Route path="signup" element={<Register />} />
     <Route path="login" element={<Login />} />
     <Route path = "dashboard" element = {<Dashboard />} />

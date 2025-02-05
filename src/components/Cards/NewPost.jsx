@@ -101,11 +101,29 @@ function NewPost({ user }) {
         />
       </div>
       <div className="flex justify-between items-center mt-2 bg-gray-700 p-1 rounded-lg">
-        <div className="h-10 w-10 cursor-pointer" onClick={handleAddImage}>
-          <img src="addImg.svg" alt="add img" />
+        <div className="flex space-x-2">
+          <div
+            className="h-10 w-10 cursor-pointer hover:bg-gray-500 rounded-xl"
+            onClick={handleAddImage}
+          >
+            <img src="addImg.svg" alt="add img" />
+          </div>
+          <div
+            className="h-10 w-10 cursor-pointer p-1 hover:bg-gray-500 rounded-xl"
+            onClick={handleAddImage}
+          >
+            <img src="attachments.svg" alt="" />
+          </div>
         </div>
 
-        <div className="h-10 w-10 cursor-pointer" onClick={handlePost}>
+        <div
+          className={`h-10 w-10 cursor-pointer  ${
+            content != ""
+              ? "bg-blue-600 hover:bg-blue-600"
+              : "hover:bg-gray-500"
+          } rounded-lg  rouded-xl`}
+          onClick={handlePost}
+        >
           <img src="post.svg" alt="post" />
         </div>
       </div>

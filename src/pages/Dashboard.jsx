@@ -29,11 +29,24 @@ function Dashboard() {
               "users",
               firebaseUser.uid
             );
+            const {
+              avatarFileId,
+              coverFileId,
+              avatarUrl,
+              coverUrl,
+              email,
+              name,
+              userRole,
+            } = user;
             const userData = {
               uid: firebaseUser.uid,
-              name: user.name,
-              email: user.email,
-              userRole: user.userRole,
+              avatarFileId,
+              coverFileId,
+              avatarUrl,
+              coverUrl,
+              email,
+              name,
+              userRole,
             };
             dispatch(login({ userData: userData }));
           } catch (error) {

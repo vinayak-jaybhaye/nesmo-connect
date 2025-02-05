@@ -30,6 +30,7 @@ export class Service {
     async deleteFile(fileId) {
         try {
             await this.bucket.deleteFile(conf.appwriteBucketId, fileId)
+            console.log("Appwrite service :: deletefile:: success")
             return true
         } catch (error) {
             console.log("Appwrite service :: deletefile:: error", error)

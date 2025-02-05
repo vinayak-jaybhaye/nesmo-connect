@@ -6,10 +6,14 @@ import dbServices from "../firebase/firebaseDb";
 import { login, logout } from "../store/authSlice";
 import { Loader } from "../components";
 
+import appwriteStorage from "../appwrite/appwriteStorage";
+
 function Profile() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.auth.userData);
+
+  const [image, setImage] = useState(null);
 
   useEffect(() => {
     const unsubscribe = userAuth.auth.onAuthStateChanged(
@@ -20,11 +24,24 @@ function Profile() {
               "users",
               firebaseUser.uid
             );
+            const {
+              avatarFileId,
+              coverFileId,
+              avatarUrl,
+              coverUrl,
+              email,
+              name,
+              userRole,
+            } = user;
             const userData = {
               uid: firebaseUser.uid,
-              name: user.name,
-              email: user.email,
-              userRole: user.userRole,
+              avatarFileId,
+              coverFileId,
+              avatarUrl,
+              coverUrl,
+              email,
+              name,
+              userRole,
             };
             dispatch(login({ userData: userData }));
           } catch (error) {
@@ -54,15 +71,49 @@ function Profile() {
     return <Loader />;
   }
 
+  const handleChangeImage = async (img) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/png, image/jpeg, image/jpg, image/gif, image/webp";
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        setImage(file);
+      }
+      if (image) {
+        const fileData = await appwriteStorage.uploadFile(image);
+        const fileId = fileData["$id"];
+        const imageUrl = await appwriteStorage.getFilePreview(fileId);
+        const updatedData = {
+          [img + "Url"]: imageUrl,
+          [img + "FileId"]: fileId,
+        };
+        //delete old image
+        if (userData[img + "FileId"]) {
+          await appwriteStorage.deleteFile(userData[img + "FileId"]);
+        }
+        // Update user data
+        await dbServices.updateDocument("users", userData.uid, updatedData);
+      }
+    };
+    input.click();
+  };
+
   return (
     <div className="flex flex-col lg:h-screen md:h-auto bg-black overflow-auto scrollbar-hide">
       {/* Banner Section */}
-      <div className="flex h-[35%] bg-gray-800 overflow-hidden">
+      <div
+        className="flex h-[35%] bg-gray-800 overflow-hidden relative"
+        onClick={() => handleChangeImage("cover")}
+      >
         <img
-          src="cover.png"
-          className="w-full h-full object-cover opacity-40"
+          src={userData.coverUrl || "/cover.png"}
+          className="w-full h-[100%]  opacity-40"
           alt="Banner"
         />
+        <div className="absolute h-8 w-8 right-10 top-5 cursor-pointer">
+          <img src="editAvatar.svg" alt="" />
+        </div>
       </div>
 
       {/* Profile Content */}
@@ -72,10 +123,16 @@ function Profile() {
           {/* Profile Avatar */}
           <div className="absolute rounded-full h-33 w-33 md:h-[280px] md:w-[280px] -top-28  md:-top-36 left-1/2 md:left-20 transform -translate-x-1/2 md:translate-x-0 shadow-xl z-[1]">
             <img
-              src="/avatar.png"
+              src= {userData.avatarUrl || 'avatar.png'}
               className="rounded-full w-full h-full object-cover"
               alt="Profile"
             />
+            <div
+              className="absolute h-12 w-12 right-5 bottom-5 cursor-pointer bg-green-500 rounded-full p-2 border border-gray-800"
+              onClick={() => handleChangeImage("avatar")}
+            >
+              <img src="editImg.svg" alt="" />
+            </div>
           </div>
 
           {/* Profile Info */}

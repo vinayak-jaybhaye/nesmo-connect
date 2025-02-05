@@ -21,15 +21,29 @@ function Login() {
       if (user) {
         try {
           const userData = await dbServices.getDocument("users", user.uid);
+          const {
+            avatarFileId,
+            coverFileId,
+            avatarUrl,
+            coverUrl,
+            email,
+            name,
+            userRole,
+          } = userData;
+          const updatedUserData = {
+            uid: user.uid,
+            avatarFileId,
+            coverFileId,
+            avatarUrl,
+            coverUrl,
+            email,
+            name,
+            userRole,
+          };
           
           dispatch(
             login({
-              userData: {
-                uid: user.uid,
-                name: userData.name,
-                email: userData.email,
-                userRole: userData.userRole,
-              },
+              userData: updatedUserData,
             })
           );
           navigate("/dashboard");
