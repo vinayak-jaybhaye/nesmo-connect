@@ -6,18 +6,26 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-import { Login, Register, Dashboard, ForgotPassword, VerfiyEmail, Profile} from "./pages";
+import {
+  Login,
+  Register,
+  Dashboard,
+  ForgotPassword,
+  VerfiyEmail,
+  Profile,
+} from "./pages";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-    <Route path="/" element={<Dashboard />} />
-    <Route path="signup" element={<Register />} />
-    <Route path="login" element={<Login />} />
-    <Route path = "dashboard" element = {<Dashboard />} />
-    <Route path = "profile" element = {<Profile />} />
-    <Route path = "forgot-password" element = {<ForgotPassword />} /> 
-    <Route path = "verify-email" element = {<VerfiyEmail />} />
+      <Route path="/" element={<Dashboard />} />
+      <Route path="signup" element={<Register />} />
+      <Route path="login" element={<Login />} />
+      <Route path="dashboard" element={<Dashboard />} />
+      <Route path="profile" element={<Profile />} />
+      <Route path="profile/:profileId" element={<Profile />} />
+      <Route path="forgot-password" element={<ForgotPassword />} />
+      <Route path="verify-email" element={<VerfiyEmail />} />
     </>
   )
 );

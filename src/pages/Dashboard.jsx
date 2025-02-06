@@ -135,7 +135,7 @@ function Dashboard() {
             </button>
             <div
               className="h-8 w-8 rounded-full ring-2 ring-gray-600 cursor-pointer"
-              onClick={() => navigate("/profile")}
+              onClick={() => navigate('/profile/' + userData.uid)}
             >
               <img
                 src={userData?.avatar || "/avatar.png"}

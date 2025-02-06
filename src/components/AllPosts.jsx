@@ -9,7 +9,7 @@ function AllPosts({ userId }) {
   const [error, setError] = useState(null);
 
   const selectPost = useSelector((state) => state.vars.selectPost || "myPosts");
-  // console.log(selectPost)
+  console.log(selectPost);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -20,7 +20,7 @@ function AllPosts({ userId }) {
           // const posts = await dbServices.getAllPosts(userId);
           const posts = await dbServices.getMyPosts(userId);
           setPosts(posts);
-        } else {  
+        } else {
           const posts = await dbServices.getAllPosts();
           setPosts(posts);
         }

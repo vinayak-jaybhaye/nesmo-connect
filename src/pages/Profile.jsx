@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import userAuth from "../firebase/firebaseAuth";
 import dbServices from "../firebase/firebaseDb";
@@ -9,11 +9,32 @@ import { Loader } from "../components";
 import appwriteStorage from "../appwrite/appwriteStorage";
 
 function Profile() {
+  const { profileId } = useParams();
+  const [profileData, setProfileData] = useState(null);
+  const [amIOwner, setAmIOwner] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.auth.userData);
 
   const [image, setImage] = useState(null);
+
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      try {
+        const profile = await dbServices.getDocument("users", profileId);
+        setProfileData(profile);
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      }
+    };
+    fetchProfileData();
+  }, [profileId]);
+
+  useEffect(() => {
+    if (userData) {
+      setAmIOwner(profileId === userData.uid);
+    }
+  }, [userData]);
 
   useEffect(() => {
     const unsubscribe = userAuth.auth.onAuthStateChanged(
@@ -24,6 +45,7 @@ function Profile() {
               "users",
               firebaseUser.uid
             );
+
             const {
               avatarFileId,
               coverFileId,
@@ -43,6 +65,7 @@ function Profile() {
               name,
               userRole,
             };
+            // console.log(userData)
             dispatch(login({ userData: userData }));
           } catch (error) {
             console.error("Error fetching user data:", error);
@@ -53,7 +76,6 @@ function Profile() {
         }
       }
     );
-
     return () => unsubscribe();
   }, [dispatch, navigate]);
 
@@ -67,6 +89,31 @@ function Profile() {
     }
   };
 
+  const renderEditButton = useCallback(
+    (img) => {
+      return amIOwner ? (
+        <div
+          className="absolute h-12 w-12 right-5 bottom-5 cursor-pointer bg-green-500 rounded-full p-2 border border-gray-800"
+          onClick={() => handleChangeImage(img)}
+        >
+          <img src="/editImg.svg" alt="Edit" />
+        </div>
+      ) : null;
+    },
+    [amIOwner]
+  );
+
+  const renderEditProfile = useCallback(() => {
+    return amIOwner ? (
+      <button
+        className="w-full md:w-[30%] h-fit px-6 py-2 bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0"
+        onClick={handleEditProfile}
+      >
+        Edit Profile
+      </button>
+    ) : null;
+  }, [amIOwner]);
+
   if (!userData) {
     return <Loader />;
   }
@@ -78,42 +125,52 @@ function Profile() {
     input.onchange = async (e) => {
       const file = e.target.files[0];
       if (file) {
-        setImage(file);
-      }
-      if (image) {
-        const fileData = await appwriteStorage.uploadFile(image);
-        const fileId = fileData["$id"];
-        const imageUrl = await appwriteStorage.getFilePreview(fileId);
-        const updatedData = {
-          [img + "Url"]: imageUrl,
-          [img + "FileId"]: fileId,
-        };
-        //delete old image
-        if (userData[img + "FileId"]) {
-          await appwriteStorage.deleteFile(userData[img + "FileId"]);
+        try {
+          // Upload the selected file directly
+          const fileData = await appwriteStorage.uploadFile(file);
+          const fileId = fileData["$id"];
+          const imageUrl = appwriteStorage.getFilePreview(fileId);
+
+          const updatedData = {
+            [img + "Url"]: imageUrl,
+            [img + "FileId"]: fileId,
+          };
+
+          // Delete old image if exists
+          if (userData[img + "FileId"]) {
+            await appwriteStorage.deleteFile(userData[img + "FileId"]);
+          }
+
+          // Update user document
+          await dbServices.updateDocument("users", userData.uid, updatedData);
+
+          // Update local state and Redux store
+          const updatedUser = { ...userData, ...updatedData };
+          dispatch(login({ userData: updatedUser }));
+
+          // Refresh profile data
+          const profile = await dbServices.getDocument("users", profileId);
+          setProfileData(profile);
+        } catch (error) {
+          console.error("Error updating image:", error);
         }
-        // Update user data
-        await dbServices.updateDocument("users", userData.uid, updatedData);
       }
     };
     input.click();
   };
 
+  const handleEditProfile = () => {};
+
   return (
     <div className="flex flex-col lg:h-screen md:h-auto bg-black overflow-auto scrollbar-hide">
       {/* Banner Section */}
-      <div
-        className="flex h-[35%] bg-gray-800 overflow-hidden relative"
-        onClick={() => handleChangeImage("cover")}
-      >
+      <div className="flex h-[35%] bg-gray-800 overflow-hidden relative">
         <img
-          src={userData.coverUrl || "/cover.png"}
+          src={profileData?.coverUrl || "/cover.png"}
           className="w-full h-[100%]  opacity-40"
           alt="Banner"
         />
-        <div className="absolute h-8 w-8 right-10 top-5 cursor-pointer">
-          <img src="editAvatar.svg" alt="" />
-        </div>
+        <>{renderEditButton("cover")}</>
       </div>
 
       {/* Profile Content */}
@@ -123,28 +180,23 @@ function Profile() {
           {/* Profile Avatar */}
           <div className="absolute rounded-full h-33 w-33 md:h-[280px] md:w-[280px] -top-28  md:-top-36 left-1/2 md:left-20 transform -translate-x-1/2 md:translate-x-0 shadow-xl z-[1]">
             <img
-              src= {userData.avatarUrl || 'avatar.png'}
+              src={profileData?.avatarUrl || "avatar.png"}
               className="rounded-full w-full h-full object-cover"
               alt="Profile"
             />
-            <div
-              className="absolute h-12 w-12 right-5 bottom-5 cursor-pointer bg-green-500 rounded-full p-2 border border-gray-800"
-              onClick={() => handleChangeImage("avatar")}
-            >
-              <img src="editImg.svg" alt="" />
-            </div>
+            <>{renderEditButton("avatar")}</>
           </div>
 
           {/* Profile Info */}
           <div className="flex flex-col md:flex-row w-full md:w-[65%] justify-between items-center md:items-start p-2 rounded-tl-xl mt-14 md:mt-0">
             <div className="w-full md:w-[70%] text-center md:text-left space-y-4">
               <h1 className="text-2xl md:text-3xl font-bold text-gray-100">
-                {userData.name}
+                {profileData?.name}
               </h1>
 
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
                 <span className="px-4 py-1 bg-blue-900 text-gray-100 rounded-full">
-                  {userData?.userRole || "User"}
+                  {profileData?.userRole || "User"}
                 </span>
                 <button className="px-4 py-1 bg-blue-600 text-gray-100 rounded-full hover:bg-blue-500 transition">
                   Connect+
@@ -153,14 +205,14 @@ function Profile() {
 
               <div className="flex gap-5 text-gray-400 justify-center md:justify-start items-center pl-2">
                 <a
-                  href={userData?.linkedin || "https://in.linkedin.com/"}
+                  href={profileData?.linkedin || "https://in.linkedin.com/"}
                   className="hover:text-blue-400"
                 >
                   <img src="/linkedin.svg" alt="LinkedIn" className="w-6 h-6" />
                 </a>
                 <a
                   href={
-                    `https://mail.google.com/mail/?view=cm&fs=1&to=${userData?.email}&su=Hello%20there&body=Hi%20there,%20I%20wanted%20to%20reach%20out%20about%20...` ||
+                    `https://mail.google.com/mail/?view=cm&fs=1&to=${profileData?.email}&su=Hello%20there&body=Hi%20there,%20I%20wanted%20to%20reach%20out%20about%20...` ||
                     "#"
                   }
                   className="hover:text-blue-400"
@@ -168,17 +220,14 @@ function Profile() {
                   <img src="/gmail.svg" alt="Email" className="w-6 h-6" />
                 </a>
                 <a
-                  href={userData?.twitter || "https://x.com/home?lang=en"}
+                  href={profileData?.twitter || "https://x.com/home?lang=en"}
                   className="hover:text-blue-400"
                 >
                   <img src="/twitter.svg" alt="Twitter" className="w-6 h-6" />
                 </a>
               </div>
             </div>
-
-            <button className="w-full md:w-[30%] h-fit px-6 py-2 bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0">
-              Edit Profile
-            </button>
+            {renderEditProfile()}
           </div>
         </div>
 
@@ -190,13 +239,13 @@ function Profile() {
                 <div>
                   <label className="text-gray-400 text-sm">Education</label>
                   <p className="font-medium">
-                    {userData?.education || "Not Specified"}
+                    {profileData?.education || "Not Specified"}
                   </p>
                 </div>
                 <div>
                   <label className="text-gray-400 text-sm">Location</label>
                   <p className="font-medium">
-                    {userData?.location || "Not Specified"}
+                    {profileData?.location || "Not Specified"}
                   </p>
                 </div>
               </div>
@@ -206,7 +255,7 @@ function Profile() {
                   Current Position
                 </label>
                 <p className="font-medium">
-                  {userData?.position || "not specified"}
+                  {profileData?.position || "not specified"}
                 </p>
               </div>
             </div>
@@ -215,7 +264,7 @@ function Profile() {
               <h2 className="text-xl font-semibold text-gray-100">About</h2>
               <div className="overflow-auto scrollbar-hide p-2">
                 <p className="text-gray-400 max-h-[40vh] leading-relaxed">
-                  {userData?.about ||
+                  {profileData?.about ||
                     "User has not provided any information about themselves"}
                 </p>
               </div>
