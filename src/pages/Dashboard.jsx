@@ -123,8 +123,9 @@ function Dashboard() {
               onClick={() => navigate("/profile/" + userData.uid)}
             >
               <img
-                src={userData?.avatar || "/avatar.png"}
+                src={userData?.avatarUrl || "/avatar.png"}
                 alt="profile image"
+                className="object-cover w-full h-full rounded-full"
               />
             </div>
           </div>

@@ -28,6 +28,7 @@ function NewPost({ user }) {
       createdBy: user.uid,
       createdAt: new Date().toISOString(),
       owner: user.name,
+      ownerAvatarUrl: user.avatarUrl,
     };
 
     try {
