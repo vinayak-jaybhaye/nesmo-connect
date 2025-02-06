@@ -25,7 +25,8 @@ class DB {
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
-                return docSnap.data();
+                const profile = docSnap.data();
+                return profile;
             } else {
                 console.log("No such document!");
                 return null;
@@ -95,6 +96,7 @@ class DB {
     async getAllPosts(userId = null) {
         try {
             const postsCollection = collection(this.db, "posts");
+            console.log('getAllPosts');
             
             // If userId is provided, filter posts by "createdBy"
             const queryRef = userId 
@@ -118,6 +120,7 @@ class DB {
         try {
             // Fetch user document
             const userDoc = await this.getDocument("users", userId);
+            console.log('getMyPosts');
             
             // Get post references
             const postRefs = userDoc?.posts || [];

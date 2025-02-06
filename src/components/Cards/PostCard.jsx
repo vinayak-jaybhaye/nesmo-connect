@@ -24,13 +24,13 @@ function PostCard({ post }) {
   };
 
   return (
-    <div className="w-full flex-1 bg-gray-800 p-4 rounded-lg shadow-lg transition-all transform hover:scale-105 hover:shadow-xl">
+    <div className="w-full flex-1 bg-gray-800 p-4 rounded-lg shadow-lg transition-all transform hover:scale-[1.01] hover:shadow-xl">
       <div className="bg-gray-900 p-4 rounded-lg shadow space-y-4 h-full">
         <div className="p-4 border-b border-gray-700">
           <div className="flex justify-between space-x-3 mb-3">
             <div className="flex items-center space-x-3 mb-3">
               <div
-                className="h-12 w-12 rounded-full overflow-hidden bg-gray-600"
+                className="h-12 w-12 rounded-full overflow-hidden bg-gray-600 cursor-pointer"
                 onClick={() => navigate(`/profile/${post.createdBy?.id}`)}
               >
                 <img

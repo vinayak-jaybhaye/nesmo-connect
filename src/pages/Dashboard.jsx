@@ -14,11 +14,13 @@ function Dashboard() {
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.auth.userData);
 
-  const selectPost = useSelector((state) => state.vars.selectPost || "allPosts");
+  const selectPost = useSelector(
+    (state) => state.vars.selectPost || "allPosts"
+  );
 
   const onSelectionChange = (e) => {
     dispatch(setVars({ selectPost: e.target.value }));
-  }
+  };
 
   useEffect(() => {
     const unsubscribe = userAuth.auth.onAuthStateChanged(
@@ -29,26 +31,9 @@ function Dashboard() {
               "users",
               firebaseUser.uid
             );
-            const {
-              avatarFileId,
-              coverFileId,
-              avatarUrl,
-              coverUrl,
-              email,
-              name,
-              userRole,
-            } = user;
-            const userData = {
-              uid: firebaseUser.uid,
-              avatarFileId,
-              coverFileId,
-              avatarUrl,
-              coverUrl,
-              email,
-              name,
-              userRole,
-            };
-            dispatch(login({ userData: userData }));
+            delete user.posts;
+            user.uid = firebaseUser.uid;
+            dispatch(login({ userData: user }));
           } catch (error) {
             console.error("Error fetching user data:", error);
             navigate("/login");
@@ -135,7 +120,7 @@ function Dashboard() {
             </button>
             <div
               className="h-8 w-8 rounded-full ring-2 ring-gray-600 cursor-pointer"
-              onClick={() => navigate('/profile/' + userData.uid)}
+              onClick={() => navigate("/profile/" + userData.uid)}
             >
               <img
                 src={userData?.avatar || "/avatar.png"}
@@ -151,6 +136,28 @@ function Dashboard() {
           <div className="w-[60%] space-y-4">
             {/* Create Post */}
             <div className="flex justify-start gap-2 items-center mt-3 w-[70%]">
+              {/* All Posts Option */}
+              <div
+                className={`cursor-pointer flex justify-evenly items-center ${
+                  selectPost === "allPosts" ? "bg-gray-500" : "bg-gray-700"
+                } py-1 px-2 rounded-3xl transition-colors text-sm text-white`}
+              >
+                <input
+                  type="radio"
+                  name="selectPost"
+                  className="hidden peer"
+                  id="allPosts"
+                  value="allPosts"
+                  onChange={(e) => onSelectionChange(e)}
+                  checked={selectPost === "allPosts"}
+                />
+                <label
+                  htmlFor="allPosts"
+                  className="cursor-pointer text-center w-full"
+                >
+                  All Posts
+                </label>
+              </div>
               {/* My Posts Option */}
               <div
                 className={`cursor-pointer flex justify-evenly items-center ${
@@ -173,36 +180,13 @@ function Dashboard() {
                   My Posts
                 </label>
               </div>
-
-              {/* All Posts Option */}
-              <div
-                className={`cursor-pointer flex justify-evenly items-center ${
-                  selectPost === "allPosts" ? "bg-gray-500" : "bg-gray-700"
-                } py-1 px-2 rounded-3xl transition-colors text-sm text-white`}
-              >
-                <input
-                  type="radio"
-                  name="selectPost"
-                  className="hidden peer"
-                  id="allPosts"
-                  value="allPosts"
-                  onChange={(e) =>onSelectionChange(e)}
-                  checked={selectPost === "allPosts"}
-                />
-                <label
-                  htmlFor="allPosts"
-                  className="cursor-pointer text-center w-full"
-                >
-                  All Posts
-                </label>
-              </div>
             </div>
 
             {/* add new post */}
             <NewPost user={userData} />
 
             {/* Posts */}
-            <AllPosts  userId={userData.uid} />
+            <AllPosts userId={userData.uid} />
           </div>
 
           {/* Right Column - Chats */}

@@ -7,4 +7,6 @@ import PostCard from "./Cards/PostCard"
 import NewPost from './Cards/NewPost'
 import AllPosts from "./AllPosts";
 
-export { Loader, ErrorAlert, LeftSide,SuccessAlert, PostCard, NewPost, AllPosts };
+import UserList from "./Cards/UserList";
+
+export { Loader, ErrorAlert, LeftSide,SuccessAlert, PostCard, NewPost, AllPosts, UserList };

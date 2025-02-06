@@ -8,20 +8,21 @@ function AllPosts({ userId }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const selectPost = useSelector((state) => state.vars.selectPost || "myPosts");
-  console.log(selectPost);
+  const selectPost = useSelector((state) => state.vars.selectPost) || "allPosts";
 
   useEffect(() => {
     const fetchPosts = async () => {
       setLoading(true);
       setError(null);
       try {
-        if (selectPost === "myPosts") {
+        if (selectPost === "allPosts") {
           // const posts = await dbServices.getAllPosts(userId);
-          const posts = await dbServices.getMyPosts(userId);
-          setPosts(posts);
-        } else {
           const posts = await dbServices.getAllPosts();
+          console.log(posts);
+          setPosts(posts);
+        } else if (selectPost === "myPosts") {
+          const posts = await dbServices.getMyPosts(userId);
+          console.log(posts);
           setPosts(posts);
         }
       } catch (error) {

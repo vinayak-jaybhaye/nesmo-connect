@@ -13,7 +13,10 @@ import {
   ForgotPassword,
   VerfiyEmail,
   Profile,
+  EditProfile
 } from "./pages";
+
+import { UserList } from "./components";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -23,9 +26,11 @@ const router = createBrowserRouter(
       <Route path="login" element={<Login />} />
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="profile" element={<Profile />} />
+      <Route path = 'edit-profile/:profileId' element = {<EditProfile />} />
       <Route path="profile/:profileId" element={<Profile />} />
       <Route path="forgot-password" element={<ForgotPassword />} />
       <Route path="verify-email" element={<VerfiyEmail />} />
+      <Route path= 'all-users' element = {<UserList />} />
     </>
   )
 );

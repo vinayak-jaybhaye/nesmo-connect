@@ -16,8 +16,6 @@ function Profile() {
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.auth.userData);
 
-  const [image, setImage] = useState(null);
-
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
@@ -45,28 +43,10 @@ function Profile() {
               "users",
               firebaseUser.uid
             );
+            delete user.posts;
+            user.uid = firebaseUser.uid;
 
-            const {
-              avatarFileId,
-              coverFileId,
-              avatarUrl,
-              coverUrl,
-              email,
-              name,
-              userRole,
-            } = user;
-            const userData = {
-              uid: firebaseUser.uid,
-              avatarFileId,
-              coverFileId,
-              avatarUrl,
-              coverUrl,
-              email,
-              name,
-              userRole,
-            };
-            // console.log(userData)
-            dispatch(login({ userData: userData }));
+            dispatch(login({ userData: user }));
           } catch (error) {
             console.error("Error fetching user data:", error);
             navigate("/login");
@@ -89,6 +69,14 @@ function Profile() {
     }
   };
 
+  const handleEditProfile = () => {
+        
+  };
+
+  const handleConnect = () => {};
+  
+
+  //edit profile image and cover
   const renderEditButton = useCallback(
     (img) => {
       return amIOwner ? (
@@ -103,15 +91,27 @@ function Profile() {
     [amIOwner]
   );
 
+  //edit profile
   const renderEditProfile = useCallback(() => {
     return amIOwner ? (
       <button
         className="w-full md:w-[30%] h-fit px-6 py-2 bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0"
-        onClick={handleEditProfile}
+        onClick={() => navigate(`/edit-profile/${userData.uid}`)}
       >
         Edit Profile
       </button>
-    ) : null;
+    ) : null; 
+  }, [amIOwner]);
+
+  const renderConnectButton = useCallback(() => {
+    return amIOwner ? null : (
+      <button
+        className="w-full md:w-[30%] h-fit px-6 py-2 bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0"
+        onClick={handleConnect}
+      >
+        Connect
+      </button>
+    )
   }, [amIOwner]);
 
   if (!userData) {
@@ -159,7 +159,6 @@ function Profile() {
     input.click();
   };
 
-  const handleEditProfile = () => {};
 
   return (
     <div className="flex flex-col lg:h-screen md:h-auto bg-black overflow-auto scrollbar-hide">
@@ -198,9 +197,9 @@ function Profile() {
                 <span className="px-4 py-1 bg-blue-900 text-gray-100 rounded-full">
                   {profileData?.userRole || "User"}
                 </span>
-                <button className="px-4 py-1 bg-blue-600 text-gray-100 rounded-full hover:bg-blue-500 transition">
-                  Connect+
-                </button>
+                {
+                  renderConnectButton()
+                }
               </div>
 
               <div className="flex gap-5 text-gray-400 justify-center md:justify-start items-center pl-2">

@@ -5,5 +5,6 @@ import Dashboard from './Dashboard'
 import Profile from './Profile'
 import ForgotPassword from './ForgetPassword'
 import VerfiyEmail from './VerifyEmail'
+import EditProfile from './EditProfile'
 
-export {Login, Register, Dashboard, Profile, ForgotPassword, VerfiyEmail}
+export {Login, Register, Dashboard, Profile, ForgotPassword, VerfiyEmail, EditProfile}

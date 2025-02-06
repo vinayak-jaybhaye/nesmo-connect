@@ -24,29 +24,14 @@ function Register() {
       if (user) {
         try {
           const userData = await dbServices.getDocument("users", user.uid);
-          const {
-            avatarFileId,
-            coverFileId,
-            avatarUrl,
-            coverUrl,
-            email,
-            name,
-            userRole,
-          } = userData;
-          const updatedUserData = {
-            uid: user.uid,
-            avatarFileId,
-            coverFileId,
-            avatarUrl,
-            coverUrl,
-            email,
-            name,
-            userRole,
-          };
+          console.log(userData);
+          delete userData.posts;
+          userData.uid = user.uid;
+
 
           dispatch(
             login({
-              userData: updatedUserData,
+              userData: userData,
             })
           );
           navigate("/dashboard");
