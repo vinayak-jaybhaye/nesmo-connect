@@ -4,7 +4,14 @@ import { useSelector, useDispatch } from "react-redux";
 import userAuth from "../firebase/firebaseAuth";
 import dbServices from "../firebase/firebaseDb";
 import { login, logout } from "../store/authSlice";
-import { AllPosts, Loader, Notifications } from "../components";
+import {
+  AllPosts,
+  Loader,
+  Notifications,
+  Connections,
+  UserList,
+  Chats,
+} from "../components";
 import { setVars } from "../store/varSlice";
 
 import { NewPost } from "../components";
@@ -79,7 +86,10 @@ function Dashboard() {
           <div className="p-2 hover:bg-gray-700 rounded cursor-pointer">
             Fundraiser
           </div>
-          <div className="p-2 hover:bg-gray-700 rounded cursor-pointer">
+          <div
+            className="p-2 hover:bg-gray-700 rounded cursor-pointer"
+            onClick={() => navigate("/all-users")}
+          >
             Alumni Listing
           </div>
           <div className="p-2 hover:bg-gray-700 rounded cursor-pointer">
@@ -103,10 +113,18 @@ function Dashboard() {
             >
               Logout
             </div>
-            <button className="p-2 hover:bg-gray-700 rounded-full size-12"
-               onClick={() => setShowNotifications(!showNotifications)}
+            <button
+              className="p-2 hover:bg-gray-700 rounded-full size-12"
+              onClick={() => setShowNotifications(!showNotifications)}
             >
-              <img src= {userData.notifications?.length > 0 ? 'notification-active.svg' : 'notification.svg'} alt="" />
+              <img
+                src={
+                  userData.notifications?.length > 0
+                    ? "notification-active.svg"
+                    : "notification.svg"
+                }
+                alt=""
+              />
             </button>
             <div
               className="h-8 w-8 rounded-full ring-2 ring-gray-600 cursor-pointer"
@@ -181,18 +199,28 @@ function Dashboard() {
           </div>
 
           {/* Right Column - Chats */}
-          <div className="w-[35%] bg-gray-800 rounded-lg shadow p-4">
-            {
-              showNotifications && <Notifications notifications={userData.notifications} userId = {userData.uid} />
-            }
-            <div className="font-semibold mb-4">My Chats</div>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">
-                <div className="h-8 w-8 rounded-full bg-green-500"></div>
-                <div>
-                  <div className="font-medium text-gray-100">Jane Smith</div>
-                  <div className="text-sm text-gray-400">Hey, how are you?</div>
-                </div>
+          <div className="w-[35%] bg-gray-800 rounded-lg shadow p-4 flex flex-col gap-4">
+            {showNotifications && (
+              <div className="bg-gray-900 h-auto max-h-[50vh] overflow-scroll scrollbar-hide rounded-lg p-4">
+                <Notifications
+                  notifications={userData.notifications}
+                  userData={userData}
+                />
+              </div>
+            )}
+
+            <div className="min-h-[20%] max-h-[50%] p-4 rounded-lg flex flex-col overflow-scroll scrollbar-hide bg-gray-900 gap-4">
+                <div className="font-bold text-sm px-4">Your Chats</div>
+                <Chats />
+            </div>
+
+            <div className="max-h-[40vh] overflow-scroll scrollbar-hide">
+              <Connections />
+            </div>
+            <div className="flex flex-col gap-4 bg-gray-900 rounded-lg p-4 max-h-[50vh] overflow-scroll scrollbar-hide">
+            
+              <div className="bg-gray-900 p-1 rounded-lg">
+                <UserList />
               </div>
             </div>
           </div>

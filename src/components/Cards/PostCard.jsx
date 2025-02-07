@@ -161,17 +161,17 @@ function PostCard({ post }) {
 
   return (
     <div
-      className={`w-full flex-1 bg-gray-800 p-4 rounded-lg shadow-lg transition-all transform hover:scale-[1.01] hover:shadow-xl ${
+      className={`w-full flex-1 bg-gray-800 p-4 rounded-xl shadow-lg shadow-black/40 border border-gray-700 transition-all transform hover:scale-[1.01] hover:shadow-xl hover:border-gray-600 ${
         deleted ? "hidden" : ""
       }`}
       onClick={() => (showMenu ? setShowMenu(false) : null)}
     >
-      <div className="bg-gray-900 p-4 rounded-lg shadow space-y-4 h-full">
-        <div className="p-4 border-b border-gray-700">
+      <div className="bg-gray-900/80 p-4 rounded-xl shadow-inner space-y-4 h-full backdrop-blur-sm">
+        <div className="p-4 border-b border-gray-700/50">
           <div className="flex justify-between space-x-3 mb-3">
             <div className="flex items-center space-x-3 mb-3">
               <div
-                className="h-12 w-12 rounded-full overflow-hidden bg-gray-600 cursor-pointer"
+                className="h-12 w-12 rounded-full overflow-hidden bg-gray-600/80 cursor-pointer ring-2 ring-gray-600 hover:ring-green-500 transition-all"
                 onClick={() => navigate(`/profile/${post.createdBy?.id}`)}
               >
                 <img
@@ -181,45 +181,72 @@ function PostCard({ post }) {
                 />
               </div>
               <div className="flex flex-col">
-                <div className="font-semibold text-gray-100 text-lg">
+                <div className="font-semibold text-gray-100 text-lg hover:text-green-400 transition-colors cursor-pointer">
                   {owner || "Anonymous"}
                 </div>
-                <div className="text-sm text-gray-400">{formattedDate}</div>
+                <div className="text-sm text-gray-400/90">{formattedDate}</div>
               </div>
             </div>
             <div className="flex items-center space-x-3 p-2 w-[30%] justify-around">
               <div
-                className="h-10 w-10 cursor-pointer p-2 hover:size-11 rounded-xl flex items-center justify-around gap-2 "
+                className="h-10 w-10 cursor-pointer p-2 hover:bg-gray-700/50 rounded-xl flex items-center justify-around gap-2 transition-all duration-200 group"
                 onClick={handleLike}
               >
                 <img
                   src={likedStatus === "liked" ? "liked.svg" : "like.svg"}
-                  alt=""
+                  className={`w-6 h-6 transition-all ${
+                    likedStatus === "liked" 
+                      ? "text-green-500" 
+                      : "text-gray-400 group-hover:text-green-400"
+                  }`}
+                  alt="Like"
                 />
-                <span className="text-gray-400">{likes || 0}</span>
+                <span className={`text-sm ${
+                  likedStatus === "liked" ? "text-green-500" : "text-gray-400"
+                }`}>
+                  {likes || 0}
+                </span>
               </div>
+
               <div
-                className="h-10 w-10 cursor-pointer p-2 hover:size-11 rounded-xl flex items-center justify-around gap-2"
+                className="h-10 w-10 cursor-pointer p-2 hover:bg-gray-700/50 rounded-xl flex items-center justify-around gap-2 transition-all duration-200 group"
                 onClick={handleDislike}
               >
                 <img
                   src={
                     likedStatus === "disliked" ? "disliked.svg" : "dislike.svg"
                   }
-                  alt=""
+                  className={`w-6 h-6 transition-all ${
+                    likedStatus === "disliked" 
+                      ? "text-red-500" 
+                      : "text-gray-400 group-hover:text-red-400"
+                  }`}
+                  alt="Dislike"
                 />
-                <span className="text-gray-400">{dislikes || 0}</span>
+                <span className={`text-sm ${
+                  likedStatus === "disliked" ? "text-red-500" : "text-gray-400"
+                }`}>
+                  {dislikes || 0}
+                </span>
               </div>
-              <div
-                className="h-10 w-10 cursor-pointer p-2 hover:bg-gray-700 rounded-xl "
-                onClick={() => setShowMenu((prev) => !prev)}
-              >
-                <img src="menu.svg" />
+
+              <div className="relative">
+                <div
+                  className="h-10 w-10 cursor-pointer p-2 hover:bg-gray-700/50 rounded-xl transition-all duration-200 flex items-center justify-center"
+                  onClick={() => setShowMenu((prev) => !prev)}
+                >
+                  <img 
+                    src="menu.svg" 
+                    className="w-6 h-6 text-gray-400 hover:text-gray-200" 
+                    alt="Menu"
+                  />
+                </div>
+
                 {showMenu && (
-                  <div className="absolute top-0  right-0 z-10 w-fit flex flex-col justify-center gap-2 p-2 bg-blue-700 size-auto  rounded-lg shadow-lg">
+                  <div className="absolute top-12 right-0 z-20 w-40 bg-gray-800 border border-gray-700 rounded-xl shadow-xl p-2 space-y-2 backdrop-blur-sm">
                     {post.createdBy.id === userData?.uid && (
                       <div
-                        className="cursor-pointer hover:bg-gray-700 rounded-xl flex items-center gap-1 justify-around text-sm"
+                        className="cursor-pointer hover:bg-gray-700/50 rounded-lg p-2 flex items-center gap-2 text-sm text-red-400 hover:text-red-300 transition-colors"
                         onClick={handleDeletePost}
                       >
                         <img src="delete.svg" className="h-5 w-5" />
@@ -227,14 +254,14 @@ function PostCard({ post }) {
                       </div>
                     )}
                     <div
-                      className="cursor-pointer hover:bg-gray-700 rounded-xl flex items-center gap-1 justify-around text-sm"
+                      className="cursor-pointer hover:bg-gray-700/50 rounded-lg p-2 flex items-center gap-2 text-sm text-gray-300 hover:text-gray-100 transition-colors"
                       onClick={handleSharePost}
                     >
                       <img src="share.svg" className="h-5 w-5" />
                       <span>Share</span>
                     </div>
                     <div
-                      className="cursor-pointer hover:bg-gray-700 rounded-xl flex items-center gap-1 justify-around text-sm"
+                      className="cursor-pointer hover:bg-gray-700/50 rounded-lg p-2 flex items-center gap-2 text-sm text-gray-300 hover:text-gray-100 transition-colors"
                       onClick={handleSavePost}
                     >
                       <img
@@ -248,19 +275,30 @@ function PostCard({ post }) {
               </div>
             </div>
           </div>
-          <div className="relative">
+
+          <div className="relative group">
             {imageUrl && (
-              <img
-                src={imageUrl}
-                alt="Post Image"
-                className="rounded-lg object-cover w-full h-64 mb-4"
-              />
+              <div className="rounded-xl overflow-hidden ring-1 ring-gray-700 transition-all hover:ring-gray-600">
+                <img
+                  src={imageUrl}
+                  alt="Post Image"
+                  className="rounded-lg object-cover w-full h-64 mb-4 transform transition-all hover:scale-105 duration-700"
+                />
+              </div>
             )}
           </div>
-          <p className="text-gray-300 text-base">{content}</p>
+          
+          <p className="text-gray-300/90 text-base leading-relaxed transition-colors hover:text-gray-200">
+            {content}
+          </p>
         </div>
-        <div className="text-white text-sm size-auto rounded-lg">
-          {likedBy && renderLikedBy()}
+
+        <div className="text-gray-400 text-sm rounded-lg transition-colors hover:text-gray-300">
+          {likedBy && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {renderLikedBy()}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -9,5 +9,7 @@ import AllPosts from "./AllPosts";
 
 import UserList from "./Cards/UserList";
 import Notifications from "./Cards/Notifications";
+import Connections from "./Cards/Connections";
+import Chats from "./Cards/Chats";
 
-export { Loader, ErrorAlert, LeftSide,SuccessAlert, PostCard, NewPost, AllPosts, UserList, Notifications };
+export { Loader, ErrorAlert, LeftSide,SuccessAlert, PostCard, NewPost, AllPosts, UserList, Notifications, Connections, Chats };

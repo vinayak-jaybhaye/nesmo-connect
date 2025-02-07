@@ -69,12 +69,10 @@ function Profile() {
     }
   };
 
-  const handleEditProfile = () => {};
-
-  const handleConnect = async () => {
+  const handleConnect = async (profData) => {
     // Send connection request
-        const req = await dbServices.sendConnectionRequest(userData, profileId);
-
+    profData.uid = profileId;
+    await dbServices.sendConnectionRequest(userData, profData);
   };
 
   //edit profile image and cover
@@ -105,17 +103,30 @@ function Profile() {
   }, [amIOwner]);
 
   const renderConnectButton = useCallback(() => {
-    const alreadyConnected = userData?.connections?.includes(profileId);
+    const alreadyConnected = userData?.connections?.some(
+      (connection) => connection.other === profileId
+    );
+    const connectionRequestSent = userData?.connectionRequests?.some(
+      (connectionReq) => connectionReq.other === profileId && connectionReq.type === "sent"
+    );
     return amIOwner ? null : (
       <button
         className="w-fit md:w-[30%] h-fit  py-2 bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0"
-        onClick={handleConnect}
-        {...(alreadyConnected ? { disabled: true } : {})}
-      > 
-        {alreadyConnected ? "Connected" : "Connect"}
+        onClick={() => {
+          handleConnect(profileData);
+        }}
+        {...(alreadyConnected || connectionRequestSent
+          ? { disabled: true }
+          : {})}
+      >
+        {alreadyConnected
+          ? "Connected"
+          : connectionRequestSent
+          ? "Request Sent"
+          : "Connect"}
       </button>
     );
-  }, [amIOwner]);
+  }, [amIOwner, profileData]);
 
   if (!userData) {
     return <Loader />;

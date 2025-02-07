@@ -247,11 +247,13 @@ class DB {
         }
     }
 
-    async sendConnectionRequest(senderData, receiverId) {
+    async sendConnectionRequest(senderData, recieverData) {
         try {
             const senderId = senderData.uid;
+            const receiverId = recieverData.uid;
             const senderRef = doc(this.db, "users", senderId);
             const receiverRef = doc(this.db, "users", receiverId);
+            console.log(receiverId)
 
             // Prevent duplicate requests
             if (senderData.connectionRequests?.some(req => req.other === receiverId)) {
@@ -261,17 +263,19 @@ class DB {
 
             // Add to both users' connectionRequests array
             await updateDoc(senderRef, {
-                connectionRequests: arrayUnion({ type: "sent", other: receiverId })
+                connectionRequests: arrayUnion({ type: "sent", other: receiverId, otherName: recieverData.name, otherAvatar: recieverData.avatarUrl })
             });
 
             await updateDoc(receiverRef, {
-                connectionRequests: arrayUnion({ type: "received", other: senderId })
+                connectionRequests: arrayUnion({ type: "received", other: senderId, otherName: senderData.name, otherAvatar: senderData.avatarUrl })
             });
 
             await updateDoc(receiverRef, {
                 notifications: arrayUnion({
                     id: Date.now().toString(36) + Math.random().toString(36).substring(2),
                     type: "connectionRequest",
+                    otherName: senderData.name,
+                    otherAvatar: senderData.avatarUrl,
                     other: senderId,
                     content: `${senderData.name} wants to Connect!`
                 })
@@ -299,14 +303,16 @@ class DB {
         }
     }
 
-    async handleConnectionRequest(status, senderId, receiverId) {
+    async handleConnectionRequest(status, notification, userData) {
         try {
+            const senderId = notification.other;
+            const receiverId = userData.uid;
             const senderRef = doc(this.db, "users", senderId);
             const receiverRef = doc(this.db, "users", receiverId);
 
-            
-            const Request1 = { type: "sent", other: receiverId };  // Request in sender's connectionRequests
-            const Request2 = { type: "received", other: senderId }; // Request in receiver's connectionRequests
+
+            const Request1 = { type: "sent", other: receiverId, otherName: userData.name, otherAvatar: userData.avatarUrl };  // Request in sender's connectionRequests
+            const Request2 = { type: "received", other: senderId, otherName: notification.otherName, otherAvatar: notification.otherAvatar }; // Request in receiver's connectionRequests
 
             // Batch update to minimize Firestore calls
             const batch = writeBatch(this.db);
@@ -321,13 +327,15 @@ class DB {
                 connectionRequests: arrayRemove(Request2)
             });
 
+            delete Request1.type
+            delete Request2.type
             // If Status is "accepted", add to both users' connections
             if (status === "accepted") {
                 batch.update(senderRef, {
-                    connections: arrayUnion(receiverId)
+                    connections: arrayUnion(Request1)
                 });
                 batch.update(receiverRef, {
-                    connections: arrayUnion(senderId)
+                    connections: arrayUnion(Request2)
                 });
             }
             // Commit batch update
