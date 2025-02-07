@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 import appwriteStorage from "../../appwrite/appwriteStorage";
 import dbServices from "../../firebase/firebaseDb";
 
+import { toast } from "react-toastify";
+
 function PostCard({ post }) {
   const { content, owner, createdAt, imageUrl } = post;
   const navigate = useNavigate();
@@ -18,6 +20,7 @@ function PostCard({ post }) {
     likes: 0,
     dislikes: 0,
   });
+  const [isPostSaved, setIsPostSaved] = useState(false);
 
   const [likedBy, setLikedBy] = useState([]);
 
@@ -39,6 +42,7 @@ function PostCard({ post }) {
         setLikesAndDislikes({ likes, dislikes });
         setLikedStatus(status);
         setLikedBy(likedUsers);
+        setIsPostSaved(userData.savedPosts.includes(post.id));
       }
     };
 
@@ -101,9 +105,8 @@ function PostCard({ post }) {
       posts: newUserPosts,
     });
 
-    console.log("Deleting Post");
-    console.log(post);
     setDeleted(true);
+    toast.success("Post Deleted Successfully!");
   };
 
   const renderLikedBy = () => {
@@ -129,6 +132,31 @@ function PostCard({ post }) {
         liked this post
       </div>
     );
+  };
+
+  const handleSavePost = async () => {
+    const user = await dbServices.getDocument("users", userData.uid);
+    if (!user.savedPosts) {
+      user.savedPosts = [];
+    }
+    const newUserSavedPosts = user.savedPosts.includes(post.id)
+      ? user.savedPosts.filter((postId) => postId !== post.id)
+      : [...user.savedPosts, post.id];
+    await dbServices.updateDocument("users", userData.uid, {
+      savedPosts: newUserSavedPosts,
+    });
+    if(newUserSavedPosts.includes(post.id)) {
+      toast.success("Post Saved Successfully!");
+      setIsPostSaved(true);
+    }else{
+      toast.success("Post removed from saved posts!");
+      setIsPostSaved(false);
+    }
+  };
+
+  const handleSharePost = () => {
+    navigator.clipboard.writeText(window.location.origin + "/post/" + post.id);
+    toast.success("Post link copied to clipboard!");
   };
 
   return (
@@ -191,16 +219,29 @@ function PostCard({ post }) {
                   <div className="absolute top-0  right-0 z-10 w-fit flex flex-col justify-center gap-2 p-2 bg-blue-700 size-auto  rounded-lg shadow-lg">
                     {post.createdBy.id === userData?.uid && (
                       <div
-                        className="cursor-pointer hover:bg-gray-700 rounded-xl flex items-center gap-1 justify-center text-sm"
+                        className="cursor-pointer hover:bg-gray-700 rounded-xl flex items-center gap-1 justify-around text-sm"
                         onClick={handleDeletePost}
                       >
                         <img src="delete.svg" className="h-5 w-5" />
                         <span>Delete</span>
                       </div>
                     )}
-                    <div className="cursor-pointer hover:bg-gray-700 rounded-xl flex items-center gap-1 justify-center text-sm">
+                    <div
+                      className="cursor-pointer hover:bg-gray-700 rounded-xl flex items-center gap-1 justify-around text-sm"
+                      onClick={handleSharePost}
+                    >
                       <img src="share.svg" className="h-5 w-5" />
                       <span>Share</span>
+                    </div>
+                    <div
+                      className="cursor-pointer hover:bg-gray-700 rounded-xl flex items-center gap-1 justify-around text-sm"
+                      onClick={handleSavePost}
+                    >
+                      <img
+                        src={isPostSaved ? "bookmarked.svg" : "bookmark.svg"}
+                        className="h-5 w-5"
+                      />
+                      <span>{isPostSaved ? "Saved" : "Save"}</span>
                     </div>
                   </div>
                 )}

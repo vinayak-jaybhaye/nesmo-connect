@@ -1,4 +1,8 @@
 import React from "react";
+
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import {
   createBrowserRouter,
   createRoutesFromElements,
@@ -38,6 +42,19 @@ const router = createBrowserRouter(
 function App() {
   return (
     <div className="text-xl bg-blue-600">
+      <ToastContainer
+  position="top-right"
+  autoClose={1000}
+  hideProgressBar={true}
+  newestOnTop={true}
+  closeOnClick
+  closeButton={false}
+  rtl={false}
+  pauseOnFocusLoss
+  draggable
+  theme="dark" 
+/>
+
       <RouterProvider router={router} />
     </div>
   );
