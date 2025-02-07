@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import userAuth from "../firebase/firebaseAuth";
 import dbServices from "../firebase/firebaseDb";
 import { login, logout } from "../store/authSlice";
-import { AllPosts, Loader } from "../components";
+import { AllPosts, Loader, Notifications } from "../components";
 import { setVars } from "../store/varSlice";
 
 import { NewPost } from "../components";
@@ -13,6 +13,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.auth.userData);
+  const [showNotifications, setShowNotifications] = React.useState(false);
 
   const selectPost = useSelector(
     (state) => state.vars.selectPost || "allPosts"
@@ -102,21 +103,10 @@ function Dashboard() {
             >
               Logout
             </div>
-            <button className="p-2 hover:bg-gray-700 rounded-full">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 text-gray-300"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                />
-              </svg>
+            <button className="p-2 hover:bg-gray-700 rounded-full size-12"
+               onClick={() => setShowNotifications(!showNotifications)}
+            >
+              <img src= {userData.notifications?.length > 0 ? 'notification-active.svg' : 'notification.svg'} alt="" />
             </button>
             <div
               className="h-8 w-8 rounded-full ring-2 ring-gray-600 cursor-pointer"
@@ -192,6 +182,9 @@ function Dashboard() {
 
           {/* Right Column - Chats */}
           <div className="w-[35%] bg-gray-800 rounded-lg shadow p-4">
+            {
+              showNotifications && <Notifications notifications={userData.notifications} userId = {userData.uid} />
+            }
             <div className="font-semibold mb-4">My Chats</div>
             <div className="space-y-3">
               <div className="flex items-center space-x-2 p-2 hover:bg-gray-700 rounded">

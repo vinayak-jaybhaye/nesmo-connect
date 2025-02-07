@@ -1,4 +1,4 @@
-import { getFirestore, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, collection, addDoc, query, where, orderBy } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, collection, addDoc, query, where, arrayUnion, arrayRemove, writeBatch } from "firebase/firestore";
 import app from './firebaseConfig.js';
 
 class DB {
@@ -244,6 +244,99 @@ class DB {
         } catch (error) {
             console.error("Error fetching liked users:", error);
             return [];
+        }
+    }
+
+    async sendConnectionRequest(senderData, receiverId) {
+        try {
+            const senderId = senderData.uid;
+            const senderRef = doc(this.db, "users", senderId);
+            const receiverRef = doc(this.db, "users", receiverId);
+
+            // Prevent duplicate requests
+            if (senderData.connectionRequests?.some(req => req.other === receiverId)) {
+                console.warn("Connection request already sent.");
+                return;
+            }
+
+            // Add to both users' connectionRequests array
+            await updateDoc(senderRef, {
+                connectionRequests: arrayUnion({ type: "sent", other: receiverId })
+            });
+
+            await updateDoc(receiverRef, {
+                connectionRequests: arrayUnion({ type: "received", other: senderId })
+            });
+
+            await updateDoc(receiverRef, {
+                notifications: arrayUnion({
+                    id: Date.now().toString(36) + Math.random().toString(36).substring(2),
+                    type: "connectionRequest",
+                    other: senderId,
+                    content: `${senderData.name} wants to Connect!`
+                })
+            });
+
+            console.log("Connection request sent successfully!");
+        } catch (error) {
+            console.error("Error sending connection request:", error);
+            throw error;
+        }
+    }
+
+    async deleteNotification(notification, userId) {
+        try {
+            const userRef = doc(this.db, "users", userId);
+
+            await updateDoc(userRef, {
+                notifications: arrayRemove(notification) // Directly remove the exact object
+            });
+
+            console.log("Notification deleted successfully!");
+        } catch (error) {
+            console.error("Error deleting notification:", error);
+            throw error;
+        }
+    }
+
+    async handleConnectionRequest(status, senderId, receiverId) {
+        try {
+            const senderRef = doc(this.db, "users", senderId);
+            const receiverRef = doc(this.db, "users", receiverId);
+
+            
+            const Request1 = { type: "sent", other: receiverId };  // Request in sender's connectionRequests
+            const Request2 = { type: "received", other: senderId }; // Request in receiver's connectionRequests
+
+            // Batch update to minimize Firestore calls
+            const batch = writeBatch(this.db);
+
+            // Remove connection request from sender's connectionRequests
+            batch.update(senderRef, {
+                connectionRequests: arrayRemove(Request1)
+            });
+
+            // Remove connection request from receiver's connectionRequests
+            batch.update(receiverRef, {
+                connectionRequests: arrayRemove(Request2)
+            });
+
+            // If Status is "accepted", add to both users' connections
+            if (status === "accepted") {
+                batch.update(senderRef, {
+                    connections: arrayUnion(receiverId)
+                });
+                batch.update(receiverRef, {
+                    connections: arrayUnion(senderId)
+                });
+            }
+            // Commit batch update
+            await batch.commit();
+
+            console.log("Connection request handled successfully!");
+        } catch (error) {
+            console.error("Error handling connection request:", error);
+            throw error;
         }
     }
 

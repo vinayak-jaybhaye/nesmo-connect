@@ -27,6 +27,7 @@ function EditProfile(profileId) {
       }
     }
     await dbServices.updateDocument("users", userData.uid, updatedProfile);
+    navigate(`/profile/${userData.uid}`);
   };
 
   return (
@@ -45,7 +46,7 @@ function EditProfile(profileId) {
             type="text"
             name="name"
             defaultValue={userData?.name || ""}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent  hover:scale-105 transition-all"
             placeholder="Your Name"
           />
         </div>
@@ -60,7 +61,7 @@ function EditProfile(profileId) {
               type="text"
               name="education"
               defaultValue={userData?.education || ""}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent  hover:scale-105 transition-all"
               placeholder="Degree & University"
             />
           </div>
@@ -73,7 +74,7 @@ function EditProfile(profileId) {
               type="text"
               name="position"
               defaultValue={userData?.position || ""}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent  hover:scale-105 transition-all"
               placeholder="Job title & Company"
             />
           </div>
@@ -89,7 +90,7 @@ function EditProfile(profileId) {
               type="text"
               name="location"
               defaultValue={userData?.location || ""}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent  hover:scale-105 transition-all"
               placeholder="City, Country"
             />
           </div>
@@ -102,7 +103,7 @@ function EditProfile(profileId) {
               type="text"
               name="batch"
               defaultValue={userData?.batch || ""}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:scale-105 transition-all"
               placeholder="Graduation year"
             />
           </div>
@@ -116,7 +117,7 @@ function EditProfile(profileId) {
           <textarea
             name="about"
             defaultValue={userData?.about || ""}
-            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-32"
+            className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent h-32 hover:scale-105 transition-all"
             placeholder="Tell us about yourself..."
           />
         </div>
@@ -139,7 +140,7 @@ function EditProfile(profileId) {
               type="url"
               name="linkedin"
               defaultValue={userData?.linkedin || ""}
-              className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:scale-105 transition-all"
               placeholder="LinkedIn URL"
             />
           </div>
@@ -158,7 +159,7 @@ function EditProfile(profileId) {
               type="email"
               name="secondaryEmail"
               defaultValue={userData?.secondaryEmail || ""}
-              className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:scale-105 transition-all"
               placeholder="Email address"
             />
           </div>
@@ -177,7 +178,7 @@ function EditProfile(profileId) {
               type="url"
               name="twitter"
               defaultValue={userData?.socials?.twitter || ""}
-              className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:scale-105 transition-all"
               placeholder="Twitter URL"
             />
           </div>
@@ -208,16 +209,16 @@ function EditProfile(profileId) {
         <div className="flex justify-end gap-4 pt-8 border-t border-gray-700">
           <button
             type="button"
-            className="px-6 py-2 border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors"
+            className="px-6 py-2 border border-gray-600 rounded-lg hover:bg-gray-700 hover:scale-105 transition-all"
             onClick={() => navigate(`/profile/${userData?.uid}`)}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-800 hover:scale-105 rounded-lg transition-all"
           >
-            Save Changes
+            Save & Exit
           </button>
         </div>
       </form>

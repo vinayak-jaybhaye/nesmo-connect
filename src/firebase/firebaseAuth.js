@@ -2,6 +2,7 @@ import { createUserWithEmailAndPassword, setPersistence, browserLocalPersistence
 import app from './firebaseConfig.js'
 import { getAuth } from "firebase/auth";
 import dbServices from './firebaseDb.js'
+import { connect } from "react-redux";
 
 
 
@@ -19,7 +20,7 @@ class Auth {
             const user = userCredential.user;
             console.log("User registered:", user.uid, user.email);
             console.log(user.id, user)
-            await dbServices.addDocument('users', user.uid, { email: user.email, name: name, userRole: userRole })
+            await dbServices.addDocument('users', user.uid, { email: user.email, name: name, userRole: userRole, notifications : [], posts: [], connections: [], connectionRequests: [] });
             return user;
         } catch (error) {
             console.error("Firebase Auth : register() ::", error.message);

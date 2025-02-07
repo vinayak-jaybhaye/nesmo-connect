@@ -8,5 +8,6 @@ import NewPost from './Cards/NewPost'
 import AllPosts from "./AllPosts";
 
 import UserList from "./Cards/UserList";
+import Notifications from "./Cards/Notifications";
 
-export { Loader, ErrorAlert, LeftSide,SuccessAlert, PostCard, NewPost, AllPosts, UserList };
+export { Loader, ErrorAlert, LeftSide,SuccessAlert, PostCard, NewPost, AllPosts, UserList, Notifications };

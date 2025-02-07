@@ -69,12 +69,13 @@ function Profile() {
     }
   };
 
-  const handleEditProfile = () => {
-        
-  };
+  const handleEditProfile = () => {};
 
-  const handleConnect = () => {};
-  
+  const handleConnect = async () => {
+    // Send connection request
+        const req = await dbServices.sendConnectionRequest(userData, profileId);
+
+  };
 
   //edit profile image and cover
   const renderEditButton = useCallback(
@@ -100,18 +101,20 @@ function Profile() {
       >
         Edit Profile
       </button>
-    ) : null; 
+    ) : null;
   }, [amIOwner]);
 
   const renderConnectButton = useCallback(() => {
+    const alreadyConnected = userData?.connections?.includes(profileId);
     return amIOwner ? null : (
       <button
-        className="w-full md:w-[30%] h-fit px-6 py-2 bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0"
+        className="w-fit md:w-[30%] h-fit  py-2 bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0"
         onClick={handleConnect}
-      >
-        Connect
+        {...(alreadyConnected ? { disabled: true } : {})}
+      > 
+        {alreadyConnected ? "Connected" : "Connect"}
       </button>
-    )
+    );
   }, [amIOwner]);
 
   if (!userData) {
@@ -159,7 +162,6 @@ function Profile() {
     input.click();
   };
 
-
   return (
     <div className="flex flex-col lg:h-screen md:h-auto bg-black overflow-auto scrollbar-hide">
       {/* Banner Section */}
@@ -170,6 +172,12 @@ function Profile() {
           alt="Banner"
         />
         <>{renderEditButton("cover")}</>
+        <div
+          onClick={() => navigate("/")}
+          className="absolute cursor-pointer bg-blue-500 rounded-lg px-2 late-600 m-5  hover:scale-105 hover:opacity-90 transition-all opacity-50"
+        >
+          Dashboard
+        </div>
       </div>
 
       {/* Profile Content */}
@@ -197,9 +205,7 @@ function Profile() {
                 <span className="px-4 py-1 bg-blue-900 text-gray-100 rounded-full">
                   {profileData?.userRole || "User"}
                 </span>
-                {
-                  renderConnectButton()
-                }
+                {renderConnectButton()}
               </div>
 
               <div className="flex gap-5 text-gray-400 justify-center md:justify-start items-center pl-2">
@@ -226,7 +232,15 @@ function Profile() {
                 </a>
               </div>
             </div>
-            {renderEditProfile()}
+            <div className=" flex flex-col size-full items-end p-2">
+              {renderEditProfile()}
+              <div
+                onClick={() => navigate("/")}
+                className="cursor-pointer size-fit bg-blue-300 rounded-lg px-2 y-1 late-600 m-5  hover:scale-105 transition-all"
+              >
+                To Dashboard
+              </div>
+            </div>
           </div>
         </div>
 
