@@ -96,20 +96,19 @@ class DB {
     async getAllPosts(userId = null) {
         try {
             const postsCollection = collection(this.db, "posts");
-            console.log('getAllPosts');
-            
+
             // If userId is provided, filter posts by "createdBy"
-            const queryRef = userId 
-                ? query(postsCollection, where("createdBy", "==", userId)) 
+            const queryRef = userId
+                ? query(postsCollection, where("createdBy", "==", userId))
                 : postsCollection;
-    
+
             const querySnapshot = await getDocs(queryRef);
-    
+
             return querySnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
-            
+
         } catch (error) {
             console.error("Error fetching posts:", error);
             return [];
@@ -120,11 +119,10 @@ class DB {
         try {
             // Fetch user document
             const userDoc = await this.getDocument("users", userId);
-            console.log('getMyPosts');
-            
+
             // Get post references
             const postRefs = userDoc?.posts || [];
-    
+
             // Fetch all posts using their references
             const posts = await Promise.all(
                 postRefs.map(async (postRef) => {
@@ -132,7 +130,7 @@ class DB {
                     return postSnap.exists() ? { id: postSnap.id, ...postSnap.data() } : null;
                 })
             );
-    
+
             // Remove any null values (in case some posts were deleted)
             return posts.filter(post => post !== null);
         } catch (error) {
@@ -140,6 +138,115 @@ class DB {
             return [];
         }
     }
+
+    async updateLikes(postId, userId, likedStatus) {
+        try {
+            const likeDocRef = doc(this.db, `posts/${postId}/likes`, userId);
+
+            if (likedStatus === null) {
+                // If likedStatus is null, remove the like document
+                await deleteDoc(likeDocRef);
+            } else {
+                // Otherwise, set or update the like document with likedStatus
+                await setDoc(likeDocRef, { likedStatus });
+            }
+        } catch (error) {
+            console.error("Error updating likes:", error);
+            throw error;
+        }
+    }
+
+    async getLikedStatus(postId, userId) {
+        try {
+            const likeDocRef = doc(this.db, `posts/${postId}/likes`, userId);
+            const likeDocSnap = await getDoc(likeDocRef);
+
+            return likeDocSnap.exists() ? likeDocSnap.data().likedStatus : null;
+        } catch (error) {
+            console.error("Error fetching liked status:", error);
+            return null;
+        }
+    }
+
+    async getLikesAndDislikes(postId) {
+        try {
+            const likesCollection = collection(this.db, `posts/${postId}/likes`);
+            const querySnapshot = await getDocs(likesCollection);
+
+            let likes = 0;
+            let dislikes = 0;
+
+            querySnapshot.forEach(doc => {
+                const likedStatus = doc.data().likedStatus;
+                if (likedStatus === "liked") {
+                    likes++;
+                } else if (likedStatus === "disliked") {
+                    dislikes++;
+                }
+            });
+
+            return { likes, dislikes };
+        } catch (error) {
+            console.error("Error fetching likes and dislikes:", error);
+            return { likes: 0, dislikes: 0 };
+        }
+    }
+
+    async getPostsByLikes() {
+        try {
+            const postsCollection = collection(this.db, "posts");
+            const querySnapshot = await getDocs(postsCollection);
+
+            let posts = [];
+
+            querySnapshot.forEach(doc => {
+                posts.push({ id: doc.id, ...doc.data() });
+            });
+
+            posts.sort((a, b) => {
+                const aLikes = a.likes || 0;
+                const bLikes = b.likes || 0;
+
+                return bLikes - aLikes;
+            });
+
+            return posts;
+        } catch (error) {
+            console.error("Error fetching posts by likes:", error);
+            return [];
+        }
+    }
+
+    async getLikedUsers(postId) {
+        try {
+            const likesCollection = collection(this.db, `posts/${postId}/likes`);
+
+            // 🔍 Only fetch documents where likedStatus is "liked"
+            const q = query(likesCollection, where("likedStatus", "==", "liked"));
+            const querySnapshot = await getDocs(q);
+
+            let likedUsers = [];
+
+            querySnapshot.forEach(async (likeDoc) => {
+                const userId = likeDoc.id; // Assuming doc ID is the user ID
+                const userRef = doc(this.db, "users", userId); // Reference to the user document
+                const userSnap = await getDoc(userRef); // Fetch user document
+
+                if (userSnap.exists()) {
+                    const userName = userSnap.data().name; // Extract name from user document
+                    likedUsers.push({ id: userId, name: userName }); // Push { id, name } to array
+                } else {
+                    likedUsers.push({ id: userId, name: "Unknown" }); // Handle missing user
+                }
+            });
+
+            return likedUsers;
+        } catch (error) {
+            console.error("Error fetching liked users:", error);
+            return [];
+        }
+    }
+
 }
 
 const dbServices = new DB();

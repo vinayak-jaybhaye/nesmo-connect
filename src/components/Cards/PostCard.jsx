@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -11,24 +11,76 @@ function PostCard({ post }) {
 
   const userData = useSelector((state) => state.auth.userData);
 
-  const [liked, setLiked] = useState(false);
-  const [disliked, setDisliked] = useState(false);
+  const [likedStatus, setLikedStatus] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const [{ likes, dislikes }, setLikesAndDislikes] = useState({
+    likes: 0,
+    dislikes: 0,
+  });
+
+  const [likedBy, setLikedBy] = useState([]);
 
   // Format createdAt to a readable format
   const formattedDate = createdAt
     ? new Date(createdAt).toLocaleString()
     : "Unknown Date";
 
-  const handleLike = () => {
-    setLiked((prev) => !prev);
-    if (!liked) setDisliked(false);
+  // Fetch post status for the current user
+  useEffect(() => {
+    const fetchLikedStatus = async () => {
+      if (userData.uid) {
+        const status = await dbServices.getLikedStatus(post.id, userData.uid);
+        const likedUsers = await dbServices.getLikedUsers(post.id);
+        const { likes, dislikes } = await dbServices.getLikesAndDislikes(
+          post.id
+        );
+
+        setLikesAndDislikes({ likes, dislikes });
+        setLikedStatus(status);
+        setLikedBy(likedUsers);
+      }
+    };
+
+    fetchLikedStatus();
+  }, [userData]);
+
+  useEffect(() => {
+    async function fetchLikesAndDislikes() {
+      const { likes, dislikes } = await dbServices.getLikesAndDislikes(post.id);
+      const likedUsers = await dbServices.getLikedUsers(post.id);
+      setLikesAndDislikes({ likes, dislikes });
+      setTimeout(() => {
+        setLikedBy(likedUsers);
+      }, 1000);
+    }
+    fetchLikesAndDislikes();
+  }, [likedStatus]); // Runs when likedStatus changes
+
+  const handleLike = async () => {
+    // Compute new likedStatus before setting state
+    const newStatus =
+      likedStatus === null || likedStatus === "disliked" ? "liked" : null;
+
+    // Update Firestore first
+    if (userData.uid)
+      await dbServices.updateLikes(post.id, userData.uid, newStatus);
+
+    // Update React state
+    setLikedStatus(newStatus);
   };
 
-  const handleDislike = () => {
-    setDisliked((prev) => !prev);
-    if (!disliked) setLiked(false); // Remove like when disliking
+  const handleDislike = async () => {
+    // Compute new status BEFORE updating state
+    const newStatus =
+      likedStatus === null || likedStatus === "liked" ? "disliked" : null;
+
+    // Update Firestore first to avoid race conditions
+    if (userData.uid)
+      await dbServices.updateLikes(post.id, userData.uid, newStatus);
+
+    // Then update React state
+    setLikedStatus(newStatus);
   };
 
   const handleDeletePost = async () => {
@@ -44,9 +96,7 @@ function PostCard({ post }) {
     await dbServices.deleteDocument("posts", post.id);
 
     const user = await dbServices.getDocument("users", userData.uid);
-    console.log(user.posts);
     const newUserPosts = user.posts.filter((postRef) => postRef.id !== post.id);
-    console.log(newUserPosts);
     await dbServices.updateDocument("users", userData.uid, {
       posts: newUserPosts,
     });
@@ -54,6 +104,31 @@ function PostCard({ post }) {
     console.log("Deleting Post");
     console.log(post);
     setDeleted(true);
+  };
+
+  const renderLikedBy = () => {
+    if (likedBy.length === 0) return null;
+
+    return (
+      <div className="text-sm text-gray-400">
+        <span className="font-thin text-white">{likedBy[0].name}</span>
+        {likedBy.length > 1 && (
+          <>
+            {likedBy.length === 2 ? " and " : ", "}
+            <span className="font-thin text-white">{likedBy[1].name}</span>
+          </>
+        )}
+        {likedBy.length > 2 && (
+          <>
+            {" and "}
+            <span className="font-thin text-white">
+              {likedBy.length - 2} others
+            </span>
+          </>
+        )}{" "}
+        liked this post
+      </div>
+    );
   };
 
   return (
@@ -89,15 +164,23 @@ function PostCard({ post }) {
                 className="h-10 w-10 cursor-pointer p-2 hover:size-11 rounded-xl flex items-center justify-around gap-2 "
                 onClick={handleLike}
               >
-                <img src={liked ? "liked.svg" : "like.svg"} alt="" />
-                <span className="text-gray-400">{post.likes || 0}</span>
+                <img
+                  src={likedStatus === "liked" ? "liked.svg" : "like.svg"}
+                  alt=""
+                />
+                <span className="text-gray-400">{likes || 0}</span>
               </div>
               <div
                 className="h-10 w-10 cursor-pointer p-2 hover:size-11 rounded-xl flex items-center justify-around gap-2"
                 onClick={handleDislike}
               >
-                <img src={disliked ? "disliked.svg" : "dislike.svg"} alt="" />
-                <span className="text-gray-400">{post.dislikes || 0}</span>
+                <img
+                  src={
+                    likedStatus === "disliked" ? "disliked.svg" : "dislike.svg"
+                  }
+                  alt=""
+                />
+                <span className="text-gray-400">{dislikes || 0}</span>
               </div>
               <div
                 className="h-10 w-10 cursor-pointer p-2 hover:bg-gray-700 rounded-xl "
@@ -134,6 +217,9 @@ function PostCard({ post }) {
             )}
           </div>
           <p className="text-gray-300 text-base">{content}</p>
+        </div>
+        <div className="text-white text-sm size-auto rounded-lg">
+          {likedBy && renderLikedBy()}
         </div>
       </div>
     </div>

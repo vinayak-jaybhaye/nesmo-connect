@@ -18,11 +18,9 @@ function AllPosts({ userId }) {
         if (selectPost === "allPosts") {
           // const posts = await dbServices.getAllPosts(userId);
           const posts = await dbServices.getAllPosts();
-          console.log(posts);
           setPosts(posts);
         } else if (selectPost === "myPosts") {
           const posts = await dbServices.getMyPosts(userId);
-          console.log(posts);
           setPosts(posts);
         }
       } catch (error) {
