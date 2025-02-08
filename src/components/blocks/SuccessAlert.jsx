@@ -2,11 +2,11 @@ import React from "react";
 
 function SuccessAlert({ message }) {
   return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-full max-w-xs sm:max-w-md z-50">
-      <div className="bg-green-50 border-l-4 border-green-400 rounded-lg py-2 px-3 shadow-md flex items-center gap-3">
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 w-full max-w-sm z-50 animate-fade-in-down">
+      <div className="bg-green-50 border-l-6 border-green-500 rounded-lg py-3 px-4 shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center gap-3">
         {/* Success Check Icon */}
         <svg
-          className="w-6 h-6 text-green-500"
+          className="w-6 h-6 text-green-600 shrink-0 animate-scale-in"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -21,7 +21,9 @@ function SuccessAlert({ message }) {
         </svg>
 
         {/* Success Message */}
-        <p className="text-green-700 font-medium text-sm">{message}</p>
+        <p className="text-green-800 font-semibold text-base tracking-tight">
+          {message}
+        </p>
       </div>
     </div>
   );

@@ -16,7 +16,7 @@ function UserList() {
 
   return (
     <>
-    <h2 className="text-sm font-bold mb-4 text-gray-100 flex items-center gap-2">
+      <h2 className="text-sm font-bold mb-4 text-gray-100 flex items-center gap-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="w-5 h-5 text-green-500"

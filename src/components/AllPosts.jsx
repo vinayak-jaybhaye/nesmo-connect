@@ -8,7 +8,8 @@ function AllPosts({ userId }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const selectPost = useSelector((state) => state.vars.selectPost) || "allPosts";
+  const selectPost =
+    useSelector((state) => state.vars.selectPost) || "allPosts";
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -35,10 +36,37 @@ function AllPosts({ userId }) {
     return <div>No posts found</div>;
   }
   return (
-    <div className="flex flex-col max-h-[80vh] overflow-scroll scrollbar-hide gap-2">
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
+    <div className="flex flex-col max-h-[100vh] overflow-scroll scrollbar-hide gap-4 p-2 bg-gray-800/80 rounded-xl border border-gray-700/50 backdrop-blur-sm shadow-inner">
+      {posts.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-[50vh] text-gray-400/80 animate-pulse">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-12 h-12 mb-4 text-gray-500"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="currentColor"
+            fill="none"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <p className="text-lg font-medium">No posts to show</p>
+          <p className="text-sm mt-1 text-gray-500">
+            Be the first to share something!
+          </p>
+        </div>
+      ) : (
+        posts.map((post) => (
+          <PostCard
+            key={post.id}
+            post={post}
+            className="hover:ring-1 hover:ring-gray-600/50 transition-all"
+          />
+        ))
+      )}
     </div>
   );
 }

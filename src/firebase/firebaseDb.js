@@ -85,7 +85,7 @@ class DB {
             const querySnapshot = await getDocs(usersCollection);
             const users = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-            console.log("Users fetched successfully:", users);
+            // console.log("Users fetched successfully:", users);
             return users;
         } catch (error) {
             console.error("Error fetching users:", error.message);

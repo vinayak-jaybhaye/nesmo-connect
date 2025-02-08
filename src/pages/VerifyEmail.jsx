@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import userAuth from "../firebase/firebaseAuth";
-import { Loader, ErrorAlert, LeftSide } from "../components";
+import { Loader, ErrorAlert, SuccessAlert, LeftSide } from "../components";
 
 function VerifyEmail() {
   const [error, setError] = useState(null);
@@ -9,16 +9,17 @@ function VerifyEmail() {
   const [successMessage, setSuccessMessage] = useState("");
   const [isResending, setIsResending] = useState(false);
   const navigate = useNavigate();
+  const timeoutRef = React.useRef(null);
 
-  // Send verification email on component mount
   useEffect(() => {
     const sendVerification = async () => {
       try {
         setError(null);
         await userAuth.sendVerificationEmail();
         setSuccessMessage("Verification email sent! Check your inbox.");
-        setTimeout(() => navigate("/login"), 5000);
+        timeoutRef.current = setTimeout(() => navigate("/login"), 5000);
       } catch (error) {
+        console.error("Verification error:", error);
         setError(error.message);
       } finally {
         setLoading(false);
@@ -26,9 +27,14 @@ function VerifyEmail() {
     };
 
     sendVerification();
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, [navigate]);
 
-  // Handle resend verification email
   const handleResend = async () => {
     try {
       setIsResending(true);
@@ -36,8 +42,8 @@ function VerifyEmail() {
       await userAuth.sendVerificationEmail();
       setSuccessMessage("New verification email sent!");
     } catch (error) {
-        console.log("Error:", error.message); 
-        setError(error.message);
+      console.error("Resend error:", error);
+      setError(error.message);
     } finally {
       setIsResending(false);
     }
@@ -45,56 +51,70 @@ function VerifyEmail() {
 
   return (
     <>
-      {error && <ErrorAlert message={error} />}
-      {successMessage && <ErrorAlert message={successMessage} type="success" />}
+      {error && <ErrorAlert message={error} aria-live="assertive" />}
+      {successMessage && (
+        <SuccessAlert message={successMessage} aria-live="polite" />
+      )}
       {(loading || isResending) && <Loader />}
 
-      <div className="flex justify-evenly bg-black-600 h-[100vh] box-content overflow-hidden">
-        {/* Left side */}
+      <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-gray-900 to-black">
         <LeftSide />
 
-        {/* Right side content */}
-        <div className="w-[70vw] bg-black text-white">
-          <div className="p-14 text-start">
-            <div className="text-3xl mb-6 font-bold">
-              <p>Verify Your Email Address</p>
-            </div>
+        <div className="flex-1 flex items-center justify-center p-8 animate-fade-in">
+          <div className="w-full max-w-2xl space-y-8" role="main">
+            <div className="space-y-6">
+              <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+                Verify Your Email Address
+              </h1>
 
-            <div className="text-white space-y-6">
-              <p className="text-gray-300">
-                We've sent a verification link to your email address. 
-                Please check your inbox and click the link to verify your account.
-              </p>
-
-              <div className="mt-8">
-                <p className="text-gray-400">
-                  Didn't receive the email?{" "}
-                  <button
-                    onClick={handleResend}
-                    className="text-blue-500 hover:text-blue-400 font-medium underline cursor-pointer disabled:opacity-50"
-                    disabled={isResending}
-                  >
-                    Resend verification email
-                  </button>
+              <div className="space-y-4">
+                <p className="text-lg text-gray-300 leading-relaxed">
+                  We've sent a verification link to your email address. Please
+                  check your inbox and click the link to verify your account.
                 </p>
-              </div>
 
-              <div className="mt-12 text-start">
-                <p className="text-sm text-gray-500">
-                  Return to{" "}
-                  <Link
-                    to="/login"
-                    className="font-medium text-blue-500 transition-all duration-200 hover:underline"
-                  >
-                    Login page
-                  </Link>
-                </p>
+                <div className="pt-6 border-t border-gray-800">
+                  <p className="text-gray-400">
+                    Didn't receive the email?{" "}
+                    <button
+                      onClick={handleResend}
+                      aria-label={
+                        isResending
+                          ? "Sending verification email"
+                          : "Resend verification email"
+                      }
+                      className={`text-blue-400 hover:text-blue-300 font-medium transition-all
+                        underline underline-offset-4 decoration-2 ${
+                          isResending
+                            ? "opacity-50 cursor-not-allowed"
+                            : "hover:opacity-80"
+                        }`}
+                      disabled={isResending}
+                    >
+                      {isResending ? "Sending..." : "Resend verification email"}
+                    </button>
+                  </p>
+                </div>
+
+                <div className="pt-8">
+                  <p className="text-gray-500">
+                    Return to{" "}
+                    <Link
+                      to="/login"
+                      aria-label="Return to login page"
+                      className="font-medium text-blue-400 hover:text-blue-300 
+                        transition-colors underline underline-offset-4 decoration-2"
+                    >
+                      Login page
+                    </Link>
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </> 
+    </>
   );
 }
 

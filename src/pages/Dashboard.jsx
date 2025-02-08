@@ -11,6 +11,7 @@ import {
   Connections,
   UserList,
   Chats,
+  Communities,
 } from "../components";
 import { setVars } from "../store/varSlice";
 
@@ -19,6 +20,7 @@ import { NewPost } from "../components";
 function Dashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [reload, setReload] = React.useState(false);
   const userData = useSelector((state) => state.auth.userData);
   const [showNotifications, setShowNotifications] = React.useState(false);
 
@@ -51,9 +53,8 @@ function Dashboard() {
         }
       }
     );
-
     return () => unsubscribe();
-  }, [dispatch, navigate]);
+  }, [dispatch, navigate, reload]);
 
   const handleLogout = async () => {
     try {
@@ -70,51 +71,65 @@ function Dashboard() {
   }
 
   return (
-    <div className="flex w-full min-h-screen justify-start h-full bg-gray-900 text-gray-100">
+    <div className="flex w-full min-h-screen justify-start bg-gray-900 text-gray-100 h-[100vh] overflow-scroll scrollbar-hide">
       {/* Left Sidebar */}
-      <div className="w-[15%] min-w-[200px] bg-gray-800 p-4 border-r border-gray-700">
-        <div className="mb-8 text-xl font-bold text-gray-100">
+
+      <div className="w-[15%] sticky top-0  min-w-[200px] h-[100vh] bg-gray-800/80 p-4 space-y-4 border-r border-gray-700/50 backdrop-blur-md">
+        <div
+          className="mb-8 text-xl font-bold text-gray-100 border-b border-gray-700/50 pb-4 shadow-lg cursor-pointer"
+          onClick={() => setReload(!reload)}
+        >
           NESMO connect
         </div>
-        <div className="space-y-4">
-          <div className="p-2 hover:bg-gray-700 rounded cursor-pointer">
-            Home
-          </div>
-          <div className="p-2 hover:bg-gray-700 rounded cursor-pointer">
-            Community
-          </div>
-          <div className="p-2 hover:bg-gray-700 rounded cursor-pointer">
-            Fundraiser
-          </div>
-          <div
-            className="p-2 hover:bg-gray-700 rounded cursor-pointer"
-            onClick={() => navigate("/all-users")}
-          >
-            Alumni Listing
-          </div>
-          <div className="p-2 hover:bg-gray-700 rounded cursor-pointer">
-            About Us
-          </div>
+        <div className="space-y-2 overflow-scroll scrollbar-hide bg-gray-900 p-2 rounded-lg shadow-lg border border-black">
+          {[
+            { name: "Home", action: () => {} },
+            { name: "Community", action: () => {} },
+            { name: "Fundraiser", action: () => {} },
+            { name: "Alumni Listing", action: () => navigate("/all-users") },
+            { name: "About Us", action: () => {} },
+          ].map((item) => (
+            <div
+              key={item.name}
+              onClick={item.action}
+              className="p-2.5 hover:bg-gray-700/50 rounded-lg cursor-pointer transition-all duration-200 text-gray-300 hover:text-gray-100 flex items-center gap-2"
+            >
+              <span className="text-sm">{item.name}</span>
+            </div>
+          ))}
         </div>
-        <div className="mt-8 text-sm font-semibold text-gray-400">
-          My communities
-        </div>
+
+        <Communities />
       </div>
 
       {/* Main Content Area */}
-      <div className="w-[85%] bg-gray-900">
+      <div className="w-[85%] bg-gray-900/95 backdrop-blur-sm">
         {/* Navbar */}
-        <div className="bg-gray-800 shadow-sm p-4 flex justify-between items-center">
+        <div className="bg-gray-800/80 sticky top-0 z-10 shadow-lg p-2 flex justify-between items-center rounded-sm border-b border-gray-600/50 backdrop-blur-sm">
           <div className="text-lg font-semibold text-gray-100">Home</div>
           <div className="flex items-center space-x-4">
             <div
               onClick={handleLogout}
-              className="cursor-pointer bg-gray-700 rounded-xl px-2 py-1 hover:bg-gray-600 flex items-center justify-center"
+              className="cursor-pointer bg-gray-700/50 hover:bg-gray-600/60 rounded-xl px-3 py-1.5 transition-all duration-200 text-sm flex items-center gap-1.5 hover:ring-1 hover:ring-gray-500"
             >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                fill="none"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
+              </svg>
               Logout
             </div>
             <button
-              className="p-2 hover:bg-gray-700 rounded-full size-12"
+              className="p-2 hover:bg-gray-700/50 rounded-full size-12 transition-all duration-200 relative"
               onClick={() => setShowNotifications(!showNotifications)}
             >
               <img
@@ -124,84 +139,67 @@ function Dashboard() {
                     : "notification.svg"
                 }
                 alt=""
+                className="w-6 h-6 mx-auto transition-transform hover:scale-110"
               />
+              {userData.notifications?.length > 0 && (
+                <div className="absolute top-2 right-2 size-2.5 bg-red-500 rounded-full ring-1 ring-red-400"></div>
+              )}
             </button>
             <div
-              className="h-8 w-8 rounded-full ring-2 ring-gray-600 cursor-pointer"
+              className="h-9 w-9 rounded-full ring-2 ring-gray-600/80 hover:ring-green-500 cursor-pointer transition-all overflow-hidden"
               onClick={() => navigate("/profile/" + userData.uid)}
             >
               <img
                 src={userData?.avatarUrl || "/avatar.png"}
-                alt="profile image"
-                className="object-cover w-full h-full rounded-full"
+                alt="profile"
+                className="object-cover w-full h-full"
               />
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="flex justify-around p-4 gap-4">
+        <div className="flex justify-around p-4 gap-4 h-[100%] ">
           {/* Left Column */}
-          <div className="w-[60%] space-y-4">
-            {/* Create Post */}
+          <div className="w-[60%] space-y-4 overflow-scroll scrollbar-hide">
+            {/* Post Selection */}
             <div className="flex justify-start gap-2 items-center mt-3 w-[70%]">
-              {/* All Posts Option */}
-              <div
-                className={`cursor-pointer flex justify-evenly items-center ${
-                  selectPost === "allPosts" ? "bg-gray-500" : "bg-gray-700"
-                } py-1 px-2 rounded-3xl transition-colors text-sm text-white`}
-              >
-                <input
-                  type="radio"
-                  name="selectPost"
-                  className="hidden peer"
-                  id="allPosts"
-                  value="allPosts"
-                  onChange={(e) => onSelectionChange(e)}
-                  checked={selectPost === "allPosts"}
-                />
-                <label
-                  htmlFor="allPosts"
-                  className="cursor-pointer text-center w-full"
+              {["allPosts", "myPosts"].map((option) => (
+                <div
+                  key={option}
+                  className={`cursor-pointer flex justify-evenly items-center ${
+                    selectPost === option
+                      ? "bg-gradient-to-br from-gray-600/50 to-gray-700/50 ring-1 ring-gray-500/50 bg-blue-700"
+                      : "bg-gray-700/50 hover:bg-gray-600/60"
+                  } py-1.5 px-3 rounded-2xl transition-all duration-200 text-sm text-white/90 hover:text-white ring-transparent`}
                 >
-                  All Posts
-                </label>
-              </div>
-              {/* My Posts Option */}
-              <div
-                className={`cursor-pointer flex justify-evenly items-center ${
-                  selectPost === "myPosts" ? "bg-gray-500" : "bg-gray-700"
-                } py-1 px-2 rounded-3xl transition-colors text-sm text-white`}
-              >
-                <input
-                  type="radio"
-                  name="selectPost"
-                  className="hidden peer"
-                  id="myPosts"
-                  value="myPosts"
-                  onChange={(e) => onSelectionChange(e)}
-                  checked={selectPost === "myPosts"}
-                />
-                <label
-                  htmlFor="myPosts"
-                  className="cursor-pointer text-center w-full"
-                >
-                  My Posts
-                </label>
-              </div>
+                  <input
+                    type="radio"
+                    name="selectPost"
+                    className="hidden"
+                    id={option}
+                    value={option}
+                    onChange={onSelectionChange}
+                    checked={selectPost === option}
+                  />
+                  <label htmlFor={option} className="cursor-pointer capitalize">
+                    {option.replace(/([A-Z])/g, " $1").trim()}
+                  </label>
+                </div>
+              ))}
             </div>
 
-            {/* add new post */}
-            <NewPost user={userData} />
-
-            {/* Posts */}
-            <AllPosts userId={userData.uid} />
+            {/* New Post & Feed */}
+            <div className="space-y-6">
+              <NewPost user={userData} />
+              <AllPosts userId={userData.uid} />
+            </div>
           </div>
 
-          {/* Right Column - Chats */}
-          <div className="w-[35%] bg-gray-800 rounded-lg shadow p-4 flex flex-col gap-4">
+          {/* Right Column */}
+          <div className="w-[35%] space-y-4 h-[100%] overflow-scroll">
             {showNotifications && (
-              <div className="bg-gray-900 h-auto max-h-[50vh] overflow-scroll scrollbar-hide rounded-lg p-4">
+              <div className="bg-gray-800/80 border border-gray-700/50 rounded-xl shadow-xl p-4 backdrop-blur-sm">
                 <Notifications
                   notifications={userData.notifications}
                   userData={userData}
@@ -209,19 +207,16 @@ function Dashboard() {
               </div>
             )}
 
-            <div className="min-h-[20%] max-h-[50%] p-4 rounded-lg flex flex-col overflow-scroll scrollbar-hide bg-gray-900 gap-4">
-                <div className="font-bold text-sm px-4">Your Chats</div>
-                <Chats />
+            <div className="bg-gray-800/80 border border-gray-700/50 rounded-xl p-4 shadow-xl backdrop-blur-sm">
+              <Chats />
             </div>
 
-            <div className="max-h-[40vh] overflow-scroll scrollbar-hide">
+            <div className="bg-gray-800/80 border border-gray-700/50 rounded-xl p-4 shadow-xl backdrop-blur-sm">
               <Connections />
             </div>
-            <div className="flex flex-col gap-4 bg-gray-900 rounded-lg p-4 max-h-[50vh] overflow-scroll scrollbar-hide">
-            
-              <div className="bg-gray-900 p-1 rounded-lg">
-                <UserList />
-              </div>
+
+            <div className="bg-gray-800/80 border border-gray-700/50 rounded-xl p-4 shadow-xl backdrop-blur-sm">
+              <UserList />
             </div>
           </div>
         </div>

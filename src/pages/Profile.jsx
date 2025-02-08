@@ -107,15 +107,23 @@ function Profile() {
       (connection) => connection.other === profileId
     );
     const connectionRequestSent = userData?.connectionRequests?.some(
-      (connectionReq) => connectionReq.other === profileId && connectionReq.type === "sent"
+      (connectionReq) =>
+        connectionReq.other === profileId && connectionReq.type === "sent"
     );
+    const connectionRequestReceived = userData?.connectionRequests?.some(
+      (connectionReq) =>
+        connectionReq.other === profileId && connectionReq.type === "received"
+    );
+
     return amIOwner ? null : (
       <button
-        className="w-fit md:w-[30%] h-fit  py-2 bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0"
+        className={`w-fit md:w-[30%] h-fit  py-1  bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0 ${connectionRequestReceived ? "rounded-md text-sm bg-gray-700" : ""}`}
         onClick={() => {
           handleConnect(profileData);
         }}
-        {...(alreadyConnected || connectionRequestSent
+        {...(alreadyConnected ||
+        connectionRequestSent ||
+        connectionRequestReceived
           ? { disabled: true }
           : {})}
       >
@@ -123,6 +131,8 @@ function Profile() {
           ? "Connected"
           : connectionRequestSent
           ? "Request Sent"
+          : connectionRequestReceived
+          ? "Checkout Requests"
           : "Connect"}
       </button>
     );
@@ -173,6 +183,10 @@ function Profile() {
     input.click();
   };
 
+  if (!profileData) {
+    return <Loader />;
+  }
+
   return (
     <div className="flex flex-col lg:h-screen md:h-auto bg-black overflow-auto scrollbar-hide">
       {/* Banner Section */}
@@ -198,7 +212,7 @@ function Profile() {
           {/* Profile Avatar */}
           <div className="absolute rounded-full h-33 w-33 md:h-[280px] md:w-[280px] -top-28  md:-top-36 left-1/2 md:left-20 transform -translate-x-1/2 md:translate-x-0 shadow-xl z-[1]">
             <img
-              src={profileData?.avatarUrl || "avatar.png"}
+              src={profileData?.avatarUrl || "/avatar.png"}
               className="rounded-full w-full h-full object-cover"
               alt="Profile"
             />

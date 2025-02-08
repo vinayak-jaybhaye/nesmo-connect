@@ -145,10 +145,10 @@ function PostCard({ post }) {
     await dbServices.updateDocument("users", userData.uid, {
       savedPosts: newUserSavedPosts,
     });
-    if(newUserSavedPosts.includes(post.id)) {
+    if (newUserSavedPosts.includes(post.id)) {
       toast.success("Post Saved Successfully!");
       setIsPostSaved(true);
-    }else{
+    } else {
       toast.success("Post removed from saved posts!");
       setIsPostSaved(false);
     }
@@ -195,15 +195,17 @@ function PostCard({ post }) {
                 <img
                   src={likedStatus === "liked" ? "liked.svg" : "like.svg"}
                   className={`w-6 h-6 transition-all ${
-                    likedStatus === "liked" 
-                      ? "text-green-500" 
+                    likedStatus === "liked"
+                      ? "text-green-500"
                       : "text-gray-400 group-hover:text-green-400"
                   }`}
                   alt="Like"
                 />
-                <span className={`text-sm ${
-                  likedStatus === "liked" ? "text-green-500" : "text-gray-400"
-                }`}>
+                <span
+                  className={`text-sm ${
+                    likedStatus === "liked" ? "text-green-500" : "text-gray-400"
+                  }`}
+                >
                   {likes || 0}
                 </span>
               </div>
@@ -217,15 +219,19 @@ function PostCard({ post }) {
                     likedStatus === "disliked" ? "disliked.svg" : "dislike.svg"
                   }
                   className={`w-6 h-6 transition-all ${
-                    likedStatus === "disliked" 
-                      ? "text-red-500" 
+                    likedStatus === "disliked"
+                      ? "text-red-500"
                       : "text-gray-400 group-hover:text-red-400"
                   }`}
                   alt="Dislike"
                 />
-                <span className={`text-sm ${
-                  likedStatus === "disliked" ? "text-red-500" : "text-gray-400"
-                }`}>
+                <span
+                  className={`text-sm ${
+                    likedStatus === "disliked"
+                      ? "text-red-500"
+                      : "text-gray-400"
+                  }`}
+                >
                   {dislikes || 0}
                 </span>
               </div>
@@ -235,9 +241,9 @@ function PostCard({ post }) {
                   className="h-10 w-10 cursor-pointer p-2 hover:bg-gray-700/50 rounded-xl transition-all duration-200 flex items-center justify-center"
                   onClick={() => setShowMenu((prev) => !prev)}
                 >
-                  <img 
-                    src="menu.svg" 
-                    className="w-6 h-6 text-gray-400 hover:text-gray-200" 
+                  <img
+                    src="menu.svg"
+                    className="w-6 h-6 text-gray-400 hover:text-gray-200"
                     alt="Menu"
                   />
                 </div>
@@ -287,7 +293,7 @@ function PostCard({ post }) {
               </div>
             )}
           </div>
-          
+
           <p className="text-gray-300/90 text-base leading-relaxed transition-colors hover:text-gray-200">
             {content}
           </p>

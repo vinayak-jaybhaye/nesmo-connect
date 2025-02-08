@@ -4,11 +4,39 @@
 
 /* Hide scrollbar for all elements */
 ::-webkit-scrollbar {
-    display: none;
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+html {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg) translateX(20px) rotate(0deg);
   }
-  
-  /* Hide scrollbar for IE, Edge and Firefox */
-  html {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+
+  100% {
+    transform: rotate(360deg) translateX(20px) rotate(-360deg);
   }
+}
+
+#root{
+  background-color: black;
+}
+
+
+@keyframes slide {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-slide {
+  display: inline-block;
+  animation: slide 5s linear infinite;
+}
