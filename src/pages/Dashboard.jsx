@@ -164,7 +164,7 @@ function Dashboard() {
           <div className="w-[60%] space-y-4 overflow-scroll scrollbar-hide">
             {/* Post Selection */}
             <div className="flex justify-start gap-2 items-center mt-3 w-[70%]">
-              {["allPosts", "myPosts"].map((option) => (
+              {["allPosts", "myPosts", "savedPosts"].map((option) => (
                 <div
                   key={option}
                   className={`cursor-pointer flex justify-evenly items-center ${

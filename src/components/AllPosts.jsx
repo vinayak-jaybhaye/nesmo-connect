@@ -10,6 +10,7 @@ function AllPosts({ userId }) {
 
   const selectPost =
     useSelector((state) => state.vars.selectPost) || "allPosts";
+  const userData = useSelector((state) => state.auth.userData);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -22,6 +23,10 @@ function AllPosts({ userId }) {
           setPosts(posts);
         } else if (selectPost === "myPosts") {
           const posts = await dbServices.getMyPosts(userId);
+          setPosts(posts);
+        }else if(selectPost === "savedPosts"){
+          console.log("savedPosts");
+          const posts = await dbServices.getSavedPosts(userId);
           setPosts(posts);
         }
       } catch (error) {

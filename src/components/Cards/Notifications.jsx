@@ -23,13 +23,15 @@ function Notification({ notification, userData }) {
       }`}
     >
       <div className="flex items-center gap-3 justify-between w-full">
-        <div className="h-10 w-10 rounded-full overflow-hidden">
-          <img
-            src={notification.otherAvatar}
-            alt="User Avatar"
-            className="h-full w-full object-cover"
-          />
-        </div>
+        {notification.type === "connectionRequest" && (
+          <div className="h-10 w-10 rounded-full overflow-hidden">
+            <img
+              src={notification.otherAvatar || "/avatar.png"}
+              alt="User Avatar"
+              className="h-full w-full object-cover"
+            />
+          </div>
+        )}
 
         <div className="flex-1">
           <h3 className="text-sm font-semibold">{notification.otherName}</h3>

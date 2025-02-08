@@ -139,6 +139,60 @@ class DB {
         }
     }
 
+    async getSavedPosts(userId) {
+        try {
+            // Fetch user document
+            const userDoc = await this.getDocument("users", userId);
+            let savedPosts = userDoc?.savedPosts || [];
+
+            if (savedPosts.length === 0) return [];
+
+            const postsCollection = collection(this.db, "posts");
+
+            // Firestore limits `where("in")` to 10 items, so we batch if necessary
+            const batchSize = 10;
+            const batches = [];
+            for (let i = 0; i < savedPosts.length; i += batchSize) {
+                const batchIds = savedPosts.slice(i, i + batchSize);
+                const q = query(postsCollection, where("__name__", "in", batchIds));
+                batches.push(getDocs(q));
+            }
+
+            // Execute all queries in parallel
+            const results = await Promise.all(batches);
+
+            // Extract valid posts and their IDs
+            const validPosts = [];
+            const foundPostIds = new Set();
+
+            results.forEach(snapshot => {
+                snapshot.docs.forEach(doc => {
+                    validPosts.push({ id: doc.id, ...doc.data() });
+                    foundPostIds.add(doc.id);
+                });
+            });
+
+            // Find missing post IDs
+            const missingPostIds = savedPosts.filter(postId => !foundPostIds.has(postId));
+
+            // If there are missing posts, update the user document
+            if (missingPostIds.length > 0) {
+                const updatedSavedPosts = savedPosts.filter(postId => !missingPostIds.includes(postId));
+                console.warn("Some saved posts were not found:", missingPostIds);
+                const userRef = doc(this.db, "users", userId);
+                const batch = writeBatch(this.db);
+                batch.update(userRef, { savedPosts: updatedSavedPosts });
+                await batch.commit();
+            }
+
+            return validPosts;
+        } catch (error) {
+            console.error("Error fetching saved posts:", error);
+            return [];
+        }
+    }
+
+
     async updateLikes(postId, userId, likedStatus) {
         try {
             const likeDocRef = doc(this.db, `posts/${postId}/likes`, userId);

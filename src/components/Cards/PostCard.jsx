@@ -284,11 +284,11 @@ function PostCard({ post }) {
 
           <div className="relative group">
             {imageUrl && (
-              <div className="rounded-xl overflow-hidden ring-1 ring-gray-700 transition-all hover:ring-gray-600">
+              <div className="rounded-xl overflow-hidden ring-1 mb-2 ring-gray-700 transition-all hover:ring-gray-600">
                 <img
                   src={imageUrl}
                   alt="Post Image"
-                  className="rounded-lg object-cover w-full h-64 mb-4 transform transition-all hover:scale-105 duration-700"
+                  className="rounded-lg object-fit w-full h-64  transform transition-all hover:scale-105 duration-700"
                 />
               </div>
             )}

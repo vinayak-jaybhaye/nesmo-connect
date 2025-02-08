@@ -19,7 +19,12 @@ function NewPost({ user }) {
     if (image) {
       const fileData = await appwriteStorage.uploadFile(image);
       fileId = fileData["$id"];
-      imageUrl = await appwriteStorage.getFilePreview(fileId);
+
+     
+      const isWebP = image.type === "image/webp";
+      imageUrl = isWebP
+        ? appwriteStorage.getFileView(fileId)
+        : appwriteStorage.getFilePreview(fileId);
     }
 
     const newPost = {
@@ -28,7 +33,7 @@ function NewPost({ user }) {
       createdBy: user.uid,
       createdAt: new Date().toISOString(),
       owner: user.name,
-      ownerAvatarUrl: user.avatarUrl,
+      ownerAvatarUrl: user?.avatarUrl || "",
     };
 
     try {
