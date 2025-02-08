@@ -117,7 +117,9 @@ function Profile() {
 
     return amIOwner ? null : (
       <button
-        className={`w-fit md:w-[30%] h-fit  py-1  bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0 ${connectionRequestReceived ? "rounded-md text-sm bg-gray-700" : ""}`}
+        className={`w-fit md:w-[30%] h-fit  py-1  bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0 ${
+          connectionRequestReceived ? "rounded-md text-sm bg-gray-700" : ""
+        }`}
         onClick={() => {
           handleConnect(profileData);
         }}
@@ -190,7 +192,7 @@ function Profile() {
   return (
     <div className="flex flex-col lg:h-screen md:h-auto bg-black overflow-auto scrollbar-hide">
       {/* Banner Section */}
-      <div className="flex h-[35%] bg-gray-800 overflow-hidden relative">
+      <div className="flex h-[30%] bg-gray-800 overflow-hidden relative opacity-80">
         <img
           src={profileData?.coverUrl || "/cover.png"}
           className="w-full h-[100%]  opacity-40"
@@ -206,62 +208,76 @@ function Profile() {
       </div>
 
       {/* Profile Content */}
-      <div className="flex flex-col lg:h-[65%] md:h-auto">
+      <div className="flex flex-col lg:h-[65%] md:h-auto-gradient-to-b from-gray-900 to-gray-800">
         {/* Profile Header */}
-        <div className="flex flex-col md:flex-row relative justify-end lg:items-center md:items-start h-auto md:h-[40%] lg:h-[40%] bg-gray-800 shadow-2xl p-4 md:p-6 ">
+        <div className="flex flex-col md:flex-row relative justify-end lg:items-center md:items-start h-auto md:h-[40%] lg:h-[45%] bg-gradient-to-r from-blue-800/80 to-indigo-900/80 shadow-lg p-4 md:p-6">
           {/* Profile Avatar */}
-          <div className="absolute rounded-full h-33 w-33 md:h-[280px] md:w-[280px] -top-28  md:-top-36 left-1/2 md:left-20 transform -translate-x-1/2 md:translate-x-0 shadow-xl z-[1]">
+          <div className="absolute rounded-full h-33 w-33 md:h-[280px] md:w-[280px] -top-28 md:-top-36 left-1/2 md:left-20 transform -translate-x-1/2 md:translate-x-0 shadow-2xl z-[1] border-4 border-white/20 hover:border-white/30 transition-all duration-300">
             <img
               src={profileData?.avatarUrl || "/avatar.png"}
-              className="rounded-full w-full h-full object-cover"
+              className="rounded-full w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               alt="Profile"
             />
-            <>{renderEditButton("avatar")}</>
+            <div className="absolute bottom-2 right-2">
+              {renderEditButton("avatar")}
+            </div>
           </div>
 
           {/* Profile Info */}
           <div className="flex flex-col md:flex-row w-full md:w-[65%] justify-between items-center md:items-start p-2 rounded-tl-xl mt-14 md:mt-0">
             <div className="w-full md:w-[70%] text-center md:text-left space-y-4">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-100">
+              <h1 className="text-3xl md:text-4xl font-bold text-white drop-shadow-md">
                 {profileData?.name}
               </h1>
 
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                <span className="px-4 py-1 bg-blue-900 text-gray-100 rounded-full">
+                <span className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full text-sm shadow-md">
                   {profileData?.userRole || "User"}
                 </span>
                 {renderConnectButton()}
               </div>
 
-              <div className="flex gap-5 text-gray-400 justify-center md:justify-start items-center pl-2">
+              <div className="flex gap-5 text-gray-300 justify-center md:justify-start items-center pl-2">
                 <a
                   href={profileData?.linkedin || "https://in.linkedin.com/"}
-                  className="hover:text-blue-400"
+                  className="hover:text-blue-400 transition-colors duration-300"
                 >
-                  <img src="/linkedin.svg" alt="LinkedIn" className="w-6 h-6" />
+                  <img
+                    src="/linkedin.svg"
+                    alt="LinkedIn"
+                    className="w-7 h-7 hover:scale-110 transition-transform"
+                  />
                 </a>
                 <a
                   href={
                     `https://mail.google.com/mail/?view=cm&fs=1&to=${profileData?.email}&su=Hello%20there&body=Hi%20there,%20I%20wanted%20to%20reach%20out%20about%20...` ||
                     "#"
                   }
-                  className="hover:text-blue-400"
+                  className="hover:text-blue-400 transition-colors duration-300"
                 >
-                  <img src="/gmail.svg" alt="Email" className="w-6 h-6" />
+                  <img
+                    src="/gmail.svg"
+                    alt="Email"
+                    className="w-7 h-7 hover:scale-110 transition-transform"
+                  />
                 </a>
                 <a
                   href={profileData?.twitter || "https://x.com/home?lang=en"}
-                  className="hover:text-blue-400"
+                  className="hover:text-blue-400 transition-colors duration-300"
                 >
-                  <img src="/twitter.svg" alt="Twitter" className="w-6 h-6" />
+                  <img
+                    src="/twitter.svg"
+                    alt="Twitter"
+                    className="w-7 h-7 hover:scale-110 transition-transform"
+                  />
                 </a>
               </div>
             </div>
-            <div className=" flex flex-col size-full items-end p-2">
+            <div className="flex flex-col size-full items-end p-2 space-y-3">
               {renderEditProfile()}
               <div
                 onClick={() => navigate("/")}
-                className="cursor-pointer size-fit bg-blue-300 rounded-lg px-2 y-1 late-600 m-5  hover:scale-105 transition-all"
+                className="cursor-pointer bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-lg px-4 py-2 shadow-md hover:scale-105 transition-all duration-300"
               >
                 To Dashboard
               </div>
@@ -270,38 +286,42 @@ function Profile() {
         </div>
 
         {/* Profile Details */}
-        <div className="bg-gray-900 p-4 flex flex-col justify-evenly shadow-2xl h-[60%]">
-          <div className="py-2 flex flex-col justify-evenly overflow-auto scrollbar-hide">
-            <div className="flex flex-col md:flex-row justify-around text-gray-100 text-center md:text-left space-y-4 md:space-y-0 p-2">
-              <div className="space-y-2">
-                <div>
-                  <label className="text-gray-400 text-sm">Education</label>
-                  <p className="font-medium">
+        <div className="bg-gradient-to-b from-gray-900 to-gray-800 p-6 flex flex-col justify-evenly shadow-2xl h-[65%]">
+          <div className="py-2 flex flex-col justify-evenly overflow-auto scrollbar-hide space-y-6">
+            <div className="flex flex-col md:flex-row justify-around text-white text-center md:text-left space-y-6 md:space-y-0 p-2">
+              <div className="space-y-4">
+                <div className="bg-gray-800/50 p-4 rounded-lg">
+                  <label className="text-blue-400 text-sm font-medium">
+                    Education
+                  </label>
+                  <p className="font-semibold mt-1">
                     {profileData?.education || "Not Specified"}
                   </p>
                 </div>
-                <div>
-                  <label className="text-gray-400 text-sm">Location</label>
-                  <p className="font-medium">
+                <div className="bg-gray-800/50 p-4 rounded-lg">
+                  <label className="text-blue-400 text-sm font-medium">
+                    Location
+                  </label>
+                  <p className="font-semibold mt-1">
                     {profileData?.location || "Not Specified"}
                   </p>
                 </div>
               </div>
 
-              <div>
-                <label className="text-gray-400 text-sm">
+              <div className="bg-gray-800/50 p-4 rounded-lg">
+                <label className="text-blue-400 text-sm font-medium">
                   Current Position
                 </label>
-                <p className="font-medium">
-                  {profileData?.position || "not specified"}
+                <p className="font-semibold mt-1">
+                  {profileData?.position || "Not Specified"}
                 </p>
               </div>
             </div>
 
-            <div className="space-y-2 px-4 md:pl-10">
-              <h2 className="text-xl font-semibold text-gray-100">About</h2>
-              <div className="overflow-auto scrollbar-hide p-2">
-                <p className="text-gray-400 max-h-[40vh] leading-relaxed">
+            <div className="space-y-4 px-4 md:pl-6">
+              <h2 className="text-2xl font-bold text-white">About</h2>
+              <div className="overflow-auto scrollbar-hide p-4 bg-gray-800/50 rounded-lg">
+                <p className="text-gray-300 leading-relaxed max-h-[40vh]">
                   {profileData?.about ||
                     "User has not provided any information about themselves"}
                 </p>
