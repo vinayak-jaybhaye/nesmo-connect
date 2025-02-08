@@ -103,7 +103,7 @@ function Dashboard() {
       </div>
 
       {/* Main Content Area */}
-      <div className="w-[85%] bg-gray-900/95 backdrop-blur-sm">
+      <div className="w-[85%] bg-gray-900/95 backdrop-blur-sm h-full overflow-clip ">
         {/* Navbar */}
         <div className="bg-gray-800/80 sticky top-0 z-10 shadow-lg p-2 flex justify-between items-center rounded-sm border-b border-gray-600/50 backdrop-blur-sm">
           <div className="text-lg font-semibold text-gray-100">Home</div>
@@ -159,11 +159,11 @@ function Dashboard() {
         </div>
 
         {/* Main Content */}
-        <div className="flex justify-around p-4 gap-4 h-[100%] ">
+        <div className="flex justify-around p-4 gap-4 h-[90%] sticky top-20">
           {/* Left Column */}
           <div className="w-[60%] space-y-4 overflow-scroll scrollbar-hide">
             {/* Post Selection */}
-            <div className="flex justify-start gap-2 items-center mt-3 w-[70%]">
+            <div className="flex justify-start gap-2 items-center mt-3 sticky top-0 z-10 bg-gray-900/80 p-2 rounded-lg shadow-lg border border-gray-800/50 backdrop-blur-sm">
               {["allPosts", "myPosts", "savedPosts"].map((option) => (
                 <div
                   key={option}
