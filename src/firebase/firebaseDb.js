@@ -263,11 +263,11 @@ class DB {
 
             // Add to both users' connectionRequests array
             await updateDoc(senderRef, {
-                connectionRequests: arrayUnion({ type: "sent", other: receiverId, otherName: recieverData.name, otherAvatar: recieverData.avatarUrl })
+                connectionRequests: arrayUnion({ type: "sent", other: receiverId, otherName: recieverData.name, otherAvatar: recieverData?.avatarUrl || "" })
             });
 
             await updateDoc(receiverRef, {
-                connectionRequests: arrayUnion({ type: "received", other: senderId, otherName: senderData.name, otherAvatar: senderData.avatarUrl })
+                connectionRequests: arrayUnion({ type: "received", other: senderId, otherName: senderData.name, otherAvatar: senderData?.avatarUrl || "" })
             });
 
             await updateDoc(receiverRef, {
@@ -275,7 +275,7 @@ class DB {
                     id: Date.now().toString(36) + Math.random().toString(36).substring(2),
                     type: "connectionRequest",
                     otherName: senderData.name,
-                    otherAvatar: senderData.avatarUrl,
+                    otherAvatar: senderData?.avatarUrl || "",
                     other: senderId,
                     content: `${senderData.name} wants to Connect!`
                 })
@@ -311,8 +311,8 @@ class DB {
             const receiverRef = doc(this.db, "users", receiverId);
 
 
-            const Request1 = { type: "sent", other: receiverId, otherName: userData.name, otherAvatar: userData.avatarUrl };  // Request in sender's connectionRequests
-            const Request2 = { type: "received", other: senderId, otherName: notification.otherName, otherAvatar: notification.otherAvatar }; // Request in receiver's connectionRequests
+            const Request1 = { type: "sent", other: receiverId, otherName: userData.name, otherAvatar: userData?.avatarUrl || "" };  // Request in sender's connectionRequests
+            const Request2 = { type: "received", other: senderId, otherName: notification.otherName, otherAvatar: notification?.otherAvatar || "" }; // Request in receiver's connectionRequests
 
             // Batch update to minimize Firestore calls
             const batch = writeBatch(this.db);

@@ -20,7 +20,18 @@ class Auth {
             const user = userCredential.user;
             console.log("User registered:", user.uid, user.email);
             console.log(user.id, user)
-            await dbServices.addDocument('users', user.uid, { email: user.email, name: name, userRole: userRole, notifications : [], posts: [], connections: [], connectionRequests: [] });
+            await dbServices.addDocument('users', user.uid, {
+                email: user.email, name: name,
+                userRole: userRole,
+                notifications: [],
+                posts: [],
+                connections: [],
+                connectionRequests: [],
+                avatarUrl: "",
+                avatarFileId: "",
+                coverFileId: "",
+                coverUrl: ""
+            });
             return user;
         } catch (error) {
             console.error("Firebase Auth : register() ::", error.message);
@@ -104,7 +115,7 @@ class Auth {
 
             await updatePassword(user, newPassword);
             console.log("Password updated successfully.");
-            
+
         } catch (error) {
             console.error("Firebase Auth : updatePassword() ::", error.message);
             throw error(error.message);
@@ -140,7 +151,7 @@ class Auth {
             }
         } else {
             console.log("No user is signed in to verify.");
-            throw new Error("No user is signed in to verify.");            
+            throw new Error("No user is signed in to verify.");
         }
     };
 }

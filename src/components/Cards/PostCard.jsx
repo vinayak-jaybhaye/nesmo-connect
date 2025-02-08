@@ -42,7 +42,7 @@ function PostCard({ post }) {
         setLikesAndDislikes({ likes, dislikes });
         setLikedStatus(status);
         setLikedBy(likedUsers);
-        setIsPostSaved(userData.savedPosts.includes(post.id));
+        setIsPostSaved(userData.savedPosts?.includes(post.id) || false);
       }
     };
 
