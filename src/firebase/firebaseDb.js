@@ -1,5 +1,25 @@
-import { getFirestore, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, collection, addDoc, query, where, arrayUnion, arrayRemove, writeBatch } from "firebase/firestore";
-import app from './firebaseConfig.js';
+import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    getDocs,
+    updateDoc,
+    deleteDoc,
+    collection,
+    addDoc,
+    query,
+    where,
+    arrayUnion,
+    arrayRemove,
+    writeBatch,
+    orderBy,
+    limit,
+    startAfter,
+    Timestamp,
+    endBefore
+} from "firebase/firestore";
+import app from "./firebaseConfig.js";
 
 class DB {
     db;
@@ -25,8 +45,8 @@ class DB {
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
-                const profile = docSnap.data();
-                return profile;
+                const oneDoc = docSnap.data();
+                return oneDoc;
             } else {
                 console.log("No such document!");
                 return null;
@@ -83,7 +103,10 @@ class DB {
         try {
             const usersCollection = collection(this.db, collectionName);
             const querySnapshot = await getDocs(usersCollection);
-            const users = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            const users = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
 
             // console.log("Users fetched successfully:", users);
             return users;
@@ -104,11 +127,10 @@ class DB {
 
             const querySnapshot = await getDocs(queryRef);
 
-            return querySnapshot.docs.map(doc => ({
+            return querySnapshot.docs.map((doc) => ({
                 id: doc.id,
-                ...doc.data()
+                ...doc.data(),
             }));
-
         } catch (error) {
             console.error("Error fetching posts:", error);
             return [];
@@ -127,12 +149,14 @@ class DB {
             const posts = await Promise.all(
                 postRefs.map(async (postRef) => {
                     const postSnap = await getDoc(postRef);
-                    return postSnap.exists() ? { id: postSnap.id, ...postSnap.data() } : null;
+                    return postSnap.exists()
+                        ? { id: postSnap.id, ...postSnap.data() }
+                        : null;
                 })
             );
 
             // Remove any null values (in case some posts were deleted)
-            return posts.filter(post => post !== null);
+            return posts.filter((post) => post !== null);
         } catch (error) {
             console.error("Error fetching user posts:", error);
             return [];
@@ -165,19 +189,23 @@ class DB {
             const validPosts = [];
             const foundPostIds = new Set();
 
-            results.forEach(snapshot => {
-                snapshot.docs.forEach(doc => {
+            results.forEach((snapshot) => {
+                snapshot.docs.forEach((doc) => {
                     validPosts.push({ id: doc.id, ...doc.data() });
                     foundPostIds.add(doc.id);
                 });
             });
 
             // Find missing post IDs
-            const missingPostIds = savedPosts.filter(postId => !foundPostIds.has(postId));
+            const missingPostIds = savedPosts.filter(
+                (postId) => !foundPostIds.has(postId)
+            );
 
             // If there are missing posts, update the user document
             if (missingPostIds.length > 0) {
-                const updatedSavedPosts = savedPosts.filter(postId => !missingPostIds.includes(postId));
+                const updatedSavedPosts = savedPosts.filter(
+                    (postId) => !missingPostIds.includes(postId)
+                );
                 console.warn("Some saved posts were not found:", missingPostIds);
                 const userRef = doc(this.db, "users", userId);
                 const batch = writeBatch(this.db);
@@ -191,7 +219,6 @@ class DB {
             return [];
         }
     }
-
 
     async updateLikes(postId, userId, likedStatus) {
         try {
@@ -230,7 +257,7 @@ class DB {
             let likes = 0;
             let dislikes = 0;
 
-            querySnapshot.forEach(doc => {
+            querySnapshot.forEach((doc) => {
                 const likedStatus = doc.data().likedStatus;
                 if (likedStatus === "liked") {
                     likes++;
@@ -253,7 +280,7 @@ class DB {
 
             let posts = [];
 
-            querySnapshot.forEach(doc => {
+            querySnapshot.forEach((doc) => {
                 posts.push({ id: doc.id, ...doc.data() });
             });
 
@@ -307,21 +334,33 @@ class DB {
             const receiverId = recieverData.uid;
             const senderRef = doc(this.db, "users", senderId);
             const receiverRef = doc(this.db, "users", receiverId);
-            console.log(receiverId)
+            console.log(receiverId);
 
             // Prevent duplicate requests
-            if (senderData.connectionRequests?.some(req => req.other === receiverId)) {
+            if (
+                senderData.connectionRequests?.some((req) => req.other === receiverId)
+            ) {
                 console.warn("Connection request already sent.");
                 return;
             }
 
             // Add to both users' connectionRequests array
             await updateDoc(senderRef, {
-                connectionRequests: arrayUnion({ type: "sent", other: receiverId, otherName: recieverData.name, otherAvatar: recieverData?.avatarUrl || "" })
+                connectionRequests: arrayUnion({
+                    type: "sent",
+                    other: receiverId,
+                    otherName: recieverData.name,
+                    otherAvatar: recieverData?.avatarUrl || "",
+                }),
             });
 
             await updateDoc(receiverRef, {
-                connectionRequests: arrayUnion({ type: "received", other: senderId, otherName: senderData.name, otherAvatar: senderData?.avatarUrl || "" })
+                connectionRequests: arrayUnion({
+                    type: "received",
+                    other: senderId,
+                    otherName: senderData.name,
+                    otherAvatar: senderData?.avatarUrl || "",
+                }),
             });
 
             await updateDoc(receiverRef, {
@@ -331,8 +370,8 @@ class DB {
                     otherName: senderData.name,
                     otherAvatar: senderData?.avatarUrl || "",
                     other: senderId,
-                    content: `${senderData.name} wants to Connect!`
-                })
+                    content: `${senderData.name} wants to Connect!`,
+                }),
             });
 
             console.log("Connection request sent successfully!");
@@ -347,7 +386,7 @@ class DB {
             const userRef = doc(this.db, "users", userId);
 
             await updateDoc(userRef, {
-                notifications: arrayRemove(notification) // Directly remove the exact object
+                notifications: arrayRemove(notification), // Directly remove the exact object
             });
 
             console.log("Notification deleted successfully!");
@@ -364,32 +403,41 @@ class DB {
             const senderRef = doc(this.db, "users", senderId);
             const receiverRef = doc(this.db, "users", receiverId);
 
-
-            const Request1 = { type: "sent", other: receiverId, otherName: userData.name, otherAvatar: userData?.avatarUrl || "" };  // Request in sender's connectionRequests
-            const Request2 = { type: "received", other: senderId, otherName: notification.otherName, otherAvatar: notification?.otherAvatar || "" }; // Request in receiver's connectionRequests
+            const Request1 = {
+                type: "sent",
+                other: receiverId,
+                otherName: userData.name,
+                otherAvatar: userData?.avatarUrl || "",
+            }; // Request in sender's connectionRequests
+            const Request2 = {
+                type: "received",
+                other: senderId,
+                otherName: notification.otherName,
+                otherAvatar: notification?.otherAvatar || "",
+            }; // Request in receiver's connectionRequests
 
             // Batch update to minimize Firestore calls
             const batch = writeBatch(this.db);
 
             // Remove connection request from sender's connectionRequests
             batch.update(senderRef, {
-                connectionRequests: arrayRemove(Request1)
+                connectionRequests: arrayRemove(Request1),
             });
 
             // Remove connection request from receiver's connectionRequests
             batch.update(receiverRef, {
-                connectionRequests: arrayRemove(Request2)
+                connectionRequests: arrayRemove(Request2),
             });
 
-            delete Request1.type
-            delete Request2.type
+            delete Request1.type;
+            delete Request2.type;
             // If Status is "accepted", add to both users' connections
             if (status === "accepted") {
                 batch.update(senderRef, {
-                    connections: arrayUnion(Request1)
+                    connections: arrayUnion(Request1),
                 });
                 batch.update(receiverRef, {
-                    connections: arrayUnion(Request2)
+                    connections: arrayUnion(Request2),
                 });
             }
             // Commit batch update
@@ -401,6 +449,144 @@ class DB {
             throw error;
         }
     }
+
+    async createGroupChat(chatId, members, type = "private", name) {
+        try {
+            const chatRef = doc(this.db, "chats", chatId);
+            console.log(name);
+
+            await setDoc(chatRef, {
+                members, // Store member IDs as an array of strings
+                type,
+                createdAt: Date.now(),
+                name,
+            });
+
+            // ✅ Add group chat ID to each member's "chats" array in the users collection
+            for (const memberId of members) {
+                const userRef = doc(this.db, "users", memberId);
+                await updateDoc(userRef, {
+                    chats: arrayUnion(chatId), // Append chatId to the user's chats array
+                });
+            }
+
+            console.log("Group chat created successfully!");
+        } catch (error) {
+            console.error("Error creating group chat:", error);
+            throw error;
+        }
+    }
+
+    async addMemberToGroupChat(chatId, memberId) {
+        try {
+            const chatRef = doc(this.db, "chats", chatId);
+            const chatSnap = await getDoc(chatRef);
+
+            if (!chatSnap.exists()) {
+                console.error("Chat does not exist!");
+                return;
+            }
+
+            const chatData = chatSnap.data();
+            if (chatData.members.includes(memberId)) {
+                console.log("User is already in the group!");
+                return;
+            }
+
+            // ✅ Add user to the group chat members array
+            await updateDoc(chatRef, {
+                members: arrayUnion(memberId),
+            });
+
+            // ✅ Add chat ID to the user's "chats" array in the users collection
+            const userRef = doc(this.db, "users", memberId);
+            await updateDoc(userRef, {
+                chats: arrayUnion(chatId),
+            });
+
+            console.log(
+                `Member ${memberId} added to group chat ${chatId} successfully!`
+            );
+        } catch (error) {
+            console.error("Error adding member to group chat:", error);
+            throw error;
+        }
+    }
+
+    async getGroupChatMessages(chatId) {
+        try {
+            const messagesCollection = collection(
+                this.db,
+                `chats/${chatId}/messages`
+            );
+            const messagesQuery = query(
+                messagesCollection,
+                orderBy("timestamp", "asc")
+            ); // Order by time
+
+            const querySnapshot = await getDocs(messagesQuery);
+            const messages = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+
+            return messages;
+        } catch (error) {
+            console.error("Error fetching group chat messages:", error);
+            return [];
+        }
+    }
+
+    async getAllChats(chatIds) {
+        try {
+            if(!chatIds) return [];
+            const chatsCollection = collection(this.db, "chats");
+            const querySnapshot = await getDocs(chatsCollection);
+            let chats = [];
+
+            querySnapshot.forEach((doc) => {
+                if (chatIds?.includes(doc.id)) {
+                    chats.push({ id: doc.id, ...doc.data() });
+                }
+            });
+            return chats;
+        } catch (error) {
+            console.error("Error fetching chats:", error);
+            return [];
+        }
+    }
+
+    async fetchRecentMessages(chatId, lastMessageTimestamp = null) {
+        try {
+            console.log("Fetching messages older than:", lastMessageTimestamp);
+            const messagesCollection = collection(dbServices.db, `chats/${chatId}/messages`);
+            let queryConstraints = [
+                orderBy("timestamp", "desc"), // ✅ Get newest messages first
+                limit(10) // ✅ Fetch the latest 10 messages
+            ];
+
+            if (lastMessageTimestamp) {
+                queryConstraints.push(where("timestamp", "<", lastMessageTimestamp)); // ✅ Get messages older than last loaded
+            }
+
+            const messagesQuery = query(messagesCollection, ...queryConstraints);
+            const querySnapshot = await getDocs(messagesQuery);
+            let messages = [];
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                data.id = doc.id;
+                messages.push(data);
+            });
+
+            return messages.reverse();
+        } catch (error) {
+            console.error("Error fetching messages:", error);
+            throw error;
+        }
+    }
+
+
 
 }
 

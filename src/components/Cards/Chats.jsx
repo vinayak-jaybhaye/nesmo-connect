@@ -1,18 +1,35 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { setVars } from "../../store/varSlice";
+import dbServices from "../../firebase/firebaseDb";
 
-function Chat() {
+function Chat({ chat, name }) {
+  const dispatch = useDispatch();
+  const selectChat = useSelector((state) => state.vars.selectChat);
+
   return (
-    <div className="flex items-center space-x-6 p-2 hover:bg-gray-800/60 rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-700 backdrop-blur-sm shadow-sm hover:shadow-green-500/5">
-      <div className="h-8 w-8 rounded-full bg-green-500/90 ring-2 ring-green-600/50 hover:ring-green-400 transition-all">
-        {/* Add avatar image if available */}
+    <div
+      className={`flex items-center space-x-6 p-2 hover:bg-gray-800/60 rounded-lg cursor-pointer transition-all duration-200 border border-transparent hover:border-gray-700 backdrop-blur-sm shadow-sm hover:shadow-green-500/5 ${
+        selectChat === chat.id ? "bg-gray-600/60" : ""
+      } `}
+      onClick={() => {
+        dispatch(setVars({ selectChat: null }));
+
+        setTimeout(() => {
+          dispatch(setVars({ selectChat: chat.id }));
+        }, 50); 
+      }}
+    >
+      <div className="h-7 w-7 rounded-full">
+        <img src="/chat.svg" />
       </div>
       <div className="flex-1 min-w-0 ">
-        <div className="font-medium text-gray-100 hover:text-green-400 transition-colors truncate">
-          Jane Smith
-        </div>
-        <div className="text-sm text-gray-400/90 hover:text-gray-300 transition-colors truncate">
-          Hey, how are you?
+        <div
+          className={`font-medium text-gray-100 hover:text-green-400 transition-colors truncate ${
+            selectChat === chat.id ? "text-green-400" : ""
+          }`}
+        >
+          {chat.name[0] === name ? chat.name[1] : chat.name[0]}
         </div>
       </div>
     </div>
@@ -20,8 +37,15 @@ function Chat() {
 }
 
 function Chats() {
+  const [chats, setChats] = useState([]);
   const userData = useSelector((state) => state.auth.userData);
-  const chats = [];
+  useEffect(() => {
+    async function fetchChats() {
+      const chats = await dbServices.getAllChats(userData.chats);
+      setChats(chats);
+    }
+    fetchChats();
+  }, [userData.chats]);
   return (
     <>
       <h2 className="text-sm font-bold mb-4 text-gray-100 flex items-center gap-2">
@@ -49,7 +73,7 @@ function Chats() {
         {chats.length > 0 ? (
           <div className="space-y-1.5">
             {chats.map((chat) => (
-              <Chat key={chat.id} chat={chat} />
+              <Chat key={chat.id} chat={chat} name={userData.name} />
             ))}
           </div>
         ) : (

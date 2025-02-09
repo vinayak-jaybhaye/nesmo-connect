@@ -20,7 +20,7 @@ import {
   EditProfile
 } from "./pages";
 
-import { UserList } from "./components";
+import { UserList, GroupChat } from "./components";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -35,6 +35,7 @@ const router = createBrowserRouter(
       <Route path="forgot-password" element={<ForgotPassword />} />
       <Route path="verify-email" element={<VerfiyEmail />} />
       <Route path= 'all-users' element = {<UserList />} />
+      <Route path= 'group-chat' element = {<GroupChat />} />
     </>
   )
 );

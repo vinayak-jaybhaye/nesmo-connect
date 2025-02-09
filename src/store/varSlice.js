@@ -1,16 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 
-const initialState = {
-    vars : {}
-}
+const initialState = {}
 
 const varSlice = createSlice({
     name: "vars",
     initialState,
     reducers: {
         setVars: (state, action) => {
-            Object.assign(state, action.payload); // Correct way to update state
+            // Object.assign(state, action.payload); // Correct way to update state
+            return { ...state, ...action.payload };
         }
     }
 });

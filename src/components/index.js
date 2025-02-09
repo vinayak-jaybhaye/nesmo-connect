@@ -12,5 +12,6 @@ import Notifications from "./Cards/Notifications";
 import Connections from "./Cards/Connections";
 import Chats from "./Cards/Chats";
 import Communities from "./Cards/Communities";
+import GroupChat from "./chats/GroupChat";
 
-export { Loader, ErrorAlert, LeftSide, SuccessAlert, PostCard, NewPost, AllPosts, UserList, Notifications, Connections, Chats, Communities };
+export { Loader, ErrorAlert, LeftSide, SuccessAlert, PostCard, NewPost, AllPosts, UserList, Notifications, Connections, Chats, Communities , GroupChat};

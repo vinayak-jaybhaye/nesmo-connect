@@ -4,7 +4,10 @@ import { useSelector, useDispatch } from "react-redux";
 import userAuth from "../firebase/firebaseAuth";
 import dbServices from "../firebase/firebaseDb";
 import { login, logout } from "../store/authSlice";
+import { setVars } from "../store/varSlice";
 import { Loader } from "../components";
+
+import { generateChatId } from "../utils/helper";
 
 import appwriteStorage from "../appwrite/appwriteStorage";
 
@@ -185,6 +188,23 @@ function Profile() {
     input.click();
   };
 
+  const handleMessage = async () => {
+    const chatId = generateChatId(userData.uid, profileId);
+    if (userData.chats && userData.chats.includes(chatId)) {
+      dispatch(setVars({ selectChat: chatId }));
+      navigate("/dashboard");
+    } else {
+      await dbServices.createGroupChat(
+        chatId,
+        [userData.uid, profileId],
+        "private",
+        [userData.name, profileData.name]
+      );
+    }
+    dispatch(setVars({ selectChat: chatId }));
+    navigate("/dashboard");
+  };
+
   if (!profileData) {
     return <Loader />;
   }
@@ -226,9 +246,19 @@ function Profile() {
           {/* Profile Info */}
           <div className="flex flex-col md:flex-row w-full md:w-[65%] justify-between items-center md:items-start p-2 rounded-tl-xl mt-14 md:mt-0">
             <div className="w-full md:w-[70%] text-center md:text-left space-y-4">
-              <h1 className="text-3xl md:text-4xl font-bold text-white drop-shadow-md">
-                {profileData?.name}
-              </h1>
+              <div className="flex items-center gap-2  justify-evenly">
+                <h1 className="text-xl md:text-2xl font-bold text-white">
+                  {profileData?.name}
+                </h1>
+                {!amIOwner && (
+                  <button
+                    className="rounded-mdpx-4 p-1 h-8 w-8 cursor-pointer shadow-sm transition duration-300 hover:shadow-lg hover:scale-125"
+                    onClick={handleMessage}
+                  >
+                    <img src="/chat.svg" />
+                  </button>
+                )}
+              </div>
 
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
                 <span className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full text-sm shadow-md">
