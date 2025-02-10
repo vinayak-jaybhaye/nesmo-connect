@@ -14,6 +14,7 @@ function PostCard({ post }) {
   const userData = useSelector((state) => state.auth.userData);
 
   const [likedStatus, setLikedStatus] = useState(null);
+  const [showAllLikes, setShowAllLikes] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [deleted, setDeleted] = useState(false);
   const [{ likes, dislikes }, setLikesAndDislikes] = useState({
@@ -110,10 +111,20 @@ function PostCard({ post }) {
   };
 
   const renderLikedBy = () => {
-    if (likedBy.length === 0) return null;
+    if (likedBy.length === 0)
+      return (
+        <div className="text-sm text-gray-400">
+          <span className="font-thin text-white">
+            Be first to like this post
+          </span>
+        </div>
+      );
 
     return (
-      <div className="text-sm text-gray-400">
+      <div
+        className="text-sm text-gray-400 cursor-pointer"
+        onClick={() => setShowAllLikes((prev) => !prev)}
+      >
         <span className="font-thin text-white">{likedBy[0].name}</span>
         {likedBy.length > 1 && (
           <>
@@ -130,6 +141,31 @@ function PostCard({ post }) {
           </>
         )}{" "}
         liked this post
+      </div>
+    );
+  };
+
+  const renderLikedByList = () => {
+    return (
+      <div className="absolute h-[70%] w-[50%] z-10 top-5 flex flex-col right-0 gap-2 p-4 overscroll-auto bg-transparent rounded-lg shadow-xl backdrop-blur-sm overflow-y-auto">
+        {likedBy.map((user) => (
+          <div
+            key={user.id}
+            className="flex items-center p-2 gap-3 bg-gray-800/90 rounded-lg shadow-xl backdrop-blur-sm"
+          >
+            <div
+              className="h-8 w-8 rounded-full overflow-hidden bg-gray-600/80 cursor-pointer ring-2 ring-gray-600 hover:ring-green-500 transition-all"
+              onClick={() => navigate(`/profile/${user.id}`)}
+            >
+              <img
+                src={user.avatarUrl || "avatar.png"}
+                alt="User Avatar"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="text-gray-300/90">{user.name}</div>
+          </div>
+        ))}
       </div>
     );
   };
@@ -166,7 +202,10 @@ function PostCard({ post }) {
       }`}
       onClick={() => (showMenu ? setShowMenu(false) : null)}
     >
-      <div className="bg-gray-900/80 p-4 rounded-xl shadow-inner space-y-4 h-full backdrop-blur-sm">
+      <div
+        className="bg-gray-900/80 p-4 rounded-xl shadow-inner space-y-4 h-full backdrop-blur-sm"
+        // onDoubleClick={() => setShowAllLikes((prev) => false)}
+      >
         <div className="p-4 border-b border-gray-700/50">
           <div className="flex justify-between space-x-3 mb-3">
             <div className="flex items-center space-x-3 mb-3">
@@ -282,7 +321,11 @@ function PostCard({ post }) {
             </div>
           </div>
 
-          <div className="relative group">
+          <div
+            className="relative group"
+            onClick={() => setShowAllLikes(false)}
+          >
+            {showAllLikes && (renderLikedByList() || null)}
             {imageUrl && (
               <div className="rounded-xl overflow-hidden ring-1 mb-2 ring-gray-700 transition-all hover:ring-gray-600">
                 <img
