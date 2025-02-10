@@ -34,6 +34,7 @@ const router = createBrowserRouter(
       <Route path = 'edit-profile/:profileId' element = {<EditProfile />} />
       <Route path="profile/:profileId" element={<Profile />} />
       <Route path="chats/:chatId" element={<ChatPage />} />
+      <Route path="chats" element={<ChatPage />} />
       <Route path="forgot-password" element={<ForgotPassword />} />
       <Route path="verify-email" element={<VerfiyEmail />} />
       <Route path= 'all-users' element = {<UserList />} />

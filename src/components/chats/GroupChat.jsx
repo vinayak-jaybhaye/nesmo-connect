@@ -85,7 +85,7 @@ function GroupChat({ userData, chatId }) {
             }));
 
             setMessages(decryptedMessages);
-            if (newMessages.length >= 20) {
+            if (newMessages.length > 18) {
               await rtdbServices.syncGroupChatMessages(chatId);
               setOldMessages([]);
             }

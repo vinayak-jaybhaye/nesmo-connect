@@ -44,7 +44,7 @@ const SECRET_KEY = import.meta.env.VITE_ENCRYPT_KEY;
 
 // encrypt message
 function encryptMessage(message) {
-  console.log(SECRET_KEY);
+  // console.log(SECRET_KEY);
   return CryptoJS.AES.encrypt(message,SECRET_KEY).toString();
 }
 

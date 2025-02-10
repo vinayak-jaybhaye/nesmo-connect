@@ -32,10 +32,11 @@ function ChatPage() {
               "users",
               firebaseUser.uid
             );
-            console.log("User Data:", user);
-            delete user.posts;
-            user.uid = firebaseUser.uid;
-            dispatch(login({ userData: user }));
+            if (user) {
+              delete user.posts;
+              user.uid = firebaseUser.uid;
+              dispatch(login({ userData: user }));
+            }
           } catch (error) {
             console.error("Error fetching user data:", error);
             navigate("/login");
@@ -45,14 +46,19 @@ function ChatPage() {
         }
       }
     );
+
     return () => unsubscribe();
-  }, [dispatch, navigate, reload]);
+  }, [dispatch, navigate]);
 
   useEffect(() => {
-    if (userData && chatId && userData.chats.includes(chatId)) {
-        dispatch(setVars({ selectChat: chatId }));
+    if (!userData) return;
+
+    if (chatId && userData.chats?.includes(chatId)) {
+      dispatch(setVars({ selectChat: chatId }));
+    } else {
+      navigate("/chats");
     }
-  }, [chatId]);
+  }, [chatId, userData, dispatch, navigate]);
 
   const handleLogout = async () => {
     try {
@@ -110,7 +116,9 @@ function ChatPage() {
             className="text-lg font-semibold text-gray-100 cursor-pointer hover:bg-gray-700 rounded-lg p-1 transition-all duration-200 hover:scale-105"
             onClick={() => navigate("/")}
           >
-            Home
+            <span>
+              <img src="/home.svg" className="h-8 w-8" />
+            </span>
           </div>
           <div className="flex items-center space-x-4">
             <div

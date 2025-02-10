@@ -20,8 +20,7 @@ function Chat({ chat, name }) {
         setTimeout(() => {
           dispatch(setVars({ selectChat: chat.id }));
           navigate(`/chats/${chat.id}`);
-        }, 50); 
-         
+        }, 50);
       }}
     >
       <div className="h-7 w-7 rounded-full">

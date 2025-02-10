@@ -112,7 +112,9 @@ function Dashboard() {
             className="text-lg font-semibold text-gray-100 cursor-pointer hover:bg-gray-700 rounded-lg p-1 transition-all duration-200 hover:scale-105"
             onClick={() => navigate("/")}
           >
-            Home
+            <span>
+              <img src="/home.svg" className="h-8 w-8" />
+            </span>
           </div>
           <div className="flex items-center space-x-4">
             <div
