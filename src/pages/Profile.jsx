@@ -192,7 +192,7 @@ function Profile() {
     const chatId = generateChatId(userData.uid, profileId);
     if (userData.chats && userData.chats.includes(chatId)) {
       dispatch(setVars({ selectChat: chatId }));
-      navigate("/dashboard");
+      navigate("/chats/" + chatId);
     } else {
       await dbServices.createGroupChat(
         chatId,
@@ -202,7 +202,7 @@ function Profile() {
       );
     }
     dispatch(setVars({ selectChat: chatId }));
-    navigate("/dashboard");
+    navigate("/chats/" + chatId);
   };
 
   if (!profileData) {

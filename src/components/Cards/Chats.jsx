@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setVars } from "../../store/varSlice";
 import dbServices from "../../firebase/firebaseDb";
+import { useNavigate } from "react-router-dom";
 
 function Chat({ chat, name }) {
   const dispatch = useDispatch();
   const selectChat = useSelector((state) => state.vars.selectChat);
+  const navigate = useNavigate();
 
   return (
     <div
@@ -17,7 +19,9 @@ function Chat({ chat, name }) {
 
         setTimeout(() => {
           dispatch(setVars({ selectChat: chat.id }));
+          navigate(`/chats/${chat.id}`);
         }, 50); 
+         
       }}
     >
       <div className="h-7 w-7 rounded-full">

@@ -6,5 +6,6 @@ import Profile from './Profile'
 import ForgotPassword from './ForgetPassword'
 import VerfiyEmail from './VerifyEmail'
 import EditProfile from './EditProfile'
+import ChatPage from './ChatPage'
 
-export {Login, Register, Dashboard, Profile, ForgotPassword, VerfiyEmail, EditProfile}
+export {Login, Register, Dashboard, Profile, ForgotPassword, VerfiyEmail, EditProfile, ChatPage}

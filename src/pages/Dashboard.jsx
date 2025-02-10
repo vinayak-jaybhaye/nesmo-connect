@@ -79,7 +79,7 @@ function Dashboard() {
       <div className="w-[15%] sticky top-0  min-w-[200px] h-[100vh] bg-gray-800/80 p-4 space-y-4 border-r border-gray-700/50 backdrop-blur-md">
         <div
           className="mb-8 text-xl font-bold text-gray-100 border-b border-gray-700/50 pb-4 shadow-lg cursor-pointer"
-          onClick={() => setReload(!reload)}
+          onClick={() => setReload((prev) => !prev)}
         >
           NESMO connect
         </div>
@@ -108,7 +108,12 @@ function Dashboard() {
       <div className="w-[85%] bg-gray-900/95 backdrop-blur-sm h-full overflow-clip ">
         {/* Navbar */}
         <div className="bg-gray-800/80 sticky top-0 z-10 shadow-lg p-2 flex justify-between items-center rounded-sm border-b border-gray-600/50 backdrop-blur-sm">
-          <div className="text-lg font-semibold text-gray-100">Home</div>
+          <div
+            className="text-lg font-semibold text-gray-100 cursor-pointer hover:bg-gray-700 rounded-lg p-1 transition-all duration-200 hover:scale-105"
+            onClick={() => navigate("/")}
+          >
+            Home
+          </div>
           <div className="flex items-center space-x-4">
             <div
               onClick={handleLogout}
@@ -163,7 +168,7 @@ function Dashboard() {
         {/* Main Content */}
         <div className="flex justify-around p-4 gap-4 h-[90%] sticky top-20">
           {/* Left Column */}
-          {selectChat ? (
+          {false ? (
             <GroupChat userData={userData} chatId={selectChat} />
           ) : (
             <div className="w-[60%] space-y-4 overflow-scroll scrollbar-hide">
@@ -208,7 +213,7 @@ function Dashboard() {
           {/* Right Column */}
           <div className="w-[35%] space-y-4 h-[100%] overflow-scroll">
             {showNotifications && (
-              <div className="bg-gray-800/80 border border-gray-700/50 rounded-xl shadow-xl p-4 backdrop-blur-sm">
+              <div className="bg-gray-800/80 border border-gray-700/50 rounded-xl shadow-xl p-2 backdrop-blur-sm">
                 <Notifications
                   notifications={userData.notifications}
                   userData={userData}

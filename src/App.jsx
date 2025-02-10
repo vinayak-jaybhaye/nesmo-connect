@@ -17,7 +17,8 @@ import {
   ForgotPassword,
   VerfiyEmail,
   Profile,
-  EditProfile
+  EditProfile,
+  ChatPage
 } from "./pages";
 
 import { UserList, GroupChat } from "./components";
@@ -32,6 +33,7 @@ const router = createBrowserRouter(
       <Route path="profile" element={<Profile />} />
       <Route path = 'edit-profile/:profileId' element = {<EditProfile />} />
       <Route path="profile/:profileId" element={<Profile />} />
+      <Route path="chats/:chatId" element={<ChatPage />} />
       <Route path="forgot-password" element={<ForgotPassword />} />
       <Route path="verify-email" element={<VerfiyEmail />} />
       <Route path= 'all-users' element = {<UserList />} />
