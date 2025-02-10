@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import rtdbServices from "../../firebase/firebaseRTDB";
 import { setVars } from "../../store/varSlice";
 import { PaperAirplaneIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { getFormattedTime, sendMessage } from "./chatUtils";
+import { getFormattedTime, sendMessage, decryptMessage } from "./chatUtils";
 import dbServices from "../../firebase/firebaseDb";
 
 function GroupChat({ userData, chatId }) {
@@ -19,6 +19,8 @@ function GroupChat({ userData, chatId }) {
 
   // const chatId = useSelector((state) => state.vars.selectChat);
   // const userData = useSelector((state) => state.auth.userData);
+
+  const inputRef = useRef(null);
 
   const dispatch = useDispatch();
 
@@ -50,13 +52,15 @@ function GroupChat({ userData, chatId }) {
         const chatData = await dbServices.getDocument("chats", chatId);
         setChat(chatData);
       } catch (error) {
-        setMessages([]); // Clear messages when chatId changes
+        setMessages([]);
+        setOldMessages([]);
         setLastMessageTimestamp(null);
         console.error("Chat initialization failed:", error);
       }
     }
     if (chatId) {
       initChat();
+      inputRef.current?.focus();
     }
   }, [chatId]);
 
@@ -75,7 +79,12 @@ function GroupChat({ userData, chatId }) {
               ? Object.entries(data).map(([id, msg]) => ({ id, ...msg }))
               : [];
 
-            setMessages(newMessages);
+            const decryptedMessages = newMessages.map((msg) => ({
+              ...msg,
+              text: decryptMessage(msg.text),
+            }));
+
+            setMessages(decryptedMessages);
             if (newMessages.length >= 20) {
               await rtdbServices.syncGroupChatMessages(chatId);
               setOldMessages([]);
@@ -99,7 +108,9 @@ function GroupChat({ userData, chatId }) {
     await sendMessage(`chats/${chatId}/messages`, newMessage, userData);
     setNewMessage("");
     setIsSending(false);
-    setLoadedAll(false);
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 0);
   };
 
   return (
@@ -108,7 +119,7 @@ function GroupChat({ userData, chatId }) {
       key={chatId}
     >
       {/* Chat Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-800">
+      <div className="flex items-center justify-between p-4 border-b border-gray-700 bg-slate-600">
         <h2 className="text-lg font-semibold truncate text-gray-200">
           {chat?.type === "private"
             ? chat?.name[0] === userData?.name
@@ -118,7 +129,7 @@ function GroupChat({ userData, chatId }) {
         </h2>
         <button
           onClick={() => dispatch(setVars({ selectChat: null }))}
-          className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
+          className="p-2 text-gray-200 hover:text-white rounded-lg hover:bg-gray-700 transition-colors duration-200"
           aria-label="Close chat"
         >
           <XMarkIcon className="w-5 h-5" />
@@ -177,11 +188,12 @@ function GroupChat({ userData, chatId }) {
       {/* Message Input */}
       <form
         onSubmit={handleSendMessage}
-        className="p-4 border-t border-gray-700 bg-gray-800"
+        className="p-4 border-t border-gray-700 bg-transparent"
       >
-        <div className="flex gap-2">
+        <div className="flex gap-2 bg-transparent">
           <input
             value={newMessage}
+            ref={inputRef}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
             className="flex-1 bg-gray-700 text-gray-100 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"

@@ -20,6 +20,8 @@ import {
     endBefore
 } from "firebase/firestore";
 import app from "./firebaseConfig.js";
+import { decryptMessage } from "../components/chats/chatUtils.js";
+
 
 class DB {
     db;
@@ -539,7 +541,7 @@ class DB {
 
     async getAllChats(chatIds) {
         try {
-            if(!chatIds) return [];
+            if (!chatIds) return [];
             const chatsCollection = collection(this.db, "chats");
             const querySnapshot = await getDocs(chatsCollection);
             let chats = [];
@@ -576,6 +578,7 @@ class DB {
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
                 data.id = doc.id;
+                data.text = decryptMessage(data.text);
                 messages.push(data);
             });
 
