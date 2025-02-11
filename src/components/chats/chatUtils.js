@@ -1,4 +1,6 @@
 import rtdbServices from "../../firebase/firebaseRTDB";
+import appwriteStorage from "../../appwrite/appwriteStorage";
+import dbServices from "../../firebase/firebaseDb";
 import CryptoJS from "crypto-js";
 
 
@@ -6,10 +8,10 @@ const getFormattedTime = (timestamp) => {
   let millis;
 
   if (typeof timestamp === "number") {
-    millis = timestamp; // Already in milliseconds ✅
+    millis = timestamp; // Already in milliseconds
   } else if (
-    timestamp.seconds !== undefined &&
-    timestamp.nanoseconds !== undefined
+    timestamp?.seconds !== undefined &&
+    timestamp?.nanoseconds !== undefined
   ) {
     millis =
       timestamp.seconds * 1000 + Math.round(timestamp.nanoseconds / 1e6);
@@ -23,11 +25,84 @@ const getFormattedTime = (timestamp) => {
   });
 };
 
-
-async function sendMessage(messagesPath, newMessage, userData) {
-  if (!newMessage.trim() || !userData) return;
+const deleteMessage = async (chatId, message) => {
   try {
+    if (message.fileData) {
+      await appwriteStorage.deleteFile(message.fileData.fileId);
+      console.log("File deleted successfully:", message.fileData);
+      delete message.fileData;
+    }
+    if (typeof message.timestamp === "number") {
+      const messageId = message.id;
+      await rtdbServices.deleteData(`chats/${chatId}/messages/${messageId}`);
+    } else {
+      await dbServices.deleteMessage(chatId, message);
+    }
+  } catch (error) {
+    console.error("Error deleting message:", error);
+  }
+}
+
+
+async function sendMessage(messagesPath, newMessage = "", userData, file = null) {
+  if ((!newMessage.trim() && !file) || !userData) {
+    console.error("Invalid message data provided.", {
+      newMessage,
+      userData,
+      file,
+    });
+    return
+  }
+  try {
+    let fileData = null;
+    //  Handle file upload if provided
+    if (file) {
+      const fileInfo = await appwriteStorage.uploadFile(file);
+
+      if (!fileInfo || !fileInfo.$id) {
+        throw new Error("File upload failed.");
+      }
+
+      const fileId = fileInfo.$id;
+      let fileUrl = null;
+      const fileType = file.type;
+
+      if (fileType.startsWith("image")) {
+        fileUrl = fileType === "image/webp"
+          ? appwriteStorage.getFileView(fileId)
+          : appwriteStorage.getFilePreview(fileId);
+      } else if ([
+        "application/pdf",
+        "text/plain",
+        "text/csv",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/msword"
+      ].includes(fileType)) {
+        fileUrl = appwriteStorage.getFileView(fileId);
+      } else if ([
+        "audio/mpeg",      // mp3
+        "audio/wav",       // wav
+        "audio/ogg",       // ogg
+        "audio/flac",      // flac
+        "audio/aac",       // aac
+        "audio/mp4"        // m4a
+      ].includes(fileType)) {
+        fileUrl = appwriteStorage.getFileView(fileId);
+      } else if ([
+        "video/mp4",       // mp4
+        "video/webm",      // webm
+        "video/ogg",       // ogg
+        "video/x-matroska" // mkv
+      ].includes(fileType)) {
+        fileUrl = appwriteStorage.getFileView(fileId);
+      } else {
+        fileUrl = appwriteStorage.getFileDownload(fileId);
+      }
+
+      fileData = { fileId, fileUrl, fileType: file.type };
+    }
     const messageData = {
+      ...(fileData && { fileData }),
       senderId: userData.uid,
       senderName: userData.name,
       text: encryptMessage(newMessage.trim()),
@@ -45,7 +120,7 @@ const SECRET_KEY = import.meta.env.VITE_ENCRYPT_KEY;
 // encrypt message
 function encryptMessage(message) {
   // console.log(SECRET_KEY);
-  return CryptoJS.AES.encrypt(message,SECRET_KEY).toString();
+  return CryptoJS.AES.encrypt(message, SECRET_KEY).toString();
 }
 
 // Decrypt message
@@ -54,6 +129,4 @@ function decryptMessage(encryptedMessage) {
   return bytes.toString(CryptoJS.enc.Utf8);
 }
 
-
-
-export { getFormattedTime, sendMessage, encryptMessage, decryptMessage };
+export { getFormattedTime, sendMessage, encryptMessage, decryptMessage, deleteMessage };

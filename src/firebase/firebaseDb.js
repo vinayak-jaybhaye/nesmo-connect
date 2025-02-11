@@ -19,6 +19,7 @@ import {
     Timestamp,
     endBefore
 } from "firebase/firestore";
+import appwriteStorage from "../appwrite/appwriteStorage.js";
 import app from "./firebaseConfig.js";
 import { decryptMessage } from "../components/chats/chatUtils.js";
 
@@ -560,7 +561,6 @@ class DB {
 
     async fetchRecentMessages(chatId, lastMessageTimestamp = null) {
         try {
-            console.log("Fetching messages older than:", lastMessageTimestamp);
             const messagesCollection = collection(dbServices.db, `chats/${chatId}/messages`);
             let queryConstraints = [
                 orderBy("timestamp", "desc"), // ✅ Get newest messages first
@@ -581,7 +581,7 @@ class DB {
                 data.text = decryptMessage(data.text);
                 messages.push(data);
             });
-
+            // console.log("Messages fetched successfully:", messages);
             return messages.reverse();
         } catch (error) {
             console.error("Error fetching messages:", error);
@@ -590,7 +590,22 @@ class DB {
     }
 
 
-
+    async deleteMessage(chatId, message) {
+        try {
+            // delete shared files if any
+            if (message.fileData) {
+                await appwriteStorage.deleteFile(message.fileData.fileId);
+                console.log("File deleted successfully!");
+            }
+            const messageId = message.id;
+            const messageRef = doc(this.db, `chats/${chatId}/messages`, messageId);
+            await deleteDoc(messageRef);
+            // console.log("Message deleted successfully!");
+        } catch (error) {
+            console.error("Error deleting message:", error);
+            throw error;
+        }
+    }
 }
 
 const dbServices = new DB();

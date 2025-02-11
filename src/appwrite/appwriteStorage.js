@@ -47,6 +47,10 @@ export class Service {
         return this.bucket.getFileView(conf.appwriteBucketId, fileId)
     }
 
+    getFileDownload(fileId) {
+        return this.bucket.getFileDownload(conf.appwriteBucketId, fileId)
+    }
+
 }
 
 

@@ -1,15 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import rtdbServices from "../../firebase/firebaseRTDB";
 import { setVars } from "../../store/varSlice";
 import { PaperAirplaneIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { getFormattedTime, sendMessage, decryptMessage } from "./chatUtils";
+import { sendMessage, decryptMessage } from "./chatUtils";
 import dbServices from "../../firebase/firebaseDb";
+import Message from "./Message";
+import { AttachmentIcon, FileTypeIcon } from "./helperComponents";
 
 function GroupChat({ userData, chatId }) {
   const [messages, setMessages] = useState([]);
   const [oldMessages, setOldMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [file, setFile] = useState(null);
   const [chat, setChat] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
@@ -85,7 +88,7 @@ function GroupChat({ userData, chatId }) {
             }));
 
             setMessages(decryptedMessages);
-            if (newMessages.length > 18) {
+            if (newMessages.length > 25) {
               await rtdbServices.syncGroupChatMessages(chatId);
               setOldMessages([]);
             }
@@ -105,12 +108,35 @@ function GroupChat({ userData, chatId }) {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     setIsSending(true);
-    await sendMessage(`chats/${chatId}/messages`, newMessage, userData);
+    await sendMessage(`chats/${chatId}/messages`, newMessage, userData, file);
     setNewMessage("");
+    setFile(null);
     setIsSending(false);
     setTimeout(() => {
       inputRef.current?.focus();
     }, 0);
+  };
+
+  const handleAddFile = (e) => {
+    e.preventDefault();
+    const input = document.createElement("input");
+    input.type = "file";
+
+    // ✅ Supports images, audio, video, documents, and zip files
+    input.accept =
+      "image/*,audio/*,video/*,.mp3,.wav,.aac,.ogg,.flac,.m4a,.mp4,.mkv,.avi,.mov,.wmv,.flv,.webm,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar";
+
+    input.onchange = async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        setFile(file);
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 100);
+      }
+    };
+    input.onkeydown = (e) => e.preventDefault();
+    input.click();
   };
 
   return (
@@ -157,30 +183,12 @@ function GroupChat({ userData, chatId }) {
           </div>
         ) : (
           [...oldMessages, ...messages].map((msg) => (
-            <div
+            <Message
               key={msg.id}
-              className={`flex ${
-                msg.senderId === userData?.uid ? "justify-end" : "justify-start"
-              }`}
-            >
-              <div
-                className={`max-w-[85%] p-3 rounded-lg ${
-                  msg.senderId === userData?.uid
-                    ? "bg-blue-900 ml-8"
-                    : "bg-gray-800 mr-8"
-                }`}
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-medium text-blue-400">
-                    {msg.senderId === userData?.uid ? "You" : msg.senderName}
-                  </span>
-                  <time className="text-xs text-gray-400">
-                    {getFormattedTime(msg.timestamp)}
-                  </time>
-                </div>
-                <p className="text-gray-100 break-words">{msg.text}</p>
-              </div>
-            </div>
+              msg={msg}
+              userData={userData}
+              chatId={chatId}
+            />
           ))
         )}
       </div>
@@ -188,25 +196,81 @@ function GroupChat({ userData, chatId }) {
       {/* Message Input */}
       <form
         onSubmit={handleSendMessage}
-        className="p-4 border-t border-gray-700 bg-transparent"
+        className="p-2 border-t border-gray-700 bg-transparent flex w-full justify-around"
       >
-        <div className="flex gap-2 bg-transparent">
+        {file && (
+          <div className="relative group border border-gray-700 rounded-xl overflow-hidden transition-all duration-200 hover:border-gray-600">
+            {/* Preview content */}
+            <div className="relative">
+              {file.type.startsWith("image/") ? (
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt="Upload preview"
+                  className="w-20 h-20 object-cover rounded-xl"
+                />
+              ) : (
+                <div className="w-20 h-20 bg-gray-800 flex items-center justify-center">
+                  <FileTypeIcon
+                    mimeType={file.type}
+                    className="w-8 h-8 text-gray-400"
+                  />
+                </div>
+              )}
+
+              {/* Close button */}
+              <button
+                onClick={() => setFile(null)}
+                className="absolute top-1 right-1 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg transition-all duration-150 transform scale-100"
+                aria-label="Remove file"
+              >
+                <XMarkIcon className="w-3" />
+              </button>
+            </div>
+
+            {/* File info */}
+            <div className="absolute bottom-0 left-0 right-0 p-1 bg-gradient-to-t from-gray-900/90 to-transparent">
+              <div className="flex items-center gap-1 text-xs text-white">
+                <span className="truncate">{file.name}</span>
+                <span className="text-gray-400 text-xxs">
+                  ({(file.size / 1024).toFixed(1)}KB)
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="p-2 hover:bg-gray-600/50 rounded-xl transition-all group"
+            onClick={handleAddFile}
+          >
+            {/* <AttachmentIcon className="w-4 h-4 text-gray-400" /> */}
+            <img src="/attachments.svg" className="w-6" />
+          </button>
+        </div>
+        <div className="flex gap-2 bg-transparent w-[90%]">
           <input
             value={newMessage}
             ref={inputRef}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 bg-gray-700 text-gray-100 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+            className="flex-1 bg-gray-700  text-gray-100 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 "
             disabled={isSending}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault(); // to prevent file upload on enter
+                handleSendMessage(e);
+              }
+            }}
           />
           <button
             type="submit"
             className={`p-2 rounded-lg transition-colors duration-200 ${
-              isSending || !newMessage.trim()
+              isSending || (!newMessage.trim() && !file)
                 ? "bg-gray-600 opacity-50 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"
             }`}
-            disabled={isSending || !newMessage.trim()}
+            disabled={isSending || (!newMessage.trim() && !file)}
           >
             <PaperAirplaneIcon className="w-5 h-5 text-white" />
           </button>
