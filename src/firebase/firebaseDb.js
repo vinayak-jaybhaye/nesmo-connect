@@ -432,15 +432,13 @@ class DB {
                 connectionRequests: arrayRemove(Request2),
             });
 
-            delete Request1.type;
-            delete Request2.type;
             // If Status is "accepted", add to both users' connections
             if (status === "accepted") {
                 batch.update(senderRef, {
-                    connections: arrayUnion(Request1),
+                    connections: arrayUnion(receiverId),
                 });
                 batch.update(receiverRef, {
-                    connections: arrayUnion(Request2),
+                    connections: arrayUnion(senderId),
                 });
             }
             // Commit batch update
@@ -452,6 +450,63 @@ class DB {
             throw error;
         }
     }
+
+    async getConnections(userId) {
+        try {
+            const userRef = doc(this.db, "users", userId);
+            const userSnap = await getDoc(userRef);
+            const userData = userSnap.data();
+
+            const connections = userData?.connections || [];
+
+            // Fetch all connection data in parallel
+            const connectionData = await Promise.all(connections.map(async (connection) => {
+                const otherUserRef = doc(this.db, "users", connection.other);
+                const otherUserSnap = await getDoc(otherUserRef);
+                const connectionData = otherUserSnap.data();
+                connectionData.id = connection.other;
+                return connectionData;
+            }));
+
+            return connectionData;
+        } catch (error) {
+            console.error("Error fetching connections:", error);
+            return [];
+        }
+    }
+
+    async getConnectionRequests(userId) {
+        try {
+            const userRef = doc(this.db, "users", userId);
+            const userSnap = await getDoc(userRef);
+            const userData = userSnap.data();
+            const connectionRequests = userData?.connectionRequests || [];
+
+            return connectionRequests;
+        } catch (error) {
+            console.error("Error fetching connection requests:", error);
+            return [];
+        }
+    }
+
+    async deleteConnection(userId, connectionId) {
+        try {
+            console.log(userId, connectionId);
+            const userRef = doc(this.db, "users", userId);
+            const otherUserRef = doc(this.db, "users", connectionId);
+            await updateDoc(userRef, {
+                connections: arrayRemove(connectionId),
+            });
+            await updateDoc(otherUserRef, {
+                connections: arrayRemove(userId),
+            });
+            console.log("Connection deleted successfully!");
+        } catch (error) {
+            console.error("Error deleting connection:", error);
+            throw error;
+        }
+    }
+
 
     async createGroupChat(chatId, members, type = "private", name) {
         try {

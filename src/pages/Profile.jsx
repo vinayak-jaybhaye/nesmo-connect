@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, connect } from "react-redux";
 import userAuth from "../firebase/firebaseAuth";
 import dbServices from "../firebase/firebaseDb";
 import { login, logout } from "../store/authSlice";
 import { setVars } from "../store/varSlice";
-import { Loader } from "../components";
+import { Loader, ProfileConnections } from "../components";
 
 import { generateChatId } from "../utils/helper";
 
@@ -15,6 +15,7 @@ function Profile() {
   const { profileId } = useParams();
   const [profileData, setProfileData] = useState(null);
   const [amIOwner, setAmIOwner] = useState(false);
+  const [showConnections, setShowConnections] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.auth.userData);
@@ -120,7 +121,7 @@ function Profile() {
 
     return amIOwner ? null : (
       <button
-        className={`w-fit md:w-[30%] h-fit  py-1  bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0 ${
+        className={`w-40 h-10 py-1  bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0 ${
           connectionRequestReceived ? "rounded-md text-sm bg-gray-700" : ""
         }`}
         onClick={() => {
@@ -210,7 +211,10 @@ function Profile() {
   }
 
   return (
-    <div className="flex flex-col lg:h-screen md:h-auto bg-black overflow-auto scrollbar-hide">
+    <div
+      className="flex flex-col lg:h-screen md:h-auto bg-black overflow-auto scrollbar-hide"
+      onClick={() => setShowConnections(false)}
+    >
       {/* Banner Section */}
       <div className="flex h-[30%] bg-gray-800 overflow-hidden relative opacity-80">
         <img
@@ -265,6 +269,17 @@ function Profile() {
                   {profileData?.userRole || "User"}
                 </span>
                 {renderConnectButton()}
+                <div>
+                  <button
+                    className="px-4 py-2 rounded-md font-medium transition bg-gray-300 text-gray-700"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setShowConnections((prev) => !prev);
+                    }}
+                  >
+                    Connections
+                  </button>
+                </div>
               </div>
 
               <div className="flex gap-5 text-gray-300 justify-center md:justify-start items-center pl-2">
@@ -303,6 +318,13 @@ function Profile() {
                 </a>
               </div>
             </div>
+            {/* connections goes here */}
+            {showConnections && (
+              <ProfileConnections
+                profileData={profileData}
+                profileId={profileId}
+              />
+            )}
             <div className="flex flex-col size-full items-end p-2 space-y-3">
               {renderEditProfile()}
               <div
