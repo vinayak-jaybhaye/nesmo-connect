@@ -701,6 +701,35 @@ class DB {
         }
     }
 
+    async getConnectionStatus(userId, otherUserId) {
+        try {
+            if (!userId || !otherUserId || userId === otherUserId) return "error";
+            // Check if otherUserId exists in the connections subcollection of userId
+            const connectionRef = doc(this.db, "users", userId, "connections", otherUserId);
+            const connectionSnap = await getDoc(connectionRef);
+
+            if (connectionSnap.exists()) {
+                return "connected";
+            }
+
+            // Check if otherUserId exists in the connectionRequests subcollection of userId
+            const requestRef = doc(this.db, "users", userId, "connectionRequests", otherUserId);
+            const requestSnap = await getDoc(requestRef);
+
+            if (requestSnap.exists()) {
+                const requestData = requestSnap.data();
+                return requestData.type; // 'sent' or 'received'
+            }
+
+            // If neither exists, return "not_connected"
+            return "Connect";
+        } catch (error) {
+            console.error("Error checking connection status:", error);
+            return "error";
+        }
+    }
+
+
     async getConnections(userId, lastVisible = null, pageSize = 10) {
         try {
             const connectionsRef = collection(this.db, "users", userId, "connections");

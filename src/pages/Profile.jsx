@@ -19,25 +19,17 @@ function Profile() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.auth.userData);
+  const [connectionStatus, setConnectionStatus] = useState("Connect");
 
-  useEffect(() => {
-    const fetchProfileData = async () => {
-      setShowConnections(false);
-      try {
-        const profile = await dbServices.getDocument("users", profileId);
-        setProfileData(profile);
-      } catch (error) {
-        console.error("Error fetching profile data:", error);
-      }
-    };
-    fetchProfileData();
-  }, [profileId]);
-
-  useEffect(() => {
-    if (userData) {
-      setAmIOwner(profileId === userData.uid);
+  const fetchConnectionStatus = async () => {
+    if (userData?.uid) {
+      const status = await dbServices.getConnectionStatus(
+        userData?.uid,
+        profileId
+      );
+      setConnectionStatus(status);
     }
-  }, [userData]);
+  };
 
   useEffect(() => {
     const unsubscribe = userAuth.auth.onAuthStateChanged(
@@ -64,6 +56,22 @@ function Profile() {
     return () => unsubscribe();
   }, [dispatch, navigate]);
 
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      if (!profileId) navigate("/");
+      setShowConnections(false);
+      try {
+        const profile = await dbServices.getDocument("users", profileId);
+        setProfileData(profile);
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      }
+    };
+    fetchProfileData();
+    fetchConnectionStatus();
+    setAmIOwner(profileId === userData?.uid);
+  }, [profileId, userData]);
+
   const handleLogout = async () => {
     try {
       await userAuth.logout();
@@ -79,71 +87,6 @@ function Profile() {
     profData.uid = profileId;
     await dbServices.sendConnectionRequest(userData, profData);
   };
-
-  //edit profile image and cover
-  const renderEditButton = useCallback(
-    (img) => {
-      return amIOwner ? (
-        <div
-          className="absolute h-12 w-12 right-5 bottom-5 cursor-pointer bg-green-500 rounded-full p-2 border border-gray-800"
-          onClick={() => handleChangeImage(img)}
-        >
-          <img src="/editImg.svg" alt="Edit" />
-        </div>
-      ) : null;
-    },
-    [amIOwner]
-  );
-
-  //edit profile
-  const renderEditProfile = useCallback(() => {
-    return amIOwner ? (
-      <button
-        className="w-full md:w-[30%] h-fit px-6 py-2 bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0"
-        onClick={() => navigate(`/edit-profile/${userData.uid}`)}
-      >
-        Edit Profile
-      </button>
-    ) : null;
-  }, [amIOwner]);
-
-  const renderConnectButton = useCallback(() => {
-    const alreadyConnected = userData?.connections?.some(
-      (connection) => connection.other === profileId
-    );
-    const connectionRequestSent = userData?.connectionRequests?.some(
-      (connectionReq) =>
-        connectionReq.other === profileId && connectionReq.type === "sent"
-    );
-    const connectionRequestReceived = userData?.connectionRequests?.some(
-      (connectionReq) =>
-        connectionReq.other === profileId && connectionReq.type === "received"
-    );
-
-    return amIOwner ? null : (
-      <button
-        className={`w-40 h-10 py-1  bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0 ${
-          connectionRequestReceived ? "rounded-md text-sm bg-gray-700" : ""
-        }`}
-        onClick={() => {
-          handleConnect(profileData);
-        }}
-        {...(alreadyConnected ||
-        connectionRequestSent ||
-        connectionRequestReceived
-          ? { disabled: true }
-          : {})}
-      >
-        {alreadyConnected
-          ? "Connected"
-          : connectionRequestSent
-          ? "Request Sent"
-          : connectionRequestReceived
-          ? "Checkout Requests"
-          : "Connect"}
-      </button>
-    );
-  }, [amIOwner, profileData]);
 
   if (!userData) {
     return <Loader />;
@@ -224,7 +167,17 @@ function Profile() {
           className="w-full h-[100%]  opacity-40"
           alt="Banner"
         />
-        <>{renderEditButton("cover")}</>
+        <>
+          {" "}
+          {amIOwner && (
+            <div
+              className="absolute h-12 w-12 right-5 bottom-5 cursor-pointer bg-green-500 rounded-full p-2 border border-gray-800"
+              onClick={() => handleChangeImage("cover")}
+            >
+              <img src="/editImg.svg" alt="Edit" />
+            </div>
+          )}
+        </>
         <div
           onClick={() => navigate("/")}
           className="absolute cursor-pointer bg-blue-500 rounded-lg px-2 late-600 m-5  hover:scale-105 hover:opacity-90 transition-all opacity-50"
@@ -245,7 +198,14 @@ function Profile() {
               alt="Profile"
             />
             <div className="absolute bottom-2 right-2">
-              {renderEditButton("avatar")}
+              {amIOwner && (
+                <div
+                  className="absolute h-12 w-12 right-5 bottom-5 cursor-pointer bg-green-500 rounded-full p-2 border border-gray-800"
+                  onClick={() => handleChangeImage("avatar")}
+                >
+                  <img src="/editImg.svg" alt="Edit" />
+                </div>
+              )}
             </div>
           </div>
 
@@ -270,7 +230,25 @@ function Profile() {
                 <span className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full text-sm shadow-md">
                   {profileData?.userRole || "User"}
                 </span>
-                {renderConnectButton()}
+                {amIOwner ? null : (
+                  <button
+                    className={`w-40 h-10 py-1 bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0 ${
+                      connectionStatus === "received"
+                        ? "rounded-md text-sm bg-gray-700"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      handleConnect(profileData);
+                    }}
+                    disabled={
+                      connectionStatus === "sent" ||
+                      connectionStatus === "received" ||
+                      connectionStatus === "connected"
+                    }
+                  >
+                    {connectionStatus || "Loading..."}{" "}
+                  </button>
+                )}
                 <div>
                   <button
                     className="px-4 py-2 rounded-md font-medium transition bg-gray-300 text-gray-700"
@@ -284,7 +262,7 @@ function Profile() {
                 </div>
               </div>
 
-              <div className="flex gap-5 text-gray-300 justify-center md:justify-start items-center pl-2">
+              <div className="flex gap-5 text-gray-300 justify-center md:justify-start items-center pl-2 h-7">
                 {profileData.personalData?.linkedin && (
                   <a
                     href={
@@ -340,7 +318,14 @@ function Profile() {
               />
             )}
             <div className="flex flex-col size-full items-end p-2 space-y-3">
-              {renderEditProfile()}
+              {amIOwner && (
+                <button
+                  className="w-full md:w-[30%] h-fit px-6 py-2 bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0"
+                  onClick={() => navigate(`/edit-profile/${userData.uid}`)}
+                >
+                  Edit Profile
+                </button>
+              )}
               <div
                 onClick={() => navigate("/")}
                 className="cursor-pointer bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-lg px-4 py-2 shadow-md hover:scale-105 transition-all duration-300"
