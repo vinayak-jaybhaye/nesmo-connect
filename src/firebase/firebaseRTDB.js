@@ -231,80 +231,81 @@ class RTDB {
     // }
 
 
-    // keep recent 10 messages in RTDB and move older messages to Firestore
     async syncGroupChatMessages(chatId) {
         try {
             const messagesPath = `chats/${chatId}/messages`;
-
-
+    
             const messagesQuery = query(
                 ref(this.rtdb, `chats/${chatId}/messages`),
                 orderByChild("timestamp")
             );
-
+    
             const snapshot = await get(messagesQuery);
-
+    
             if (!snapshot.exists()) {
                 return { success: false, message: "No messages found" };
             }
-
-            // // 1. Get RTDB messages
-            // const messagesData = await this.getData(messagesPath);
-            // if (!messagesData) {
-            //     return { success: false, message: "No messages found" };
-            // }
-
+    
             const messageEntries = Object.entries(snapshot.val()).map(([id, msg]) => ({ id, ...msg }));
-
-
+    
             if (messageEntries.length <= 10) {
                 console.log("Less than 10 messages, no need to sync.");
                 return { success: true, count: 0 };
             }
-
-            // 2. Separate old and recent messages
+    
+            // Separate old and recent messages
             const recentMessages = messageEntries.slice(-10); // Keep last 10 messages
             const oldMessages = messageEntries.slice(0, -10); // Move older messages
-
-            // 3. Prepare Firestore batch with chunking
+    
+            // Prepare Firestore batch with chunking
             const BATCH_LIMIT = 500;
             const db = dbServices.db;
-
+    
             for (let i = 0; i < oldMessages.length; i += BATCH_LIMIT) {
                 const batch = writeBatch(db);
                 const chunk = oldMessages.slice(i, i + BATCH_LIMIT);
-
-                chunk.forEach((message) => {
+    
+                for (const message of chunk) {
                     const sanitizedId = message.id.replace(/\//g, '_');
                     const docRef = doc(db, `chats/${chatId}/messages`, sanitizedId);
-
+    
                     const firestoreMessage = {
                         ...message,
                         timestamp: message.timestamp
                             ? Timestamp.fromMillis(message.timestamp)
                             : Timestamp.now(),
                     };
-
+    
                     batch.set(docRef, firestoreMessage, { merge: true });
-                });
-
+    
+                    // Check if the message contains fileData and store it in the media subcollection
+                    if (message.fileData) {
+                        const mediaRef = doc(db, `chats/${chatId}/media`, sanitizedId);
+                        batch.set(mediaRef, {
+                            ...message.fileData,
+                            associatedMessageId: sanitizedId,
+                            createdAt: Timestamp.now(),
+                        });
+                    }
+                }
+    
                 await batch.commit();
                 console.log(`Committed batch ${i / BATCH_LIMIT + 1}`);
             }
-
-            // 4. Delete only old messages from RTDB, keep the latest 10
+    
+            // Delete only old messages from RTDB, keep the latest 10
             const deletePaths = oldMessages.map((msg) => `${messagesPath}/${msg.id}`);
             await this.deleteMultipleData(deletePaths);
-
+    
             console.log(`Synced ${oldMessages.length} messages and kept the latest 10 in RTDB`);
-
+    
             return { success: true, count: oldMessages.length };
         } catch (error) {
             console.error("Sync failed:", error);
             throw new Error(`Message sync failed: ${error.message}`);
         }
     }
-
+    
     async deleteMultipleData(paths) {
         const updates = {};
 

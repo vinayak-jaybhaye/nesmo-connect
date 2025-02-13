@@ -30,7 +30,6 @@ const deleteMessage = async (chatId, message) => {
     if (message.fileData) {
       await appwriteStorage.deleteFile(message.fileData.fileId);
       console.log("File deleted successfully:", message.fileData);
-      delete message.fileData;
     }
     if (typeof message.timestamp === "number") {
       const messageId = message.id;

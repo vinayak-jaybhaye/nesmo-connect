@@ -10,47 +10,47 @@ function ProfileConnections({ profileData, profileId }) {
   const [connections, setConnections] = useState([]);
   const [connectionRequests, setConnectionRequests] = useState([]);
   const [showConnections, setShowConnections] = useState(true);
+  const [lastVisible, setLastVisible] = useState({
+    connections: null,
+    connectionRequests: null,
+  });
 
   const userData = useSelector((state) => state.auth.userData);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isProfileOwner = profileId === userData.uid;
 
   useEffect(() => {
     getConnections();
-    getConnectionRequests();
+    if (profileId == userData.uid) getConnectionRequests();
   }, []);
+
   const getConnections = async () => {
-    const connections = await dbServices.getConnections(profileId);
-    const connectionRequests = await dbServices.getConnectionRequests(
-      profileId
-    );
+    const { connections, lastVisible: newLastVisible } =
+      await dbServices.getConnections(profileId);
+    setLastVisible((prev) => ({ ...prev, connections: newLastVisible }));
     setConnections(connections);
-    setConnectionRequests(connectionRequests);
-    console.log(profileData);
-    console.log("connections", connections);
-    console.log("connection requests", connectionRequests);
   };
 
   const getConnectionRequests = async () => {
-    const connectionRequests = await dbServices.getConnectionRequests(
-      profileId
-    );
+    const { connectionRequests, lastVisible: newLastVisible } =
+      await dbServices.getConnectionRequests(profileId);
+    setLastVisible((prev) => ({ ...prev, connectionRequests: newLastVisible }));
     setConnectionRequests(connectionRequests);
   };
 
-  const handleMessage = async (connectionId) => {
-    const chatId = generateChatId(userData.uid, connectionId);
-    console.log("chatId", chatId);
-    console.log(profileId, userData.uid);
-    if (userData.chats && userData.chats.includes(chatId)) {
+  const handleMessage = async (connection) => {
+    const chatId = generateChatId(userData.uid, connection.id);
+    const isChatExist = await dbServices.checkChatExists(chatId, userData.uid);
+    if (isChatExist) {
       dispatch(setVars({ selectChat: chatId }));
       navigate("/chats/" + chatId);
     } else {
       await dbServices.createGroupChat(
         chatId,
-        [userData.uid, profileId],
+        [userData.uid, connection.id],
         "private",
-        [userData.name, profileData.name]
+        [userData.name, connection.name]
       );
     }
     dispatch(setVars({ selectChat: chatId }));
@@ -60,6 +60,11 @@ function ProfileConnections({ profileData, profileId }) {
   const handleDeleteConnection = async (connectionId) => {
     await dbServices.deleteConnection(userData.uid, connectionId);
     getConnections();
+  };
+
+  const resolveConnectionRequest = async (status, senderId, receiverId) => {
+    await dbServices.handleConnectionRequest(status, senderId, receiverId);
+    await dbServices.deleteNotification(senderId, receiverId);
   };
 
   return (
@@ -97,36 +102,43 @@ function ProfileConnections({ profileData, profileId }) {
       {showConnections ? (
         <div className="bg-white p-4 rounded-md shadow-md">
           {connections?.length > 0 ? (
-            connections.map((connection) => (
+            connections.map((connection, index) => (
               <div
                 className="flex items-center gap-4 justify-between p-2 border-b border-gray-300"
-                key={connection.id || connection.other} // Ensure a unique key
+                key={connection.id || index} // Ensure a unique key
               >
-                <h1 className="text-lg font-bold text-gray-800">
+                <h1
+                  className="text-lg font-bold text-gray-800 cursor-pointer"
+                  onClick={() => {
+                    navigate(`/profile/${connection.id}`);
+                  }}
+                >
                   {connection.name}
                 </h1>
-                <div className="flex items-center gap-4">
-                  <button
-                    className="rounded-md bg-violet-500 p-1 h-8 w-8 cursor-pointer shadow-sm transition duration-300 hover:shadow-lg hover:scale-110"
-                    onClick={() =>
-                      handleMessage(connection.id || connection.other)
-                    }
-                    aria-label={`Message ${connection.name}`}
-                  >
-                    <img src="/chat.svg" alt="Chat icon" />
-                  </button>
-                  {userData.uid === profileId && (
+                {isProfileOwner && (
+                  <div className="flex items-center gap-4">
                     <button
-                      className="rounded-md bg-red-500 p-1 h-8 w-8 cursor-pointer shadow-sm transition duration-300 hover:shadow-lg hover:scale-110"
-                      onClick={() =>
-                        handleDeleteConnection(connection.id || connection.other)
-                      }
+                      className="rounded-md bg-violet-500 p-1 h-8 w-8 cursor-pointer shadow-sm transition duration-300 hover:shadow-lg hover:scale-110"
+                      onClick={() => handleMessage(connection)}
                       aria-label={`Message ${connection.name}`}
                     >
-                      <DeleteIcon />
+                      <img src="/chat.svg" alt="Chat icon" />
                     </button>
-                  )}
-                </div>
+                    {userData.uid === profileId && (
+                      <button
+                        className="rounded-md bg-red-500 p-1 h-8 w-8 cursor-pointer shadow-sm transition duration-300 hover:shadow-lg hover:scale-110"
+                        onClick={() =>
+                          handleDeleteConnection(
+                            connection.id || connection.other
+                          )
+                        }
+                        aria-label={`Message ${connection.name}`}
+                      >
+                        <DeleteIcon />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             ))
           ) : (
@@ -142,8 +154,13 @@ function ProfileConnections({ profileData, profileId }) {
                 className="flex items-center gap-4 justify-between p-2 border-b border-gray-300"
                 key={request.other} // Assuming `other` is a unique identifier
               >
-                <h1 className="text-lg font-bold text-gray-800">
-                  {request.otherName}
+                <h1
+                  className="text-lg font-bold text-gray-800 cursor-pointer"
+                  onClick={() => {
+                    navigate(`/profile/${request.other}`);
+                  }}
+                >
+                  {request.senderData.name}
                 </h1>
                 <span
                   className={`px-2 py-1 text-sm rounded-md ${
@@ -158,13 +175,25 @@ function ProfileConnections({ profileData, profileId }) {
                     <div className="flex items-center justify-evenly w-[60%]  rounded-md">
                       <button
                         className="bg-green-500 text-white px-2 py-1 rounded-md hover:scale-105 transition-all text-sm"
-                        onClick={() => deleteConnectionRequest("accepted")}
+                        onClick={() =>
+                          resolveConnectionRequest(
+                            "accepted",
+                            request.other,
+                            userData.uid
+                          )
+                        }
                       >
                         Accept
                       </button>
                       <button
                         className="bg-red-500 text-white px-2 py-1 rounded-md hover:scale-105 transition-all text-sm"
-                        onClick={() => deleteConnectionRequest("rejected")}
+                        onClick={() =>
+                          resolveConnectionRequest(
+                            "rejected",
+                            request.other,
+                            userData.uid
+                          )
+                        }
                       >
                         Reject
                       </button>

@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import dbServices from "../firebase/firebaseDb";
 
-function EditProfile(profileId) {
+function EditProfile() {
   const navigate = useNavigate();
   const userData = useSelector((state) => state.auth.userData);
 
@@ -18,14 +18,22 @@ function EditProfile(profileId) {
     const form = e.target;
     const formData = new FormData(form);
 
-    const updatedProfile = {};
+    const personalData = {
+      email: formData.get("secondaryEmail"),
+      linkedin: formData.get("linkedin"),
+      twitter: formData.get("twitter"),
+      education: formData.get("education"),
+      position: formData.get("position"),
+      location: formData.get("location"),
+      batch: formData.get("batch"),
+      about: formData.get("about"),
+    };
 
-    for (let [key, value] of formData.entries()) {
-      const trimmedValue = value.trim();
-      if (trimmedValue !== (userData?.[key] || "").trim()) {
-        updatedProfile[key] = trimmedValue;
-      }
-    }
+    const updatedProfile = {
+      name: formData.get("name"),
+      personalData,
+    };
+
     await dbServices.updateDocument("users", userData.uid, updatedProfile);
     navigate(`/profile/${userData.uid}`);
   };
@@ -63,7 +71,7 @@ function EditProfile(profileId) {
               <input
                 type="text"
                 name="education"
-                defaultValue={userData?.education || ""}
+                defaultValue={userData?.personalData?.education || ""}
                 className="w-full px-4 py-3 bg-gray-800 border-2 border-gray-700 rounded-xl
                   focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-blue-400
                   transition-all duration-200 text-gray-200 placeholder-gray-400"
@@ -78,7 +86,7 @@ function EditProfile(profileId) {
               <input
                 type="text"
                 name="position"
-                defaultValue={userData?.position || ""}
+                defaultValue={userData?.personalData?.position || ""}
                 className="w-full px-4 py-3 bg-gray-800 border-2 border-gray-700 rounded-xl
                   focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-blue-400
                   transition-all duration-200 text-gray-200 placeholder-gray-400"
@@ -96,7 +104,7 @@ function EditProfile(profileId) {
               <input
                 type="text"
                 name="location"
-                defaultValue={userData?.location || ""}
+                defaultValue={userData?.personalData?.location || ""}
                 className="w-full px-4 py-3 bg-gray-800 border-2 border-gray-700 rounded-xl
                   focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-blue-400
                   transition-all duration-200 text-gray-200 placeholder-gray-400"
@@ -111,7 +119,7 @@ function EditProfile(profileId) {
               <input
                 type="text"
                 name="batch"
-                defaultValue={userData?.batch || ""}
+                defaultValue={userData?.personalData?.batch || ""}
                 className="w-full px-4 py-3 bg-gray-800 border-2 border-gray-700 rounded-xl
                   focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-blue-400
                   transition-all duration-200 text-gray-200 placeholder-gray-400"
@@ -127,7 +135,7 @@ function EditProfile(profileId) {
             </label>
             <textarea
               name="about"
-              defaultValue={userData?.about || ""}
+              defaultValue={userData?.personalData?.about || ""}
               className="w-full px-4 py-3 bg-gray-800 border-2 border-gray-700 rounded-xl
                 focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-blue-400
                 transition-all duration-200 text-gray-200 placeholder-gray-400 h-40"
@@ -154,7 +162,7 @@ function EditProfile(profileId) {
               <input
                 type="url"
                 name="linkedin"
-                defaultValue={userData?.linkedin || ""}
+                defaultValue={userData?.personalData?.linkedin || ""}
                 className="w-full pl-12 pr-4 py-3 bg-gray-800 border-2 border-gray-700 rounded-xl
                   focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-blue-400
                   transition-all duration-200 text-gray-200 placeholder-gray-400"
@@ -175,7 +183,7 @@ function EditProfile(profileId) {
               <input
                 type="email"
                 name="secondaryEmail"
-                defaultValue={userData?.secondaryEmail || ""}
+                defaultValue={userData?.personalData?.email || ""}
                 className="w-full pl-12 pr-4 py-3 bg-gray-800 border-2 border-gray-700 rounded-xl
                   focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-blue-400
                   transition-all duration-200 text-gray-200 placeholder-gray-400"
@@ -196,7 +204,7 @@ function EditProfile(profileId) {
               <input
                 type="url"
                 name="twitter"
-                defaultValue={userData?.socials?.twitter || ""}
+                defaultValue={userData?.personalData?.twitter || ""}
                 className="w-full pl-12 pr-4 py-3 bg-gray-800 border-2 border-gray-700 rounded-xl
                   focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-blue-400
                   transition-all duration-200 text-gray-200 placeholder-gray-400"

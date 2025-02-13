@@ -11,13 +11,12 @@ import {
     query,
     where,
     arrayUnion,
-    arrayRemove,
     writeBatch,
     orderBy,
     limit,
     startAfter,
     Timestamp,
-    endBefore
+    serverTimestamp
 } from "firebase/firestore";
 import appwriteStorage from "../appwrite/appwriteStorage.js";
 import app from "./firebaseConfig.js";
@@ -56,6 +55,23 @@ class DB {
             }
         } catch (error) {
             console.error("Firebase DB services : getDocument ::", error);
+            throw error;
+        }
+    }
+
+    async getDocumentByRef(docRef) {
+        try {
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const oneDoc = docSnap.data();
+                return oneDoc;
+            } else {
+                console.log("No such document!");
+                return null;
+            }
+        } catch (error) {
+            console.error("Firebase DB services : getDocumentByRef ::", error);
             throw error;
         }
     }
@@ -119,6 +135,29 @@ class DB {
         }
     }
 
+    formatFirebaseTimestamp(firebaseTimestamp) {
+        if (!firebaseTimestamp || !(firebaseTimestamp instanceof Timestamp)) {
+            return "Invalid timestamp";
+        }
+
+        const date = firebaseTimestamp.toDate(); // Convert to JavaScript Date object
+        return date.toLocaleString(); // Format based on user’s locale
+    }
+
+    async createPost(newPost, userId) {
+        try {
+            // Add post to the 'posts' collection
+            dbServices.createdAt = serverTimestamp();
+            const postRef = await dbServices.addWithAutoId("posts", newPost);
+            // Save the post reference in the 'myPosts' subcollection under the user's document
+            const userPostRef = doc(dbServices.db, `users/${userId}/myPosts`, postRef.id);
+            await setDoc(userPostRef, { postRef });
+            console.log("Post added successfully!", postRef.id, newPost);
+        } catch (error) {
+            console.error("Error adding post:", error);
+        }
+    }
+
     async getAllPosts(userId = null) {
         try {
             const postsCollection = collection(this.db, "posts");
@@ -140,85 +179,278 @@ class DB {
         }
     }
 
-    async getMyPosts(userId) {
+    async getRandomPosts() {
         try {
-            // Fetch user document
-            const userDoc = await this.getDocument("users", userId);
+            const postsCollection = collection(this.db, "posts");
 
-            // Get post references
-            const postRefs = userDoc?.posts || [];
+            // 1️⃣ Get total document count for random offset
+            const totalDocsSnapshot = await getDocs(postsCollection);
+            const totalDocs = totalDocsSnapshot.size;
+            if (totalDocs === 0) return [];
 
-            // Fetch all posts using their references
-            const posts = await Promise.all(
-                postRefs.map(async (postRef) => {
-                    const postSnap = await getDoc(postRef);
-                    return postSnap.exists()
-                        ? { id: postSnap.id, ...postSnap.data() }
-                        : null;
-                })
+            const randomOffset = Math.floor(Math.random() * Math.max(1, totalDocs - 10));
+
+            // 2️⃣ Query posts with random offset
+            const randomQuery = query(
+                postsCollection,
+                orderBy("createdAt"), // Ensure posts have a "createdAt" field
+                startAfter(randomOffset), // Skip `randomOffset` documents
+                limit(10)
             );
 
-            // Remove any null values (in case some posts were deleted)
-            return posts.filter((post) => post !== null);
+            const querySnapshot = await getDocs(randomQuery);
+
+            // 3️⃣ Extract posts and fetch user data
+            const posts = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+
+            const userFetchPromises = posts.map((post) => getDoc(post.createdBy));
+
+            const userSnapshots = await Promise.all(userFetchPromises);
+
+            // 4️⃣ Inject user data into posts
+            const postsWithUser = posts.map((post, index) => ({
+                ...post,
+                createdBy: userSnapshots[index].exists()
+                    ? { id: userSnapshots[index].id, ...userSnapshots[index].data() }
+                    : { id: null, name: "Unknown" }, // Handle missing user
+            }));
+
+            return postsWithUser;
         } catch (error) {
-            console.error("Error fetching user posts:", error);
+            console.error("Error fetching random posts:", error);
             return [];
         }
     }
 
-    async getSavedPosts(userId) {
+    async getMyPosts(userId, lastVisible = null, pageSize = 10) {
         try {
-            // Fetch user document
-            const userDoc = await this.getDocument("users", userId);
-            let savedPosts = userDoc?.savedPosts || [];
+            const myPostsCollection = collection(this.db, `users/${userId}/myPosts`);
 
-            if (savedPosts.length === 0) return [];
-
-            const postsCollection = collection(this.db, "posts");
-
-            // Firestore limits `where("in")` to 10 items, so we batch if necessary
-            const batchSize = 10;
-            const batches = [];
-            for (let i = 0; i < savedPosts.length; i += batchSize) {
-                const batchIds = savedPosts.slice(i, i + batchSize);
-                const q = query(postsCollection, where("__name__", "in", batchIds));
-                batches.push(getDocs(q));
-            }
-
-            // Execute all queries in parallel
-            const results = await Promise.all(batches);
-
-            // Extract valid posts and their IDs
-            const validPosts = [];
-            const foundPostIds = new Set();
-
-            results.forEach((snapshot) => {
-                snapshot.docs.forEach((doc) => {
-                    validPosts.push({ id: doc.id, ...doc.data() });
-                    foundPostIds.add(doc.id);
-                });
-            });
-
-            // Find missing post IDs
-            const missingPostIds = savedPosts.filter(
-                (postId) => !foundPostIds.has(postId)
+            let postsQuery = query(
+                myPostsCollection,
+                orderBy("createdAt", "desc"),
+                limit(pageSize)
             );
 
-            // If there are missing posts, update the user document
-            if (missingPostIds.length > 0) {
-                const updatedSavedPosts = savedPosts.filter(
-                    (postId) => !missingPostIds.includes(postId)
-                );
-                console.warn("Some saved posts were not found:", missingPostIds);
-                const userRef = doc(this.db, "users", userId);
+            if (lastVisible) {
+                postsQuery = query(postsQuery, startAfter(lastVisible));
+            }
+
+            const querySnapshot = await getDocs(postsQuery);
+            if (querySnapshot.empty) return { posts: [], lastVisible: null };
+
+            // Extract post references
+            const myPostDocs = querySnapshot.docs;
+            const postRefs = myPostDocs.map((doc) => doc.data().postRef);
+
+            // Fetch actual posts from `posts` collection using references
+            const postFetchPromises = postRefs.map((postRef) => getDoc(postRef));
+            const postSnapshots = await Promise.all(postFetchPromises);
+
+            // Process valid posts
+            const posts = postSnapshots
+                .filter((snap) => snap.exists())
+                .map((snap) => ({
+                    id: snap.id,
+                    ...snap.data(),
+                }));
+
+            const newLastVisible = myPostDocs[myPostDocs.length - 1];
+
+            return { posts, lastVisible: newLastVisible };
+        } catch (error) {
+            console.error("Error fetching user posts:", error);
+            return { posts: [], lastVisible: null };
+        }
+    }
+
+    async getMyPostRefs(userId) {
+        try {
+            // 1️⃣ Query the "myPosts" subcollection in the user's document
+            const myPostsCollection = collection(this.db, `users/${userId}/myPosts`);
+            const myPostsSnapshot = await getDocs(myPostsCollection);
+
+            // 2️⃣ Extract and return only post references
+            return myPostsSnapshot.docs.map((doc) => doc.data().postRef);
+        } catch (error) {
+            console.error("Error fetching user post references:", error);
+            return [];
+        }
+    }
+
+    async fetchPostsFromRefs(postRefs) {
+        return Promise.all(
+            postRefs.map(async (postRef) => {
+                const postSnap = await getDoc(postRef);
+                return postSnap.exists() ? { id: postSnap.id, ...postSnap.data() } : null;
+            })
+        ).then((posts) => posts.filter((post) => post !== null));
+    }
+
+    async toggleSavePost(userId, postId) {
+        try {
+            const savedPostRef = doc(this.db, `users/${userId}/savedPosts`, postId);
+            const savedPostSnap = await getDoc(savedPostRef);
+
+            if (savedPostSnap.exists()) {
+                await deleteDoc(savedPostRef);
+                return { saved: false, message: "Post removed from saved posts!" };
+            } else {
+                await setDoc(savedPostRef, {
+                    postRef: doc(this.db, "posts", postId),
+                    savedAt: serverTimestamp(),
+                });
+                return { saved: true, message: "Post saved successfully!" };
+            }
+        } catch (error) {
+            console.error("Error toggling saved post:", error);
+            return { success: false, message: "An error occurred." };
+        }
+    }
+
+    async isPostSaved(userId, postId) {
+        try {
+            const savedPostRef = doc(this.db, `users/${userId}/savedPosts/${postId}`);
+            const savedPostSnap = await getDoc(savedPostRef);
+
+            return savedPostSnap.exists(); // Return true if the post is saved
+        } catch (error) {
+            console.error("Error checking saved post:", error);
+            return false; // Return false in case of an error
+        }
+    }
+
+    async deletePost(postId, userId) {
+        try {
+            const postRef = doc(this.db, "posts", postId);
+            const userPostRef = doc(this.db, `users/${userId}/myPosts`, postId);
+            const likesCollectionRef = collection(this.db, `posts/${postId}/likes`);
+
+            // 🔹 Fetch all likes documents first
+            const likesSnapshot = await getDocs(likesCollectionRef);
+
+            // 🔹 Delete each like document before deleting the post
+            const deleteLikesPromises = likesSnapshot.docs.map((doc) => deleteDoc(doc.ref));
+            await Promise.all(deleteLikesPromises);
+            console.log(`Deleted ${likesSnapshot.size} likes from post ${postId}`);
+
+            // 🔹 Start a batch operation for post deletion
+            const batch = writeBatch(this.db);
+
+            batch.delete(postRef); // Delete the post from the main "posts" collection
+            batch.delete(userPostRef); // Delete the reference from the user's "myPosts" subcollection
+
+            // 🔹 Commit the batch operation
+            await batch.commit();
+
+            console.log(`Post ${postId} deleted successfully!`);
+            return { success: true };
+        } catch (error) {
+            console.error("Error deleting post:", error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    async getSavedPosts(userId, lastVisible = null, pageSize = 10) {
+        try {
+            const savedPostsCollection = collection(this.db, `users/${userId}/savedPosts`);
+
+            let postsQuery = query(savedPostsCollection, orderBy("savedAt", "desc"), limit(pageSize));
+
+            if (lastVisible) {
+                postsQuery = query(postsQuery, startAfter(lastVisible));
+            }
+
+            const querySnapshot = await getDocs(postsQuery);
+            if (querySnapshot.empty) return { posts: [], lastVisible: null };
+
+            // Extract post references
+            const savedPostDocs = querySnapshot.docs;
+            const postRefs = savedPostDocs.map((doc) => ({ id: doc.id, postRef: doc.data().postRef }));
+
+            // Fetch actual post data from `posts` collection using references
+            const postFetchPromises = postRefs.map(({ postRef }) => getDoc(postRef));
+            const postSnapshots = await Promise.all(postFetchPromises);
+
+            const validPosts = [];
+            const invalidPostIds = [];
+            const userFetchPromises = [];
+
+            postSnapshots.forEach((snap, index) => {
+                if (snap.exists()) {
+                    const postData = snap.data();
+                    const createdByRef = postData.createdBy; // User reference
+
+                    // Store post data and fetch user data in parallel
+                    validPosts.push({
+                        id: snap.id,
+                        ...postData,
+                        savedAt: savedPostDocs[index].data().savedAt,
+                        createdBy: null, // Placeholder, will be updated after fetching user
+                    });
+
+                    // Fetch createdBy user data
+                    if (createdByRef) {
+                        userFetchPromises.push(getDoc(createdByRef));
+                    } else {
+                        userFetchPromises.push(null);
+                    }
+                } else {
+                    // If post doesn't exist, mark it for deletion
+                    invalidPostIds.push(postRefs[index].id);
+                }
+            });
+
+            // Fetch all user data in parallel
+            const userSnapshots = await Promise.all(userFetchPromises);
+
+            // Inject user data into posts
+            userSnapshots.forEach((userSnap, index) => {
+                if (userSnap && userSnap.exists()) {
+                    validPosts[index].createdBy = {
+                        id: userSnap.id,
+                        ...userSnap.data(),
+                    };
+                } else {
+                    validPosts[index].createdBy = { id: null, name: "Unknown User" }; // Handle missing users
+                }
+            });
+
+            // Remove invalid saved posts
+            if (invalidPostIds.length > 0) {
+                console.warn("Removing invalid saved posts:", invalidPostIds);
                 const batch = writeBatch(this.db);
-                batch.update(userRef, { savedPosts: updatedSavedPosts });
+                invalidPostIds.forEach((postId) => {
+                    const savedPostRef = doc(this.db, `users/${userId}/savedPosts`, postId);
+                    batch.delete(savedPostRef);
+                });
                 await batch.commit();
             }
 
-            return validPosts;
+            const newLastVisible = savedPostDocs[savedPostDocs.length - 1];
+
+            return { posts: validPosts, lastVisible: newLastVisible };
         } catch (error) {
             console.error("Error fetching saved posts:", error);
+            return { posts: [], lastVisible: null };
+        }
+    }
+
+    async getSavedPostRefs(userId) {
+        try {
+            // Fetch references from the "savedPosts" subcollection in the user's document
+            const savedPostsCollection = collection(this.db, `users/${userId}/savedPosts`);
+            const savedPostsSnapshot = await getDocs(savedPostsCollection);
+
+            // Extract references
+            const savedPostRefs = savedPostsSnapshot.docs.map((doc) => doc.data().postRef);
+
+            return savedPostRefs; // Return an array of references
+        } catch (error) {
+            console.error("Error fetching saved post references:", error);
             return [];
         }
     }
@@ -232,7 +464,7 @@ class DB {
                 await deleteDoc(likeDocRef);
             } else {
                 // Otherwise, set or update the like document with likedStatus
-                await setDoc(likeDocRef, { likedStatus });
+                await setDoc(likeDocRef, { likedStatus, createdAt: serverTimestamp() });
             }
         } catch (error) {
             console.error("Error updating likes:", error);
@@ -301,80 +533,88 @@ class DB {
         }
     }
 
-    async getLikedUsers(postId) {
+    async getLikedUsers(postId, lastVisible = null, pageSize = 10) {
         try {
             const likesCollection = collection(this.db, `posts/${postId}/likes`);
 
-            // 🔍 Only fetch documents where likedStatus is "liked"
-            const q = query(likesCollection, where("likedStatus", "==", "liked"));
+            let q = query(
+                likesCollection,
+                where("likedStatus", "==", "liked"),
+                orderBy("createdAt", "desc"),
+                limit(pageSize)
+            );
+
+            if (lastVisible) {
+                q = query(q, startAfter(lastVisible));
+            }
+
             const querySnapshot = await getDocs(q);
+            if (querySnapshot.empty) return { likedUsers: [], lastVisible: null };
 
-            let likedUsers = [];
+            // Fetch user data in parallel
+            const userFetchPromises = querySnapshot.docs.map(async (likeDoc) => {
+                const userId = likeDoc.id; // Assuming doc ID is user ID
+                const userRef = doc(this.db, "users", userId);
+                const userSnap = await getDoc(userRef);
 
-            querySnapshot.forEach(async (likeDoc) => {
-                const userId = likeDoc.id; // Assuming doc ID is the user ID
-                const userRef = doc(this.db, "users", userId); // Reference to the user document
-                const userSnap = await getDoc(userRef); // Fetch user document
-
-                if (userSnap.exists()) {
-                    const userName = userSnap.data().name; // Extract name from user document
-                    likedUsers.push({ id: userId, name: userName }); // Push { id, name } to array
-                } else {
-                    likedUsers.push({ id: userId, name: "Unknown" }); // Handle missing user
-                }
+                return userSnap.exists()
+                    ? { id: userId, name: userSnap.data().name || "Unknown" }
+                    : { id: userId, name: "Unknown" }; // Handle missing user
             });
 
-            return likedUsers;
+            const likedUsers = await Promise.all(userFetchPromises);
+            const newLastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+
+            return { likedUsers, lastVisible: newLastVisible };
         } catch (error) {
             console.error("Error fetching liked users:", error);
-            return [];
+            return { likedUsers: [], lastVisible: null };
         }
     }
 
-    async sendConnectionRequest(senderData, recieverData) {
+    async sendConnectionRequest(senderData, receiverData) {
         try {
             const senderId = senderData.uid;
-            const receiverId = recieverData.uid;
-            const senderRef = doc(this.db, "users", senderId);
-            const receiverRef = doc(this.db, "users", receiverId);
-            console.log(receiverId);
+            const receiverId = receiverData.uid;
 
-            // Prevent duplicate requests
-            if (
-                senderData.connectionRequests?.some((req) => req.other === receiverId)
-            ) {
+            const senderRequestsRef = collection(this.db, "users", senderId, "connectionRequests");
+            const receiverRequestsRef = collection(this.db, "users", receiverId, "connectionRequests");
+            const receiverNotificationsRef = collection(this.db, "users", receiverId, "notifications");
+
+            console.log(`Sending request from ${senderId} to ${receiverId}`);
+
+            // Check if request already exists
+            const existingRequests = await getDocs(senderRequestsRef);
+            const alreadySent = existingRequests.docs.some(
+                (doc) => doc.data().other === receiverId
+            );
+
+            if (alreadySent) {
                 console.warn("Connection request already sent.");
                 return;
             }
 
-            // Add to both users' connectionRequests array
-            await updateDoc(senderRef, {
-                connectionRequests: arrayUnion({
-                    type: "sent",
-                    other: receiverId,
-                    otherName: recieverData.name,
-                    otherAvatar: recieverData?.avatarUrl || "",
-                }),
+            // Add request to sender's subcollection
+            await setDoc(doc(senderRequestsRef, receiverId), {
+                type: "sent",
+                other: receiverId,
+                timestamp: serverTimestamp()
             });
 
-            await updateDoc(receiverRef, {
-                connectionRequests: arrayUnion({
-                    type: "received",
-                    other: senderId,
-                    otherName: senderData.name,
-                    otherAvatar: senderData?.avatarUrl || "",
-                }),
+            // Add request to receiver's subcollection
+            await setDoc(doc(receiverRequestsRef, senderId), {
+                type: "received",
+                other: senderId,
+                timestamp: serverTimestamp()
             });
 
-            await updateDoc(receiverRef, {
-                notifications: arrayUnion({
-                    id: Date.now().toString(36) + Math.random().toString(36).substring(2),
-                    type: "connectionRequest",
-                    otherName: senderData.name,
-                    otherAvatar: senderData?.avatarUrl || "",
-                    other: senderId,
-                    content: `${senderData.name} wants to Connect!`,
-                }),
+            // Add notification to receiver's subcollection
+            await setDoc(doc(receiverNotificationsRef, senderId), {
+                type: "connectionRequest",
+                status: "unread",
+                other: senderId,
+                content: `${senderData.name} wants to Connect!`,
+                timestamp: serverTimestamp()
             });
 
             console.log("Connection request sent successfully!");
@@ -384,13 +624,11 @@ class DB {
         }
     }
 
-    async deleteNotification(notification, userId) {
+    async deleteNotification(notificationId, userId) {
         try {
-            const userRef = doc(this.db, "users", userId);
+            const notificationRef = doc(this.db, "users", userId, "notifications", notificationId);
 
-            await updateDoc(userRef, {
-                notifications: arrayRemove(notification), // Directly remove the exact object
-            });
+            await deleteDoc(notificationRef);
 
             console.log("Notification deleted successfully!");
         } catch (error) {
@@ -399,48 +637,60 @@ class DB {
         }
     }
 
-    async handleConnectionRequest(status, notification, userData) {
+    async checkUnreadNotification(userId) {
         try {
-            const senderId = notification.other;
-            const receiverId = userData.uid;
+            const notificationsCollection = collection(this.db, `users/${userId}/notifications`);
+            // const notificationsQuery = query(notificationsCollection, where("read", "==", false), limit(1)); // Fetch only one unread notification
+            const notificationsQuery = query(notificationsCollection, limit(1)); // Fetch only one unread notification
+            const querySnapshot = await getDocs(notificationsQuery);
+            return !querySnapshot.empty;
+        } catch (error) {
+            console.error("Error checking unread notifications:", error);
+            return false;
+        }
+    }
+
+    async getNotifications(userId) {
+        try {
+            const notificationsCollection = collection(this.db, `users/${userId}/notifications`);
+            const notificationsQuery = query(notificationsCollection, orderBy("timestamp", "desc")); // Order by latest
+            const querySnapshot = await getDocs(notificationsQuery);
+
+            const notifications = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+
+            return notifications;
+        } catch (error) {
+            console.error("Error fetching notifications:", error);
+            return [];
+        }
+    }
+
+    async handleConnectionRequest(status, senderId, receiverId) {
+        try {
             const senderRef = doc(this.db, "users", senderId);
             const receiverRef = doc(this.db, "users", receiverId);
 
-            const Request1 = {
-                type: "sent",
-                other: receiverId,
-                otherName: userData.name,
-                otherAvatar: userData?.avatarUrl || "",
-            }; // Request in sender's connectionRequests
-            const Request2 = {
-                type: "received",
-                other: senderId,
-                otherName: notification.otherName,
-                otherAvatar: notification?.otherAvatar || "",
-            }; // Request in receiver's connectionRequests
+            const senderRequestRef = doc(this.db, "users", senderId, "connectionRequests", receiverId);
+            const receiverRequestRef = doc(this.db, "users", receiverId, "connectionRequests", senderId);
 
-            // Batch update to minimize Firestore calls
+            const senderConnectionRef = doc(this.db, "users", senderId, "connections", receiverId);
+            const receiverConnectionRef = doc(this.db, "users", receiverId, "connections", senderId);
+
             const batch = writeBatch(this.db);
 
-            // Remove connection request from sender's connectionRequests
-            batch.update(senderRef, {
-                connectionRequests: arrayRemove(Request1),
-            });
+            // Remove connection request from sender's and receiver's connectionRequests subcollection
+            batch.delete(senderRequestRef);
+            batch.delete(receiverRequestRef);
 
-            // Remove connection request from receiver's connectionRequests
-            batch.update(receiverRef, {
-                connectionRequests: arrayRemove(Request2),
-            });
-
-            // If Status is "accepted", add to both users' connections
+            // If status is "accepted", add to both users' connections subcollection
             if (status === "accepted") {
-                batch.update(senderRef, {
-                    connections: arrayUnion(receiverId),
-                });
-                batch.update(receiverRef, {
-                    connections: arrayUnion(senderId),
-                });
+                batch.set(senderConnectionRef, { other: receiverId, createdAt: serverTimestamp() });
+                batch.set(receiverConnectionRef, { other: senderId, createdAt: serverTimestamp() });
             }
+
             // Commit batch update
             await batch.commit();
 
@@ -451,55 +701,128 @@ class DB {
         }
     }
 
-    async getConnections(userId) {
+    async getConnections(userId, lastVisible = null, pageSize = 10) {
         try {
-            const userRef = doc(this.db, "users", userId);
-            const userSnap = await getDoc(userRef);
-            const userData = userSnap.data();
+            const connectionsRef = collection(this.db, "users", userId, "connections");
 
-            const connections = userData?.connections || [];
+            let connectionsQuery = query(connectionsRef, orderBy("createdAt", "desc"), limit(pageSize));
 
-            // Fetch all connection data in parallel
-            const connectionData = await Promise.all(connections.map(async (connection) => {
-                const otherUserRef = doc(this.db, "users", connection.other);
-                const otherUserSnap = await getDoc(otherUserRef);
-                const connectionData = otherUserSnap.data();
-                connectionData.id = connection.other;
-                return connectionData;
-            }));
+            if (lastVisible) {
+                connectionsQuery = query(connectionsRef, orderBy("createdAt", "desc"), startAfter(lastVisible), limit(pageSize));
+            }
 
-            return connectionData;
+            const connectionsSnap = await getDocs(connectionsQuery);
+            if (connectionsSnap.empty) return { connections: [], lastVisible: null };
+
+            // Get connection IDs
+            const connectionDocs = connectionsSnap.docs;
+            const connectionIds = connectionDocs.map(doc => doc.id);
+
+            // Fetch user data for each connection
+            const userFetchPromises = connectionIds.map(async (connectionId) => {
+                const userRef = doc(this.db, "users", connectionId);
+                const userSnap = await getDoc(userRef);
+                return userSnap.exists() ? { id: connectionId, ...userSnap.data() } : null;
+            });
+
+            const connections = (await Promise.all(userFetchPromises)).filter(user => user !== null);
+
+            // Update pagination state
+            const newLastVisible = connectionDocs[connectionDocs.length - 1];
+
+            return { connections, lastVisible: newLastVisible };
         } catch (error) {
             console.error("Error fetching connections:", error);
+            return { connections: [], lastVisible: null };
+        }
+    }
+
+    async getUserProfiles(userIds) {
+        try {
+            if (!userIds || userIds.length === 0) return [];
+
+            const usersCollection = collection(this.db, "users");
+
+            // Firestore limits `where("in")` to 10 items, so we batch if necessary
+            const batchSize = 10;
+            const batches = [];
+            for (let i = 0; i < userIds.length; i += batchSize) {
+                const batchIds = userIds.slice(i, i + batchSize);
+                const q = query(usersCollection, where("__name__", "in", batchIds));
+                batches.push(getDocs(q));
+            }
+
+            // Execute all queries in parallel
+            const results = await Promise.all(batches);
+
+            // Extract user profiles
+            const userProfiles = [];
+            results.forEach((snapshot) => {
+                snapshot.docs.forEach((doc) => {
+                    userProfiles.push({ id: doc.id, ...doc.data() });
+                });
+            });
+
+            return userProfiles;
+        } catch (error) {
+            console.error("Error fetching user profiles:", error);
             return [];
         }
     }
 
-    async getConnectionRequests(userId) {
-        try {
-            const userRef = doc(this.db, "users", userId);
-            const userSnap = await getDoc(userRef);
-            const userData = userSnap.data();
-            const connectionRequests = userData?.connectionRequests || [];
 
-            return connectionRequests;
+    async getConnectionRequests(userId, lastVisible = null, pageSize = 10) {
+        try {
+            const requestsRef = collection(this.db, "users", userId, "connectionRequests");
+
+            let requestsQuery = query(requestsRef, orderBy("timestamp", "desc"), limit(pageSize));
+
+            if (lastVisible) {
+                requestsQuery = query(requestsRef, orderBy("timestamp", "desc"), startAfter(lastVisible), limit(pageSize));
+            }
+
+            const requestsSnap = await getDocs(requestsQuery);
+            if (requestsSnap.empty) return { connectionRequests: [], lastVisible: null };
+
+            // Get request data
+            const requestDocs = requestsSnap.docs;
+            const requestData = requestDocs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            // Fetch user data for each request sender
+            const userFetchPromises = requestData.map(async (request) => {
+                const userRef = doc(this.db, "users", request.id);
+                const userSnap = await getDoc(userRef);
+                return userSnap.exists()
+                    ? { ...request, senderData: { id: request.id, ...userSnap.data() } }
+                    : null;
+            });
+
+            const connectionRequests = (await Promise.all(userFetchPromises)).filter(req => req !== null);
+
+            // Update pagination state
+            const newLastVisible = requestDocs[requestDocs.length - 1];
+
+            return { connectionRequests, lastVisible: newLastVisible };
         } catch (error) {
             console.error("Error fetching connection requests:", error);
-            return [];
+            return { connectionRequests: [], lastVisible: null };
         }
     }
+
+
 
     async deleteConnection(userId, connectionId) {
         try {
-            console.log(userId, connectionId);
-            const userRef = doc(this.db, "users", userId);
-            const otherUserRef = doc(this.db, "users", connectionId);
-            await updateDoc(userRef, {
-                connections: arrayRemove(connectionId),
-            });
-            await updateDoc(otherUserRef, {
-                connections: arrayRemove(userId),
-            });
+            console.log(`Deleting connection between ${userId} and ${connectionId}`);
+
+            // Reference to the connection documents in each user's subcollection
+            const userConnectionRef = doc(this.db, "users", userId, "connections", connectionId);
+            const otherUserConnectionRef = doc(this.db, "users", connectionId, "connections", userId);
+
+            // Delete the connection documents from both users' subcollections
+            await deleteDoc(userConnectionRef);
+            await deleteDoc(otherUserConnectionRef);
+
             console.log("Connection deleted successfully!");
         } catch (error) {
             console.error("Error deleting connection:", error);
@@ -507,24 +830,25 @@ class DB {
         }
     }
 
-
     async createGroupChat(chatId, members, type = "private", name) {
         try {
             const chatRef = doc(this.db, "chats", chatId);
-            console.log(name);
 
             await setDoc(chatRef, {
                 members, // Store member IDs as an array of strings
                 type,
-                createdAt: Date.now(),
+                createdAt: serverTimestamp(),
                 name,
             });
 
-            // ✅ Add group chat ID to each member's "chats" array in the users collection
+            // ✅ Add group chat ID to each member's "chats" subcollection
             for (const memberId of members) {
-                const userRef = doc(this.db, "users", memberId);
-                await updateDoc(userRef, {
-                    chats: arrayUnion(chatId), // Append chatId to the user's chats array
+                const userChatRef = doc(this.db, "users", memberId, "chats", chatId);
+                await setDoc(userChatRef, {
+                    chatId,
+                    type,
+                    name,
+                    createdAt: serverTimestamp(),
                 });
             }
 
@@ -551,20 +875,21 @@ class DB {
                 return;
             }
 
-            // ✅ Add user to the group chat members array
+            // ✅ Add user to the group chat members array in the chat document
             await updateDoc(chatRef, {
                 members: arrayUnion(memberId),
             });
 
-            // ✅ Add chat ID to the user's "chats" array in the users collection
-            const userRef = doc(this.db, "users", memberId);
-            await updateDoc(userRef, {
-                chats: arrayUnion(chatId),
+            // ✅ Add chat ID as a document in the user's "chats" subcollection
+            const userChatRef = doc(this.db, "users", memberId, "chats", chatId);
+            await setDoc(userChatRef, {
+                chatId,
+                type: chatData.type,
+                name: chatData.name,
+                createdAt: chatData.createdAt,
             });
 
-            console.log(
-                `Member ${memberId} added to group chat ${chatId} successfully!`
-            );
+            console.log(`Member ${memberId} added to group chat ${chatId} successfully!`);
         } catch (error) {
             console.error("Error adding member to group chat:", error);
             throw error;
@@ -595,22 +920,45 @@ class DB {
         }
     }
 
-    async getAllChats(chatIds) {
+    async getAllChats(userId) {
         try {
-            if (!chatIds) return [];
-            const chatsCollection = collection(this.db, "chats");
-            const querySnapshot = await getDocs(chatsCollection);
-            let chats = [];
+            if (!userId) return [];
 
-            querySnapshot.forEach((doc) => {
-                if (chatIds?.includes(doc.id)) {
-                    chats.push({ id: doc.id, ...doc.data() });
-                }
-            });
+            // 1️⃣ Fetch user's chat IDs from the `chats` subcollection inside the `users` document
+            const userChatsCollection = collection(this.db, `users/${userId}/chats`);
+            const userChatsSnapshot = await getDocs(userChatsCollection);
+
+            // Extract chat IDs
+            const chatIds = userChatsSnapshot.docs.map((doc) => doc.id);
+            if (chatIds.length === 0) return [];
+
+            // 2️⃣ Fetch chat details for those chat IDs
+            const chatRefs = chatIds.map((chatId) => doc(this.db, "chats", chatId));
+            const chatSnapshots = await getDocs(query(collection(this.db, "chats"), where("__name__", "in", chatIds)));
+
+            // 3️⃣ Extract chat data
+            const chats = chatSnapshots.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+
             return chats;
         } catch (error) {
             console.error("Error fetching chats:", error);
             return [];
+        }
+    }
+
+    // check if chat is present in chats subcollection of user
+    async checkChatExists(chatId, userId) {
+        try {
+            const chatRef = doc(this.db, `users/${userId}/chats/${chatId}`);
+            const chatSnap = await getDoc(chatRef);
+
+            return chatSnap.exists(); // Returns true if the chat exists, otherwise false
+        } catch (error) {
+            console.error("Error checking chat existence:", error);
+            return false;
         }
     }
 
@@ -644,18 +992,19 @@ class DB {
         }
     }
 
-
     async deleteMessage(chatId, message) {
         try {
             // delete shared files if any
-            if (message.fileData) {
-                await appwriteStorage.deleteFile(message.fileData.fileId);
-                console.log("File deleted successfully!");
-            }
             const messageId = message.id;
+            if (message.fileData) {
+                // console.log("Deleting file:", message.fileData);
+                // await appwriteStorage.deleteFile(message.fileData.fileId);
+                // console.log("File deleted successfully!");
+                const mediaRef = doc(this.db, `chats/${chatId}/media`, messageId);
+                await deleteDoc(mediaRef);
+            }
             const messageRef = doc(this.db, `chats/${chatId}/messages`, messageId);
             await deleteDoc(messageRef);
-            // console.log("Message deleted successfully!");
         } catch (error) {
             console.error("Error deleting message:", error);
             throw error;

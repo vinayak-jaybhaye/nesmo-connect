@@ -8,42 +8,49 @@ import dbServices from "../../firebase/firebaseDb";
 import { toast } from "react-toastify";
 
 function PostCard({ post }) {
-  const { content, owner, createdAt, imageUrl } = post;
+  const { content, createdAt, imageUrl } = post;
   const navigate = useNavigate();
 
   const userData = useSelector((state) => state.auth.userData);
+  const selectPost =
+    useSelector((state) => state.vars.selectPost) || "allPosts";
 
   const [likedStatus, setLikedStatus] = useState(null);
   const [showAllLikes, setShowAllLikes] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [deleted, setDeleted] = useState(false);
+  const [lastVisible, setLastVisible] = useState({ likedUsers: null });
   const [{ likes, dislikes }, setLikesAndDislikes] = useState({
     likes: 0,
     dislikes: 0,
   });
-  const [isPostSaved, setIsPostSaved] = useState(false);
-
+  const [isPostSaved, setIsPostSaved] = useState(-1);
   const [likedBy, setLikedBy] = useState([]);
 
   // Format createdAt to a readable format
-  const formattedDate = createdAt
-    ? new Date(createdAt).toLocaleString()
-    : "Unknown Date";
+  const formattedDate = dbServices.formatFirebaseTimestamp(createdAt);
+  let createdBy = post.createdBy || { name: "Anonymous" };
+  if (selectPost === "myPosts") {
+    createdBy = userData;
+  }
 
   // Fetch post status for the current user
   useEffect(() => {
     const fetchLikedStatus = async () => {
       if (userData.uid) {
         const status = await dbServices.getLikedStatus(post.id, userData.uid);
-        const likedUsers = await dbServices.getLikedUsers(post.id);
+        const { likedUsers, lastVisible: newLastVisible } =
+          await dbServices.getLikedUsers(post.id);
         const { likes, dislikes } = await dbServices.getLikesAndDislikes(
           post.id
         );
-
+        setLastVisible((prev) => ({
+          ...prev,
+          likedUsers: newLastVisible,
+        }));
         setLikesAndDislikes({ likes, dislikes });
         setLikedStatus(status);
-        setLikedBy(likedUsers);
-        setIsPostSaved(userData.savedPosts?.includes(post.id) || false);
+        setLikedBy((prev) => likedUsers);
       }
     };
 
@@ -53,14 +60,17 @@ function PostCard({ post }) {
   useEffect(() => {
     async function fetchLikesAndDislikes() {
       const { likes, dislikes } = await dbServices.getLikesAndDislikes(post.id);
-      const likedUsers = await dbServices.getLikedUsers(post.id);
+      const { likedUsers, lastVisible: newLastVisible } =
+        await dbServices.getLikedUsers(post.id);
       setLikesAndDislikes({ likes, dislikes });
-      setTimeout(() => {
-        setLikedBy(likedUsers);
-      }, 1000);
+      setLastVisible((prev) => ({
+        ...prev,
+        likedUsers: newLastVisible,
+      }));
+      setLikedBy((prev) => likedUsers);
     }
     fetchLikesAndDislikes();
-  }, [likedStatus]); // Runs when likedStatus changes
+  }, [likedStatus]);
 
   const handleLike = async () => {
     // Compute new likedStatus before setting state
@@ -89,22 +99,15 @@ function PostCard({ post }) {
   };
 
   const handleDeletePost = async () => {
-    // delte post image if it exists
     if (imageUrl) {
       try {
         await appwriteStorage.deleteFile(post.fileId);
+        console.log("Image deleted successfully!");
       } catch (error) {
         console.error("Error deleting image:", error);
       }
     }
-    //delete post from database
-    await dbServices.deleteDocument("posts", post.id);
-
-    const user = await dbServices.getDocument("users", userData.uid);
-    const newUserPosts = user.posts.filter((postRef) => postRef.id !== post.id);
-    await dbServices.updateDocument("users", userData.uid, {
-      posts: newUserPosts,
-    });
+    await dbServices.deletePost(post.id, userData.uid);
 
     setDeleted(true);
     toast.success("Post Deleted Successfully!");
@@ -171,22 +174,19 @@ function PostCard({ post }) {
   };
 
   const handleSavePost = async () => {
-    const user = await dbServices.getDocument("users", userData.uid);
-    if (!user.savedPosts) {
-      user.savedPosts = [];
-    }
-    const newUserSavedPosts = user.savedPosts.includes(post.id)
-      ? user.savedPosts.filter((postId) => postId !== post.id)
-      : [...user.savedPosts, post.id];
-    await dbServices.updateDocument("users", userData.uid, {
-      savedPosts: newUserSavedPosts,
-    });
-    if (newUserSavedPosts.includes(post.id)) {
-      toast.success("Post Saved Successfully!");
-      setIsPostSaved(true);
-    } else {
-      toast.success("Post removed from saved posts!");
-      setIsPostSaved(false);
+    try {
+      const result = await dbServices.toggleSavePost(userData.uid, post.id);
+
+      if (result.saved) {
+        toast.success("Post Saved Successfully!");
+        setIsPostSaved(true);
+      } else {
+        toast.success("Post removed from saved posts!");
+        setIsPostSaved(false);
+      }
+    } catch (error) {
+      console.error("Error saving/removing post:", error);
+      toast.error("An error occurred. Please try again.");
     }
   };
 
@@ -211,17 +211,20 @@ function PostCard({ post }) {
             <div className="flex items-center space-x-3 mb-3">
               <div
                 className="h-12 w-12 rounded-full overflow-hidden bg-gray-600/80 cursor-pointer ring-2 ring-gray-600 hover:ring-green-500 transition-all"
-                onClick={() => navigate(`/profile/${post.createdBy?.id}`)}
+                onClick={() => {
+                  console.log(post.createdBy);
+                  navigate(`/profile/${createdBy?.id}`);
+                }}
               >
                 <img
-                  src={post?.ownerAvatarUrl || "avatar.png"}
+                  src={createdBy.avatarUrl || "avatar.png"}
                   alt="User Avatar"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="flex flex-col">
                 <div className="font-semibold text-gray-100 text-lg hover:text-green-400 transition-colors cursor-pointer">
-                  {owner || "Anonymous"}
+                  {createdBy.name || "Anonymous"}
                 </div>
                 <div className="text-sm text-gray-400/90">{formattedDate}</div>
               </div>
@@ -278,7 +281,18 @@ function PostCard({ post }) {
               <div className="relative">
                 <div
                   className="h-10 w-10 cursor-pointer p-2 hover:bg-gray-700/50 rounded-xl transition-all duration-200 flex items-center justify-center"
-                  onClick={() => setShowMenu((prev) => !prev)}
+                  onClick={() =>
+                    setShowMenu(async (prev) => {
+                      if (!prev && isPostSaved === -1) {
+                        const saved = await dbServices.isPostSaved(
+                          userData.uid,
+                          post.id
+                        );
+                        setIsPostSaved(saved);
+                      }
+                      return !prev;
+                    })
+                  }
                 >
                   <img
                     src="menu.svg"

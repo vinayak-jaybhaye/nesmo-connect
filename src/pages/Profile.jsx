@@ -22,6 +22,7 @@ function Profile() {
 
   useEffect(() => {
     const fetchProfileData = async () => {
+      setShowConnections(false);
       try {
         const profile = await dbServices.getDocument("users", profileId);
         setProfileData(profile);
@@ -191,7 +192,8 @@ function Profile() {
 
   const handleMessage = async () => {
     const chatId = generateChatId(userData.uid, profileId);
-    if (userData.chats && userData.chats.includes(chatId)) {
+    const isChatExist = await dbServices.checkChatExists(chatId, userData.uid);
+    if (isChatExist) {
       dispatch(setVars({ selectChat: chatId }));
       navigate("/chats/" + chatId);
     } else {
@@ -283,39 +285,51 @@ function Profile() {
               </div>
 
               <div className="flex gap-5 text-gray-300 justify-center md:justify-start items-center pl-2">
-                <a
-                  href={profileData?.linkedin || "https://in.linkedin.com/"}
-                  className="hover:text-blue-400 transition-colors duration-300"
-                >
-                  <img
-                    src="/linkedin.svg"
-                    alt="LinkedIn"
-                    className="w-7 h-7 hover:scale-110 transition-transform"
-                  />
-                </a>
-                <a
-                  href={
-                    `https://mail.google.com/mail/?view=cm&fs=1&to=${profileData?.email}&su=Hello%20there&body=Hi%20there,%20I%20wanted%20to%20reach%20out%20about%20...` ||
-                    "#"
-                  }
-                  className="hover:text-blue-400 transition-colors duration-300"
-                >
-                  <img
-                    src="/gmail.svg"
-                    alt="Email"
-                    className="w-7 h-7 hover:scale-110 transition-transform"
-                  />
-                </a>
-                <a
-                  href={profileData?.twitter || "https://x.com/home?lang=en"}
-                  className="hover:text-blue-400 transition-colors duration-300"
-                >
-                  <img
-                    src="/twitter.svg"
-                    alt="Twitter"
-                    className="w-7 h-7 hover:scale-110 transition-transform"
-                  />
-                </a>
+                {profileData.personalData?.linkedin && (
+                  <a
+                    href={
+                      profileData?.personalData?.linkedin ||
+                      "https://in.linkedin.com/"
+                    }
+                    className="hover:text-blue-400 transition-colors duration-300"
+                  >
+                    <img
+                      src="/linkedin.svg"
+                      alt="LinkedIn"
+                      className="w-7 h-7 hover:scale-110 transition-transform"
+                    />
+                  </a>
+                )}
+                {profileData.personalData?.email && (
+                  <a
+                    href={
+                      `https://mail.google.com/mail/?view=cm&fs=1&to=${profileData?.personalData?.email}&su=Hello%20there&body=Hi%20there,%20I%20wanted%20to%20reach%20out%20about%20...` ||
+                      "#"
+                    }
+                    className="hover:text-blue-400 transition-colors duration-300"
+                  >
+                    <img
+                      src="/gmail.svg"
+                      alt="Email"
+                      className="w-7 h-7 hover:scale-110 transition-transform"
+                    />
+                  </a>
+                )}
+                {profileData.personalData?.twitter && (
+                  <a
+                    href={
+                      profileData?.personalData?.twitter ||
+                      "https://x.com/home?lang=en"
+                    }
+                    className="hover:text-blue-400 transition-colors duration-300"
+                  >
+                    <img
+                      src="/twitter.svg"
+                      alt="Twitter"
+                      className="w-7 h-7 hover:scale-110 transition-transform"
+                    />
+                  </a>
+                )}
               </div>
             </div>
             {/* connections goes here */}
@@ -347,7 +361,7 @@ function Profile() {
                     Education
                   </label>
                   <p className="font-semibold mt-1">
-                    {profileData?.education || "Not Specified"}
+                    {profileData?.personalData?.education || "Not Specified"}
                   </p>
                 </div>
                 <div className="bg-gray-800/50 p-4 rounded-lg">
@@ -355,7 +369,7 @@ function Profile() {
                     Location
                   </label>
                   <p className="font-semibold mt-1">
-                    {profileData?.location || "Not Specified"}
+                    {profileData?.personalData?.location || "Not Specified"}
                   </p>
                 </div>
               </div>
@@ -365,7 +379,7 @@ function Profile() {
                   Current Position
                 </label>
                 <p className="font-semibold mt-1">
-                  {profileData?.position || "Not Specified"}
+                  {profileData?.personalData?.position || "Not Specified"}
                 </p>
               </div>
             </div>
@@ -374,7 +388,7 @@ function Profile() {
               <h2 className="text-2xl font-bold text-white">About</h2>
               <div className="overflow-auto scrollbar-hide p-4 bg-gray-800/50 rounded-lg">
                 <p className="text-gray-300 leading-relaxed max-h-[40vh]">
-                  {profileData?.about ||
+                  {profileData?.personalData?.about ||
                     "User has not provided any information about themselves"}
                 </p>
               </div>

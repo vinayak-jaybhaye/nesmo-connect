@@ -1,11 +1,9 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import defaultAvatar from "/avatar.png";
 import { useNavigate } from "react-router-dom";
-
-// Static empty array for consistent reference
-const EMPTY_ARRAY = [];
+import dbServices from "../../firebase/firebaseDb";
+import { useSelector } from "react-redux";
 
 function ConnectionItem({ connection }) {
   const navigate = useNavigate();
@@ -18,37 +16,39 @@ function ConnectionItem({ connection }) {
       className="flex items-center gap-3 p-3 border border-gray-700/50 bg-green-800/90 hover:bg-green-700/80 
                transition-all duration-200 cursor-pointer rounded-md backdrop-blur-sm
                shadow-sm hover:shadow-green-500/10 hover:border-gray-600"
-      onClick={() => navigate("/profile/" + connection.other)}
+      onClick={() => navigate("/profile/" + connection.id)}
     >
       <img
-        src={connection.otherAvatar || defaultAvatar}
-        alt={`${connection.otherName}'s avatar`}
+        src={connection.avatarUrl || defaultAvatar}
+        alt={`${connection.name}'s avatar`}
         className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-600 hover:ring-green-500 transition-all"
         onError={handleImageError}
         loading="lazy"
       />
       <span
         className="text-lg font-medium truncate text-gray-100 hover:text-green-400 transition-colors"
-        title={connection.otherName}
+        title={connection.name}
       >
-        {connection.otherName}
+        {connection.name}
       </span>
     </div>
   );
 }
 
-ConnectionItem.propTypes = {
-  connection: PropTypes.shape({
-    other: PropTypes.string.isRequired,
-    otherName: PropTypes.string.isRequired,
-    otherAvatar: PropTypes.string,
-  }).isRequired,
-};
-
 function Connections() {
-  const connections = useSelector(
-    (state) => state.auth.userData?.connections ?? EMPTY_ARRAY
-  );
+  const userData = useSelector((state) => state.auth.userData);
+  const [connections, setConnections] = useState([]);
+  const [lastVisible, setLastVisible] = useState(null);
+
+  async function getConnections() {
+    const {connections, lastVisible : newLastVisible} = await dbServices.getConnections(userData.uid);
+    setConnections(connections);
+    setLastVisible(newLastVisible);
+  }
+
+  useEffect(() => {
+    getConnections();
+  }, []);
 
   return (
     <div className="p-4 bg-gray-900 shadow-lg shadow-black/40 rounded-lg border border-gray-800">
@@ -71,7 +71,7 @@ function Connections() {
       {connections.length > 0 ? (
         <div className="space-y-2 h-auto max-h-[40vh] overflow-scroll scrollbar-hide">
           {connections.map((connection) => (
-            <ConnectionItem key={connection.other} connection={connection} />
+            <ConnectionItem key={connection.id} connection={connection} />
           ))}
         </div>
       ) : (

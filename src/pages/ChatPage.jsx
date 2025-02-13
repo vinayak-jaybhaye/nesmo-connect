@@ -20,6 +20,7 @@ function ChatPage() {
   const [reload, setReload] = useState(false);
   const [showMenu, setShowMenu] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isUnreadNotification, setIsUnreadNotification] = useState(false);
   const userData = useSelector((state) => state.auth.userData);
   const selectChat = useSelector((state) => state.vars.selectChat);
 
@@ -33,10 +34,12 @@ function ChatPage() {
               firebaseUser.uid
             );
             if (user) {
-              delete user.posts;
               user.uid = firebaseUser.uid;
               dispatch(login({ userData: user }));
             }
+            const isUnreadNotification =
+              await dbServices.checkUnreadNotification(firebaseUser.uid);
+            setIsUnreadNotification(isUnreadNotification);
           } catch (error) {
             console.error("Error fetching user data:", error);
             navigate("/login");
@@ -52,12 +55,18 @@ function ChatPage() {
 
   useEffect(() => {
     if (!userData) return;
-
-    if (chatId && userData.chats?.includes(chatId)) {
-      dispatch(setVars({ selectChat: chatId }));
-    } else {
-      navigate("/chats");
+    async function fetchChatData() {
+      const isChatExist = await dbServices.checkChatExists(
+        chatId,
+        userData.uid
+      );
+      if (isChatExist) {
+        dispatch(setVars({ selectChat: chatId }));
+      } else {
+        navigate("/chats");
+      }
     }
+    fetchChatData();
   }, [chatId, userData, dispatch, navigate]);
 
   const handleLogout = async () => {
@@ -152,7 +161,7 @@ function ChatPage() {
             >
               <img
                 src={
-                  userData.notifications?.length > 0
+                  isUnreadNotification
                     ? "/notification-active.svg"
                     : "/notification.svg"
                 }
@@ -178,10 +187,7 @@ function ChatPage() {
 
         {showNotifications && (
           <div className="bg-gray-800/80 w-[40%] border border-gray-700/50 rounded-xl shadow-xl p-1 backdrop-blur-sm fixed top-20 right-4 z-50">
-            <Notifications
-              notifications={userData.notifications}
-              userData={userData}
-            />
+            <Notifications userId={userData.uid} />
           </div>
         )}
 

@@ -44,7 +44,7 @@ function Chats() {
   const userData = useSelector((state) => state.auth.userData);
   useEffect(() => {
     async function fetchChats() {
-      const chats = await dbServices.getAllChats(userData.chats);
+      const chats = await dbServices.getAllChats(userData.uid);
       setChats(chats);
     }
     fetchChats();

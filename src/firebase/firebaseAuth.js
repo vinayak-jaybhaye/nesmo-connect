@@ -21,12 +21,9 @@ class Auth {
             console.log("User registered:", user.uid, user.email);
             console.log(user.id, user)
             await dbServices.addDocument('users', user.uid, {
-                email: user.email, name: name,
+                email: user.email,
+                name: name,
                 userRole: userRole,
-                notifications: [],
-                posts: [],
-                connections: [],
-                connectionRequests: [],
                 avatarUrl: "",
                 avatarFileId: "",
                 coverFileId: "",

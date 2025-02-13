@@ -14,9 +14,9 @@ function Message({ msg, userData, chatId }) {
 
   // Handle delete functionality
   const handleDelete = async () => {
+    setDeleted(true);
     await deleteMessage(chatId, msg);
     setShowMenu(false);
-    setDeleted(true);
     setShowMenu(false);
   };
 

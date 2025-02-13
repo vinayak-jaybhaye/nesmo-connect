@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import appwriteStorage from "../../appwrite/appwriteStorage";
 import dbServices from "../../firebase/firebaseDb";
-import { arrayUnion } from "firebase/firestore";
 
 function NewPost({ user }) {
   const [image, setImage] = useState(null);
@@ -12,45 +11,34 @@ function NewPost({ user }) {
     if (content.trim() === "") {
       return;
     }
-
+  
     let imageUrl = null;
     let fileId = null;
-
+  
     if (image) {
       const fileData = await appwriteStorage.uploadFile(image);
       fileId = fileData["$id"];
-
-     
+  
       const isWebP = image.type === "image/webp";
       imageUrl = isWebP
         ? appwriteStorage.getFileView(fileId)
         : appwriteStorage.getFilePreview(fileId);
     }
-
+  
     const newPost = {
       content,
       ...(imageUrl && { imageUrl, fileId }),
       createdBy: user.uid,
-      createdAt: new Date().toISOString(),
       owner: user.name,
       ownerAvatarUrl: user?.avatarUrl || "",
     };
-
-    try {
-      const postRef = await dbServices.addWithAutoId("posts", newPost);
+  
+      await dbServices.createPost(newPost, user.uid);
       setContent("");
       setImage(null);
-
-      await dbServices.updateDocument("users", user.uid, {
-        posts: arrayUnion(postRef),
-      });
-
-      console.log("Post added successfully!");
-    } catch (error) {
-      console.error("Error adding post:", error);
-    }
+  
   };
-
+  
   const handleAddImage = () => {
     const input = document.createElement("input");
     input.type = "file";

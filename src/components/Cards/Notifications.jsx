@@ -1,18 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import dbServices from "../../firebase/firebaseDb";
-import { useSelector } from "react-redux";
 
-function Notification({ notification, userData }) {
+function Notification({ notification, userId }) {
   const [deleted, setDeleted] = useState(false);
 
-  async function handleMarkAsRead() {
-    await dbServices.deleteNotification(notification, userData.uid);
+  async function handleMarkAsRead(notificationId) {
+    await dbServices.deleteNotification(notificationId, userId);
     setDeleted(true);
   }
 
-  async function deleteConnectionRequest(status) {
-    await dbServices.handleConnectionRequest(status, notification, userData);
-    await dbServices.deleteNotification(notification, userData.uid);
+  async function deleteConnectionRequest(status, notificationId) {
+    await dbServices.handleConnectionRequest(
+      status,
+      notification.other,
+      userId
+    );
+    await dbServices.deleteNotification(notificationId, userId);
     setDeleted(true);
   }
 
@@ -41,7 +44,7 @@ function Notification({ notification, userData }) {
           className={`text-sm bg-gray-700 rounded-md p-1 align-middle hover:bg-gray-600 cursor-pointer ${
             notification.type === "connectionRequest" ? "hidden" : ""
           }`}
-          onClick={handleMarkAsRead}
+          onClick={() => handleMarkAsRead(notification.id)}
         >
           <p>mark as read</p>
         </div>
@@ -50,13 +53,13 @@ function Notification({ notification, userData }) {
         <div className="flex items-center justify-evenly w-[60%]  rounded-md">
           <button
             className="bg-green-500 text-white px-2 py-1 rounded-md hover:scale-105 transition-all text-sm"
-            onClick={() => deleteConnectionRequest("accepted")}
+            onClick={() => deleteConnectionRequest("accepted", notification.id)}
           >
             Accept
           </button>
           <button
             className="bg-red-500 text-white px-2 py-1 rounded-md hover:scale-105 transition-all text-sm"
-            onClick={() => deleteConnectionRequest("rejected")}
+            onClick={() => deleteConnectionRequest("rejected", notification.id)}
           >
             Reject
           </button>
@@ -66,8 +69,17 @@ function Notification({ notification, userData }) {
   );
 }
 
-function Notifications({ notifications = [] }) {
-  const user = useSelector((state) => state.auth.userData);
+function Notifications({ userId }) {
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    getNotifications();
+  }, []);
+
+  async function getNotifications() {
+    const notifications = await dbServices.getNotifications(userId);
+    setNotifications((prev) => notifications);
+  }
 
   return (
     <div className="notifications max-h-[40vh] overflow-scroll scrollbar-hide bg-gray-900 rounded-md p-2">
@@ -77,7 +89,7 @@ function Notifications({ notifications = [] }) {
           <Notification
             key={notification.id}
             notification={notification}
-            userData={user}
+            userId={userId}
           />
         ))
       ) : (

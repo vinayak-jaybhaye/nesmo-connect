@@ -23,6 +23,7 @@ function Dashboard() {
   const dispatch = useDispatch();
   const [reload, setReload] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [isUnreadNotification, setIsUnreadNotification] = useState(false);
   const userData = useSelector((state) => state.auth.userData);
   const selectChat = useSelector((state) => state.vars.selectChat);
 
@@ -43,7 +44,9 @@ function Dashboard() {
               "users",
               firebaseUser.uid
             );
-            delete user.posts;
+            const isUnreadNotification =
+              await dbServices.checkUnreadNotification(firebaseUser.uid);
+            setIsUnreadNotification(isUnreadNotification);
             user.uid = firebaseUser.uid;
             dispatch(login({ userData: user }));
           } catch (error) {
@@ -143,7 +146,7 @@ function Dashboard() {
             >
               <img
                 src={
-                  userData.notifications?.length > 0
+                  isUnreadNotification
                     ? "notification-active.svg"
                     : "notification.svg"
                 }
@@ -216,10 +219,7 @@ function Dashboard() {
           <div className="w-[35%] space-y-4 h-[100%] overflow-scroll">
             {showNotifications && (
               <div className="bg-gray-800/80 border border-gray-700/50 rounded-xl shadow-xl p-2 backdrop-blur-sm">
-                <Notifications
-                  notifications={userData.notifications}
-                  userData={userData}
-                />
+                <Notifications userId={userData.uid} />
               </div>
             )}
 
