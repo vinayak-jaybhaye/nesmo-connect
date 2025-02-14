@@ -44,14 +44,7 @@ const deleteMessage = async (chatId, message) => {
 
 
 async function sendMessage(messagesPath, newMessage = "", userData, file = null) {
-  if ((!newMessage.trim() && !file) || !userData) {
-    console.error("Invalid message data provided.", {
-      newMessage,
-      userData,
-      file,
-    });
-    return
-  }
+  if ((!newMessage.trim() && !file) || !userData) return
   try {
     let fileData = null;
     //  Handle file upload if provided
