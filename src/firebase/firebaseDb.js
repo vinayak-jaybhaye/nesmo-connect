@@ -114,9 +114,6 @@ class DB {
         }
     }
 
-    // get all alumni
-    async getAllAlumni() { }
-
     // get all users
     async getAllDocuments(collectionName) {
         try {
@@ -139,9 +136,8 @@ class DB {
         if (!firebaseTimestamp || !(firebaseTimestamp instanceof Timestamp)) {
             return "Invalid timestamp";
         }
-
-        const date = firebaseTimestamp.toDate(); // Convert to JavaScript Date object
-        return date.toLocaleString(); // Format based on user’s locale
+        const date = firebaseTimestamp.toDate();
+        return date.toLocaleString();
     }
 
     async createPost(newPost, userId) {
@@ -161,7 +157,6 @@ class DB {
     async getAllPosts(userId = null) {
         try {
             const postsCollection = collection(this.db, "posts");
-
             // If userId is provided, filter posts by "createdBy"
             const queryRef = userId
                 ? query(postsCollection, where("createdBy", "==", userId))
@@ -183,24 +178,24 @@ class DB {
         try {
             const postsCollection = collection(this.db, "posts");
 
-            // 1️⃣ Get total document count for random offset
+            //Get total document count for random offset
             const totalDocsSnapshot = await getDocs(postsCollection);
             const totalDocs = totalDocsSnapshot.size;
             if (totalDocs === 0) return [];
 
             const randomOffset = Math.floor(Math.random() * Math.max(1, totalDocs - 10));
 
-            // 2️⃣ Query posts with random offset
+            // Query posts with random offset
             const randomQuery = query(
                 postsCollection,
-                orderBy("createdAt"), // Ensure posts have a "createdAt" field
+                orderBy("createdAt"),
                 startAfter(randomOffset), // Skip `randomOffset` documents
                 limit(10)
             );
 
             const querySnapshot = await getDocs(randomQuery);
 
-            // 3️⃣ Extract posts and fetch user data
+            // Extract posts and fetch user data
             const posts = querySnapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data(),
@@ -210,7 +205,7 @@ class DB {
 
             const userSnapshots = await Promise.all(userFetchPromises);
 
-            // 4️⃣ Inject user data into posts
+            // Inject user data into posts
             const postsWithUser = posts.map((post, index) => ({
                 ...post,
                 createdBy: userSnapshots[index].exists()
@@ -269,11 +264,11 @@ class DB {
 
     async getMyPostRefs(userId) {
         try {
-            // 1️⃣ Query the "myPosts" subcollection in the user's document
+            // Query the "myPosts" subcollection in the user's document
             const myPostsCollection = collection(this.db, `users/${userId}/myPosts`);
             const myPostsSnapshot = await getDocs(myPostsCollection);
 
-            // 2️⃣ Extract and return only post references
+            // Extract and return only post references
             return myPostsSnapshot.docs.map((doc) => doc.data().postRef);
         } catch (error) {
             console.error("Error fetching user post references:", error);
@@ -316,10 +311,10 @@ class DB {
             const savedPostRef = doc(this.db, `users/${userId}/savedPosts/${postId}`);
             const savedPostSnap = await getDoc(savedPostRef);
 
-            return savedPostSnap.exists(); // Return true if the post is saved
+            return savedPostSnap.exists(); // true if the post is saved
         } catch (error) {
             console.error("Error checking saved post:", error);
-            return false; // Return false in case of an error
+            return false; // false in case of an error
         }
     }
 
@@ -329,21 +324,21 @@ class DB {
             const userPostRef = doc(this.db, `users/${userId}/myPosts`, postId);
             const likesCollectionRef = collection(this.db, `posts/${postId}/likes`);
 
-            // 🔹 Fetch all likes documents first
+            //  Fetch all likes documents first
             const likesSnapshot = await getDocs(likesCollectionRef);
 
-            // 🔹 Delete each like document before deleting the post
+            //  Delete each like document
             const deleteLikesPromises = likesSnapshot.docs.map((doc) => deleteDoc(doc.ref));
             await Promise.all(deleteLikesPromises);
             console.log(`Deleted ${likesSnapshot.size} likes from post ${postId}`);
 
-            // 🔹 Start a batch operation for post deletion
+            //  Start a batch operation
             const batch = writeBatch(this.db);
 
             batch.delete(postRef); // Delete the post from the main "posts" collection
             batch.delete(userPostRef); // Delete the reference from the user's "myPosts" subcollection
 
-            // 🔹 Commit the batch operation
+            // Commit the batch operation
             await batch.commit();
 
             console.log(`Post ${postId} deleted successfully!`);
@@ -389,7 +384,7 @@ class DB {
                         id: snap.id,
                         ...postData,
                         savedAt: savedPostDocs[index].data().savedAt,
-                        createdBy: null, // Placeholder, will be updated after fetching user
+                        createdBy: null, // Placeholder for user data
                     });
 
                     // Fetch createdBy user data
@@ -553,7 +548,7 @@ class DB {
 
             // Fetch user data in parallel
             const userFetchPromises = querySnapshot.docs.map(async (likeDoc) => {
-                const userId = likeDoc.id; // Assuming doc ID is user ID
+                const userId = likeDoc.id; //]doc ID is user ID
                 const userRef = doc(this.db, "users", userId);
                 const userSnap = await getDoc(userRef);
 
@@ -640,7 +635,6 @@ class DB {
     async checkUnreadNotification(userId) {
         try {
             const notificationsCollection = collection(this.db, `users/${userId}/notifications`);
-            // const notificationsQuery = query(notificationsCollection, where("read", "==", false), limit(1)); // Fetch only one unread notification
             const notificationsQuery = query(notificationsCollection, limit(1)); // Fetch only one unread notification
             const querySnapshot = await getDocs(notificationsQuery);
             return !querySnapshot.empty;
@@ -691,7 +685,7 @@ class DB {
                 batch.set(receiverConnectionRef, { other: senderId, createdAt: serverTimestamp() });
             }
 
-            // Commit batch update
+            // batch update
             await batch.commit();
 
             console.log("Connection request handled successfully!");
@@ -721,14 +715,13 @@ class DB {
                 return requestData.type; // 'sent' or 'received'
             }
 
-            // If neither exists, return "not_connected"
+            // If neither exists
             return "Connect";
         } catch (error) {
             console.error("Error checking connection status:", error);
             return "error";
         }
     }
-
 
     async getConnections(userId, lastVisible = null, pageSize = 10) {
         try {
@@ -799,7 +792,6 @@ class DB {
         }
     }
 
-
     async getConnectionRequests(userId, lastVisible = null, pageSize = 10) {
         try {
             const requestsRef = collection(this.db, "users", userId, "connectionRequests");
@@ -838,8 +830,6 @@ class DB {
         }
     }
 
-
-
     async deleteConnection(userId, connectionId) {
         try {
             console.log(`Deleting connection between ${userId} and ${connectionId}`);
@@ -870,7 +860,7 @@ class DB {
                 name,
             });
 
-            // ✅ Add group chat ID to each member's "chats" subcollection
+            // Add group chat ID to each member's "chats" subcollection
             for (const memberId of members) {
                 const userChatRef = doc(this.db, "users", memberId, "chats", chatId);
                 await setDoc(userChatRef, {
@@ -904,12 +894,12 @@ class DB {
                 return;
             }
 
-            // ✅ Add user to the group chat members array in the chat document
+            // Add user to the group chat members array in the chat document
             await updateDoc(chatRef, {
                 members: arrayUnion(memberId),
             });
 
-            // ✅ Add chat ID as a document in the user's "chats" subcollection
+            // Add chat ID as a document in the user's "chats" subcollection
             const userChatRef = doc(this.db, "users", memberId, "chats", chatId);
             await setDoc(userChatRef, {
                 chatId,
@@ -953,7 +943,7 @@ class DB {
         try {
             if (!userId) return [];
 
-            // 1️⃣ Fetch user's chat IDs from the `chats` subcollection inside the `users` document
+            //  Fetch user's chat IDs from the `chats` subcollection inside the `users` document
             const userChatsCollection = collection(this.db, `users/${userId}/chats`);
             const userChatsSnapshot = await getDocs(userChatsCollection);
 
@@ -961,11 +951,11 @@ class DB {
             const chatIds = userChatsSnapshot.docs.map((doc) => doc.id);
             if (chatIds.length === 0) return [];
 
-            // 2️⃣ Fetch chat details for those chat IDs
+            //  Fetch chat details for those chat IDs
             const chatRefs = chatIds.map((chatId) => doc(this.db, "chats", chatId));
             const chatSnapshots = await getDocs(query(collection(this.db, "chats"), where("__name__", "in", chatIds)));
 
-            // 3️⃣ Extract chat data
+            //  Extract chat data
             const chats = chatSnapshots.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data(),
@@ -995,8 +985,8 @@ class DB {
         try {
             const messagesCollection = collection(dbServices.db, `chats/${chatId}/messages`);
             let queryConstraints = [
-                orderBy("timestamp", "desc"), // ✅ Get newest messages first
-                limit(10) // ✅ Fetch the latest 10 messages
+                orderBy("timestamp", "desc"), // Get newest messages first
+                limit(10) // Fetch the latest 10 messages
             ];
 
             if (lastMessageTimestamp) {
