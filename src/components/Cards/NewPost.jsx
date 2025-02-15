@@ -29,8 +29,6 @@ function NewPost({ user }) {
       content,
       ...(imageUrl && { imageUrl, fileId }),
       createdBy: user.uid,
-      owner: user.name,
-      ownerAvatarUrl: user?.avatarUrl || "",
     };
   
       await dbServices.createPost(newPost, user.uid);

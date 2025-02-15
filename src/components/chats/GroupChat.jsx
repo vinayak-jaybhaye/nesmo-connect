@@ -219,7 +219,9 @@ function GroupChat({ userData, chatId }) {
 
               {/* Close button */}
               <button
-                onClick={() => setFile(null)}
+                onClick={() => {
+                  if(!isSending) setFile(null);
+                }}
                 className="absolute top-1 right-1 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg transition-all duration-150 transform scale-100"
                 aria-label="Remove file"
               >
