@@ -254,7 +254,6 @@ class DB {
                 }));
 
             const newLastVisible = myPostDocs[myPostDocs.length - 1];
-            console.log(posts)
 
             return { posts, lastVisible: newLastVisible };
         } catch (error) {
