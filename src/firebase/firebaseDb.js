@@ -143,11 +143,11 @@ class DB {
     async createPost(newPost, userId) {
         try {
             // Add post to the 'posts' collection
-            dbServices.createdAt = serverTimestamp();
+            newPost.createdAt = serverTimestamp();
             const postRef = await dbServices.addWithAutoId("posts", newPost);
             // Save the post reference in the 'myPosts' subcollection under the user's document
             const userPostRef = doc(dbServices.db, `users/${userId}/myPosts`, postRef.id);
-            await setDoc(userPostRef, { postRef });
+            await setDoc(userPostRef, { postRef, createdAt: newPost.createdAt });
             console.log("Post added successfully!", postRef.id, newPost);
         } catch (error) {
             console.error("Error adding post:", error);
@@ -254,6 +254,7 @@ class DB {
                 }));
 
             const newLastVisible = myPostDocs[myPostDocs.length - 1];
+            console.log(posts)
 
             return { posts, lastVisible: newLastVisible };
         } catch (error) {
