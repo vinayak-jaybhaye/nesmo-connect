@@ -1,18 +1,8 @@
 import React, { useState, useEffect } from "react";
-import firebaseDb from "../../firebase/firebaseDb";
 import { useNavigate } from "react-router-dom";
 
-function UserList() {
-  const [users, setUsers] = useState([]);
+function AlumniList({ users, handleHighlight }) {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const usersCollection = await firebaseDb.getAllDocuments("users");
-      setUsers(usersCollection);
-    };
-    fetchUsers();
-  }, []);
 
   return (
     <>
@@ -32,7 +22,7 @@ function UserList() {
         </svg>
         Connect to more people
       </h2>
-      <div className="h-auto bg-gray-900 rounded-lg shadow-lg shadow-black/40 overflow-scroll scrollbar-hide max-h-[40vh] border border-gray-800">
+      <div className="bg-gray-900 rounded-lg shadow-lg shadow-black/40 overflow-scroll scrollbar-hide border border-gray-800">
         <div className="flex flex-col gap-2 p-2">
           {users.map((user) => (
             <div
@@ -41,12 +31,14 @@ function UserList() {
             rounded-lg p-2 transition-all duration-200 cursor-pointer
             border border-gray-700/50 hover:border-gray-600
             shadow-sm hover:shadow-green-500/10"
-              onClick={() => navigate(`/profile/${user.id}`)}
             >
               <div className="flex items-center space-x-4">
                 {/* User Avatar */}
                 <div className="flex-shrink-0">
-                  <div className="h-12 w-12 rounded-full ring-2 ring-gray-600 hover:ring-green-500 transition-all">
+                  <div
+                    className="h-12 w-12 rounded-full ring-2 ring-gray-600 hover:ring-green-500 transition-all"
+                    onClick={() => navigate(`/profile/${user.id}`)}
+                  >
                     <img
                       src={user.avatarUrl || "avatar.png"}
                       className="rounded-full size-full object-cover"
@@ -57,7 +49,10 @@ function UserList() {
                 </div>
 
                 {/* User Info */}
-                <div className="flex-1 min-w-0">
+                <div
+                  className="flex-1 min-w-0"
+                  onClick={() => handleHighlight(user)}
+                >
                   <h2 className="text-lg font-medium truncate text-gray-100 hover:text-green-400 transition-colors">
                     {user.name || "Unknown User"}
                   </h2>
@@ -96,4 +91,4 @@ function UserList() {
   );
 }
 
-export default UserList;
+export default AlumniList;

@@ -2,16 +2,24 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import dbServices from "../firebase/firebaseDb";
+import { useUserLocation } from "../components/helpers";
 
 function EditProfile() {
   const navigate = useNavigate();
   const userData = useSelector((state) => state.auth.userData);
+  const { location, error } = useUserLocation();
 
   useEffect(() => {
     if (!userData) {
       navigate("/dashboard");
     }
   }, []);
+
+  useEffect(() => {
+    if (location) {
+      console.log("User Location:", location);
+    }
+  }, [location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,7 +32,8 @@ function EditProfile() {
       twitter: formData.get("twitter"),
       education: formData.get("education"),
       position: formData.get("position"),
-      location: formData.get("location"),
+      location: location || userData.personalData.location,
+      city: formData.get("city"),
       batch: formData.get("batch"),
       about: formData.get("about"),
     };
@@ -103,8 +112,8 @@ function EditProfile() {
               </label>
               <input
                 type="text"
-                name="location"
-                defaultValue={userData?.personalData?.location || ""}
+                name="city"
+                defaultValue={userData?.personalData?.city || ""}
                 className="w-full px-4 py-3 bg-gray-800 border-2 border-gray-700 rounded-xl
                   focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-blue-400
                   transition-all duration-200 text-gray-200 placeholder-gray-400"

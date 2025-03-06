@@ -7,5 +7,6 @@ import ForgotPassword from './ForgetPassword'
 import VerfiyEmail from './VerifyEmail'
 import EditProfile from './EditProfile'
 import ChatPage from './ChatPage'
+import AlumniLocations from './AlumniLocations'
 
-export {Login, Register, Dashboard, Profile, ForgotPassword, VerfiyEmail, EditProfile, ChatPage}
+export {Login, Register, Dashboard, Profile, ForgotPassword, VerfiyEmail, EditProfile, ChatPage, AlumniLocations}

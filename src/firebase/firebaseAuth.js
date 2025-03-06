@@ -4,8 +4,6 @@ import { getAuth } from "firebase/auth";
 import dbServices from './firebaseDb.js'
 import { connect } from "react-redux";
 
-
-
 class Auth {
     auth;
     constructor() {
@@ -14,7 +12,7 @@ class Auth {
     }
 
     // Register new user
-    async register(email, password, name, userRole) {
+    async register(email, password, name, userRole, location) {
         try {
             const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
             const user = userCredential.user;
@@ -27,7 +25,10 @@ class Auth {
                 avatarUrl: "",
                 avatarFileId: "",
                 coverFileId: "",
-                coverUrl: ""
+                coverUrl: "",
+                personalData:{
+                    location: location
+                }
             });
             return user;
         } catch (error) {
@@ -48,11 +49,17 @@ class Auth {
     }
 
     // login user
-    async login(email, password) {
+    async login(email, password, location) {
         try {
             const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
             const user = userCredential.user;
-            console.log("User logged in:", user.uid);
+            const newUser = {
+                personalData: {
+                    ...user.personalData,
+                    location: location
+                }
+            };
+            await dbServices.updateDocument("users", user.uid, newUser);
             return user;
         } catch (error) {
             console.error("Firebase Auth : login() ::", error.message);

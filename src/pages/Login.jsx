@@ -5,12 +5,14 @@ import dbServices from "../firebase/firebaseDb";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../store/authSlice";
 import { Loader, ErrorAlert, LeftSide } from "../components";
+import { useUserLocation } from "../components/helpers";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { location, locationErr } = useUserLocation();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -40,12 +42,18 @@ function Login() {
     return () => unsubscribe();
   }, [dispatch, navigate]);
 
+   useEffect(() => {
+      if (location) {
+        console.log("User Location:", location);
+      }
+    }, [location]);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       setError(null);
       setLoading(true);
-      await userAuth.login(email, password);
+      await userAuth.login(email, password, location);
     } catch (error) {
       setLoading(false);
       setError("Invalid email or password");

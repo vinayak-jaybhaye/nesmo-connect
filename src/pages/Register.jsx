@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { login } from "../store/authSlice";
 import { Loader, ErrorAlert, LeftSide } from "../components";
+import { useUserLocation } from "../components/helpers";
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -14,6 +15,7 @@ function Register() {
   const [userRole, setUserRole] = useState("student");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { location, locationErr } = useUserLocation();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -27,7 +29,6 @@ function Register() {
           console.log(userData);
           delete userData.posts;
           userData.uid = user.uid;
-
 
           dispatch(
             login({
@@ -44,6 +45,12 @@ function Register() {
     return () => unsubscribe();
   }, [dispatch, navigate]);
 
+  useEffect(() => {
+    if (location) {
+      console.log("User Location:", location);
+    }
+  }, [location]);
+
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
@@ -55,7 +62,7 @@ function Register() {
         throw new Error("Email already in use");
       }
 
-      await userAuth.register(email, password, name, userRole);
+      await userAuth.register(email, password, name, userRole, location);
     } catch (error) {
       setLoading(false);
       setError(error.message || "Registration failed");

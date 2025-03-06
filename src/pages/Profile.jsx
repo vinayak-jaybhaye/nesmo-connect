@@ -354,7 +354,7 @@ function Profile() {
                     Location
                   </label>
                   <p className="font-semibold mt-1">
-                    {profileData?.personalData?.location || "Not Specified"}
+                    {profileData?.personalData?.city || "Not Specified"}
                   </p>
                 </div>
               </div>
