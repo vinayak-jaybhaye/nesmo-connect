@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 
 function AlumniList({ users, handleHighlight }) {
@@ -6,10 +6,10 @@ function AlumniList({ users, handleHighlight }) {
 
   return (
     <>
-      <h2 className="text-sm font-bold mb-4 text-gray-100 flex items-center gap-2">
+      <h2 className="text-lg font-bold mb-6 text-gray-100 flex items-center gap-3">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="w-5 h-5 text-green-500"
+          className="w-6 h-6 text-green-400 hover:text-green-300 transition-colors"
           viewBox="0 0 24 24"
           strokeWidth="2"
           stroke="currentColor"
@@ -22,41 +22,47 @@ function AlumniList({ users, handleHighlight }) {
         </svg>
         Connect to more people
       </h2>
-      <div className="bg-gray-900 rounded-lg shadow-lg shadow-black/40 overflow-scroll scrollbar-hide border border-gray-800">
-        <div className="flex flex-col gap-2 p-2">
+
+      <div className="bg-gradient-to-br from-gray-900/95 to-gray-800/90 rounded-xl shadow-2xl shadow-black/30 overflow-hidden border border-gray-700/60">
+        <div className="flex flex-col gap-3 p-3">
           {users.map((user) => (
             <div
               key={user.id}
-              className="bg-gray-800/80 hover:bg-gray-700/90 backdrop-blur-sm 
-            rounded-lg p-2 transition-all duration-200 cursor-pointer
-            border border-gray-700/50 hover:border-gray-600
-            shadow-sm hover:shadow-green-500/10"
+              className="group bg-gray-800/50 hover:bg-gray-700/60 backdrop-blur-sm 
+              rounded-xl p-3 transition-all duration-300 cursor-pointer
+              border border-gray-700/40 hover:border-green-400/30
+              shadow-md hover:shadow-green-400/20 hover:-translate-y-0.5"
             >
               <div className="flex items-center space-x-4">
-                {/* User Avatar */}
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 relative">
                   <div
-                    className="h-12 w-12 rounded-full ring-2 ring-gray-600 hover:ring-green-500 transition-all"
+                    className="h-14 w-14 rounded-full ring-2 ring-gray-500/80 group-hover:ring-green-400 
+                    transition-all duration-300 hover:scale-105"
                     onClick={() => navigate(`/profile/${user.id}`)}
                   >
                     <img
                       src={user.avatarUrl || "avatar.png"}
-                      className="rounded-full size-full object-cover"
+                      className="rounded-full size-full object-cover transform transition duration-300 hover:scale-105"
                       alt={user.name}
                       onError={(e) => (e.target.src = "avatar.png")}
                     />
                   </div>
                 </div>
 
-                {/* User Info */}
                 <div
-                  className="flex-1 min-w-0"
+                  className="flex-1 min-w-0 space-y-1"
                   onClick={() => handleHighlight(user)}
                 >
-                  <h2 className="text-lg font-medium truncate text-gray-100 hover:text-green-400 transition-colors">
+                  <h2
+                    className="text-lg font-semibold truncate text-gray-100 
+                    group-hover:text-green-300 transition-colors duration-200"
+                  >
                     {user.name || "Unknown User"}
                   </h2>
-                  <p className="text-sm truncate text-gray-400/90 hover:text-gray-300 transition-colors">
+                  <p
+                    className="text-sm truncate text-gray-400/80 group-hover:text-gray-200 
+                    transition-colors duration-200 font-mono"
+                  >
                     {user.email}
                   </p>
                 </div>
@@ -67,14 +73,17 @@ function AlumniList({ users, handleHighlight }) {
 
         {users.length === 0 && (
           <div className="text-center py-12 animate-pulse">
-            <p className="text-gray-400/80 italic flex items-center justify-center gap-2">
+            <p
+              className="text-gray-400/80 italic flex items-center justify-center gap-3 
+              text-lg font-light"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-5 h-5"
+                className="w-7 h-7 text-green-400/50 animate-float"
               >
                 <path
                   strokeLinecap="round"

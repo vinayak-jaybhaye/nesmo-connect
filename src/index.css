@@ -26,14 +26,19 @@ html {
   }
 }
 
-#root{
+#root {
   background-color: black;
 }
 
 
 @keyframes slide {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+  0% {
+    transform: translateX(100%);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
 }
 
 .animate-slide {
@@ -58,4 +63,34 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #4b5563;
+}
+
+
+
+/* Alumni Map styling */
+.leaflet-popup-content {
+  margin: 0 !important;
+}
+
+.leaflet-popup-content-wrapper {
+  transition: transform 0.2s ease !important;
+}
+
+.leaflet-popup-content-wrapper:hover {
+  transform: scale(1.02) translateY(-2px);
+}
+
+.map-tiles {
+  filter: grayscale(0.2) contrast(1.1) brightness(0.9);
+}
+
+
+
+/* Alumni Locations page */
+.scrollbar-rounded-full::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+}
+
+.scrollbar-rounded-full::-webkit-scrollbar-track {
+  border-radius: 9999px;
 }
