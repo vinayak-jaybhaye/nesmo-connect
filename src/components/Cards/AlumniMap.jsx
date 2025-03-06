@@ -42,7 +42,7 @@ const MapController = ({ highlightedUser }) => {
 
 const AlumniMap = ({ users, highlightedUser }) => {
   const navigate = useNavigate();
-  console.log("rendering map");
+  // console.log("rendering map");
 
   return (
     <div className="w-full h-[calc(100vh-120px)] rounded-xl overflow-hidden shadow-2xl border-2 border-gray-700/50 bg-gray-900">
@@ -53,7 +53,7 @@ const AlumniMap = ({ users, highlightedUser }) => {
         attributionControl={false}
       >
         <TileLayer
-          url="https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png"
+          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
           maxZoom={19}
           className="map-tiles"
         />
