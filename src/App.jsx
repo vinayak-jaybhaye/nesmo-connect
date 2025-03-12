@@ -19,7 +19,10 @@ import {
   Profile,
   EditProfile,
   ChatPage,
-  AlumniLocations
+  AlumniLocations,
+  AboutUs,
+  Error,
+  UnverifiedUsers
 } from "./pages";
 
 import { GroupChat } from "./components";
@@ -40,6 +43,12 @@ const router = createBrowserRouter(
       <Route path="verify-email" element={<VerfiyEmail />} />
       <Route path= 'all-users' element = {<AlumniLocations />} />
       <Route path= 'group-chat' element = {<GroupChat />} />
+      <Route path='about-us' element = {<AboutUs />} />
+      <Route path='unverified-users' element = {<UnverifiedUsers />} />
+      
+
+      {/* error page */}
+      <Route path="*" element = {<Error />} />
     </>
   )
 );

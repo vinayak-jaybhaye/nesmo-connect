@@ -8,5 +8,8 @@ import VerfiyEmail from './VerifyEmail'
 import EditProfile from './EditProfile'
 import ChatPage from './ChatPage'
 import AlumniLocations from './AlumniLocations'
+import AboutUs from './AboutUs'
+import Error from './Error'
+import UnverifiedUsers from './UnverifiedUsers'
 
-export {Login, Register, Dashboard, Profile, ForgotPassword, VerfiyEmail, EditProfile, ChatPage, AlumniLocations}
+export {Login, Register, Dashboard, Profile, ForgotPassword, VerfiyEmail, EditProfile, ChatPage, AlumniLocations, AboutUs, Error, UnverifiedUsers}

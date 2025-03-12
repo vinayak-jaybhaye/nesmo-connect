@@ -25,8 +25,8 @@ function AlumniLocations() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const usersCollection = await firebaseDb.getAllDocuments("users");
-      setUsers(usersCollection);
+      const alumniUsers = await firebaseDb.getAllAlumni();
+      setUsers(alumniUsers);
     };
     fetchUsers();
   }, []);
@@ -55,9 +55,7 @@ function AlumniLocations() {
                 Alumni Directory
               </h2>
             </div>
-            <div className="w-8 cursor-pointer" 
-              onClick={() => navigate("/")}
-            >
+            <div className="w-8 cursor-pointer" onClick={() => navigate("/")}>
               <img src={"/home.svg"} />
             </div>
           </div>

@@ -22,6 +22,7 @@ class Auth {
                 email: user.email,
                 name: name,
                 userRole: userRole,
+                verified : userRole === 'admin' ? true : false,
                 avatarUrl: "",
                 avatarFileId: "",
                 coverFileId: "",

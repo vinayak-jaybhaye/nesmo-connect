@@ -16,6 +16,9 @@ function Register() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const { location, locationErr } = useUserLocation();
+  const [adminCode, setAdminCode] = useState("");
+  const [school, setSchool] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -174,6 +177,50 @@ function Register() {
                     </div>
                   </div>
 
+                  {userRole === "admin" && (
+                    <div className="mb-4">
+                      <div className="text-start">
+                        <label
+                          htmlFor="adminCode"
+                          className="block text-white text-xl font-medium"
+                        >
+                          Admin Code
+                        </label>
+                      </div>
+                      <input
+                        type="text"
+                        id="adminCode"
+                        className="w-[60%] p-1 mt-2 text-black border bg-gray-300 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Admin Code"
+                        value={adminCode}
+                        onChange={(e) => setAdminCode(e.target.value)}
+                        required
+                      />
+                    </div>
+                  )}
+
+                  {userRole !== "admin" && (
+                    <div className="mb-4">
+                      <div className="text-start">
+                        <label
+                          htmlFor="school"
+                          className="block text-white text-xl font-medium"
+                        >
+                          School Name
+                        </label>
+                      </div>
+                      <input
+                        type="text"
+                        id="school"
+                        className="w-[60%] p-1 mt-2 text-black border bg-gray-300 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Enter Your School Name"
+                        value={school}
+                        onChange={(e) => setSchool(e.target.value)}
+                        required
+                      />
+                    </div>
+                  )}
+
                   <div className="text-start">
                     <label
                       htmlFor="name"
@@ -192,6 +239,7 @@ function Register() {
                     required
                   />
                 </div>
+
                 <div className="mb-4">
                   <div className="text-start">
                     <label
@@ -230,6 +278,14 @@ function Register() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
+                </div>
+                <div className="flex justify-start">
+                  <button
+                    onClick={() => setOtpSent(true)}
+                    className="w-[60%] px-4 py-1 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200"
+                  >
+                    Get OTP
+                  </button>
                 </div>
 
                 <div className="flex justify-start">

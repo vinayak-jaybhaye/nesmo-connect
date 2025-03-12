@@ -18,7 +18,6 @@ import {
     Timestamp,
     serverTimestamp
 } from "firebase/firestore";
-import appwriteStorage from "../appwrite/appwriteStorage.js";
 import app from "./firebaseConfig.js";
 import { decryptMessage } from "../components/chats/chatUtils.js";
 
@@ -131,6 +130,87 @@ class DB {
             throw error;
         }
     }
+
+    // get all alumni
+    async getAllAlumni() {
+        try {
+            const usersCollection = collection(this.db, "users");
+            const querySnapshot = await getDocs(usersCollection);
+            const alumni = querySnapshot.docs
+                .map((doc) => ({ id: doc.id, ...doc.data() }))
+                .filter((user) => user.userRole === "alumnus");
+
+            // console.log("Alumni fetched successfully:", alumni);
+            return alumni;
+        } catch (error) {
+            console.error("Error fetching alumni:", error.message);
+            throw error;
+        }
+    }
+
+    // get all unverified users in batches of 10
+    async getUnverifiedUsers(lastVisible = null, pageSize = 10) {
+        try {
+            const unverifiedUsersCollection = collection(this.db, "users");
+    
+            let usersQuery = query(
+                unverifiedUsersCollection,
+                where("verified", "==", false),
+                orderBy("createdAt", "desc"),
+                limit(pageSize)
+            );
+    
+            if (lastVisible) {
+                usersQuery = query(usersQuery, startAfter(lastVisible));
+            }
+    
+            const querySnapshot = await getDocs(usersQuery);
+    
+            if (querySnapshot.empty) {
+                return { users: [], lastVisible: null };
+            }
+    
+            const users = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+                createdAt: doc.data().createdAt?.toDate().toLocaleString(), // Format date nicely
+            }));
+    
+            const newLastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
+    
+            console.log("Fetched users:", users);
+    
+            return { users, lastVisible: newLastVisible };
+        } catch (error) {
+            console.error("Error fetching unverified users:", error.message);
+            throw error;
+        }
+    }
+
+    // delete user from firestore
+    async deleteUserFromFirestore (userId) {
+        try {
+            await deleteDoc(doc(this.db, 'users', userId));
+            console.log('User document deleted from Firestore');
+        } catch (error) {
+            console.error('Error deleting user from Firestore:', error.message);
+            throw error;
+        }
+    };
+
+    // verify user
+    async acceptUser(userId) {
+        try {
+            await updateDoc(doc(this.db, 'users', userId), {
+                verified: true
+            });
+            console.log('User verified successfully');
+        } catch (error) {
+            console.error('Error verifying user:', error.message);
+            throw error;
+        }
+    }
+    
 
     formatFirebaseTimestamp(firebaseTimestamp) {
         if (!firebaseTimestamp || !(firebaseTimestamp instanceof Timestamp)) {
