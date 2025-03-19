@@ -152,34 +152,34 @@ class DB {
     async getUnverifiedUsers(lastVisible = null, pageSize = 10) {
         try {
             const unverifiedUsersCollection = collection(this.db, "users");
-    
+
             let usersQuery = query(
                 unverifiedUsersCollection,
                 where("verified", "==", false),
                 orderBy("createdAt", "desc"),
                 limit(pageSize)
             );
-    
+
             if (lastVisible) {
                 usersQuery = query(usersQuery, startAfter(lastVisible));
             }
-    
+
             const querySnapshot = await getDocs(usersQuery);
-    
+
             if (querySnapshot.empty) {
                 return { users: [], lastVisible: null };
             }
-    
+
             const users = querySnapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data(),
                 createdAt: doc.data().createdAt?.toDate().toLocaleString(), // Format date nicely
             }));
-    
+
             const newLastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
-    
+
             console.log("Fetched users:", users);
-    
+
             return { users, lastVisible: newLastVisible };
         } catch (error) {
             console.error("Error fetching unverified users:", error.message);
@@ -188,7 +188,7 @@ class DB {
     }
 
     // delete user from firestore
-    async deleteUserFromFirestore (userId) {
+    async deleteUserFromFirestore(userId) {
         try {
             await deleteDoc(doc(this.db, 'users', userId));
             console.log('User document deleted from Firestore');
@@ -210,7 +210,7 @@ class DB {
             throw error;
         }
     }
-    
+
 
     formatFirebaseTimestamp(firebaseTimestamp) {
         if (!firebaseTimestamp || !(firebaseTimestamp instanceof Timestamp)) {
@@ -1106,6 +1106,172 @@ class DB {
             await deleteDoc(messageRef);
         } catch (error) {
             console.error("Error deleting message:", error);
+            throw error;
+        }
+    }
+
+
+
+
+
+
+
+
+    // Achievement related services
+
+    async getAllAchievements(lastVisible = null) {
+        try {
+            let achievementsQuery = query(
+                collection(this.db, "achievements"),
+                orderBy("createdAt", "desc"),
+                limit(10)
+            );
+
+            if (lastVisible) {
+                achievementsQuery = query(achievementsQuery, startAfter(lastVisible));
+            }
+
+            const querySnapshot = await getDocs(achievementsQuery);
+
+            const achievements = await Promise.all(
+                querySnapshot.docs.map(async (doc) => {
+                    const data = doc.data();
+                    let createdBy = null;
+
+                    if (data.createdBy) {
+                        try {
+                            const userDoc = await this.getDocument("users", data.createdBy);
+                            if (userDoc) {
+                                createdBy = {
+                                    id: data.createdBy,
+                                    ...userDoc,
+                                };
+                            }
+                        } catch (err) {
+                            console.error(`Failed to fetch user with ID: ${data.createdBy}`, err);
+                        }
+                    }
+
+                    return {
+                        id: doc.id,
+                        ...data,
+                        createdBy,
+                    };
+                })
+            );
+
+            const newLastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
+
+            return { achievements, lastVisible: newLastVisible };
+        } catch (error) {
+            console.error("Error fetching achievements:", error);
+            throw error;
+        }
+    }
+
+
+
+    async createAchievement(newAchievement) {
+        newAchievement.createdAt = serverTimestamp();
+        const res = addDoc(collection(this.db, "achievements"), newAchievement);
+        return res;
+    }
+
+    // delete achievement
+    async deleteAchievement(achievementId) {
+        try {
+            const achievementRef = doc(this.db, "achievements", achievementId);
+            await deleteDoc(achievementRef);
+            console.log(`Achievement with ID ${achievementId} deleted successfully.`);
+        } catch (error) {
+            console.error("Error deleting achievement:", error);
+            throw error;
+        }
+    }
+
+    async getAllOpportunities(lastVisible = null) {
+        try {
+            let opportunitiesQuery = query(
+                collection(this.db, "opportunities"),
+                orderBy("createdAt", "desc"),
+                limit(10)
+            );
+
+            if (lastVisible) {
+                opportunitiesQuery = query(opportunitiesQuery, startAfter(lastVisible));
+            }
+
+            const querySnapshot = await getDocs(opportunitiesQuery);
+
+            const opportunities = await Promise.all(
+                querySnapshot.docs.map(async (doc) => {
+                    const data = doc.data();
+                    let createdBy = null;
+
+                    if (data.createdBy) {
+                        try {
+                            const userDoc = await this.getDocument("users", data.createdBy);
+                            if (userDoc) {
+                                createdBy = {
+                                    id: data.createdBy,
+                                    ...userDoc,
+                                };
+                            }
+                        } catch (err) {
+                            console.error(`Failed to fetch user with ID: ${data.createdBy}`, err);
+                        }
+                    }
+
+                    return {
+                        id: doc.id,
+                        ...data,
+                        createdBy,
+                    };
+                })
+            );
+
+            const newLastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
+
+            return { opportunities, lastVisible: newLastVisible };
+        } catch (error) {
+            console.error("Error fetching opportunities:", error);
+            throw error;
+        }
+    }
+
+    // Create a new opportunity
+    async createOpportunity(newOpportunity) {
+        newOpportunity.createdAt = serverTimestamp();
+        const res = await addDoc(collection(this.db, "opportunities"), newOpportunity);
+        return res;
+    }
+
+    // Delete an opportunity
+    async deleteOpportunity(opportunityId) {
+        try {
+            const opportunityRef = doc(this.db, "opportunities", opportunityId);
+            await deleteDoc(opportunityRef);
+            console.log(`Opportunity with ID ${opportunityId} deleted successfully.`);
+        } catch (error) {
+            console.error("Error deleting opportunity:", error);
+            throw error;
+        }
+    }
+
+    // Example helper method to get document (if needed)
+    async getDocument(collectionName, docId) {
+        try {
+            const docRef = doc(this.db, collectionName, docId);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                return docSnap.data();
+            } else {
+                console.error(`No document found with ID ${docId}`);
+                return null;
+            }
+        } catch (error) {
+            console.error(`Error fetching document from ${collectionName}`, error);
             throw error;
         }
     }

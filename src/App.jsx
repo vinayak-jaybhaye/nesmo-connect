@@ -25,7 +25,7 @@ import {
   UnverifiedUsers
 } from "./pages";
 
-import { GroupChat } from "./components";
+import { GroupChat, Achievements, Opportunities } from "./components";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -45,6 +45,9 @@ const router = createBrowserRouter(
       <Route path= 'group-chat' element = {<GroupChat />} />
       <Route path='about-us' element = {<AboutUs />} />
       <Route path='unverified-users' element = {<UnverifiedUsers />} />
+      <Route path='achievements' element = {<Achievements />} />
+      <Route path='opportunities' element = {<Opportunities />} />
+
       
 
       {/* error page */}

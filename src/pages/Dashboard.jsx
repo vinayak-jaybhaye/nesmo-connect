@@ -83,8 +83,8 @@ function Dashboard() {
         <div
           className="mb-8 text-xl font-bold text-gray-100 border-b border-gray-700/50 pb-4 shadow-lg cursor-pointer"
           onClick={() => {
-            if(userData?.userRole === 'admin') navigate("/unverified-users");
-            else navigate('/')
+            if (userData?.userRole === "admin") navigate("/unverified-users");
+            else navigate("/");
           }}
         >
           NESMO connect
@@ -92,10 +92,10 @@ function Dashboard() {
         <div className="space-y-2 overflow-scroll scrollbar-hide bg-gray-900 p-2 rounded-lg shadow-lg border border-black">
           {[
             { name: "Home", action: () => {} },
-            { name: "Community", action: () => {} },
-            { name: "Fundraiser", action: () => {} },
+            { name: "Achievements", action: () => navigate("/achievements") },
+            { name: "Opportunities", action: () => navigate("/opportunities") },
             { name: "Alumni Listing", action: () => navigate("/all-users") },
-            { name: "About Us", action: () => navigate('/about-us') },
+            { name: "About Us", action: () => navigate("/about-us") },
           ].map((item) => (
             <div
               key={item.name}

@@ -351,9 +351,9 @@ function PostCard({ post }) {
             )}
           </div>
 
-          <p className="text-gray-300/90 text-base leading-relaxed transition-colors hover:text-gray-200">
+          <pre className="text-gray-300/85 leading-relaxed text-lg border-l-4 border-green-500/30 pl-4 ml-2 italic font-light whitespace-pre-wrap overflow-x-auto">
             {content}
-          </p>
+          </pre>
         </div>
 
         <div className="text-gray-400 text-sm rounded-lg transition-colors hover:text-gray-300">

@@ -94,3 +94,30 @@ html {
 .scrollbar-rounded-full::-webkit-scrollbar-track {
   border-radius: 9999px;
 }
+
+
+/* opportunities grid */
+
+@layer utilities {
+  .break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    /* For older browsers */
+  }
+}
+
+
+@layer utilities {
+  .break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    /* For older browser support */
+  }
+}
+
+@layer utilities {
+  .break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

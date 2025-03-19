@@ -16,5 +16,28 @@ import GroupChat from "./chats/GroupChat";
 import ProfileConnections from "./Cards/ProfileConnections";
 import AlumniMap from "./Cards/AlumniMap";
 import UserList from "./Cards/UserList";
+import Achievements from "./Cards/Achievements";
+import Opportunities from "./Cards/Opportunities";
+import Navbar from "./Navbar";
 
-export { Loader, ErrorAlert, LeftSide, SuccessAlert, PostCard, NewPost, AllPosts, AlumniList, Notifications, Connections, Chats, Communities , GroupChat, ProfileConnections, AlumniMap, UserList};
+export {
+    Loader,
+    ErrorAlert,
+    LeftSide,
+    SuccessAlert,
+    PostCard,
+    NewPost,
+    AllPosts,
+    AlumniList,
+    Notifications,
+    Connections,
+    Chats,
+    Communities,
+    GroupChat,
+    ProfileConnections,
+    AlumniMap,
+    UserList,
+    Achievements,
+    Opportunities,
+    Navbar
+};
