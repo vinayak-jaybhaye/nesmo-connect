@@ -5,7 +5,7 @@ function AlumniList({ users, handleHighlight }) {
   const navigate = useNavigate();
 
   return (
-    <>
+    <div className="h-full overflow-auto">
       <h2 className="text-lg font-bold mb-6 text-gray-100 flex items-center gap-3">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -96,7 +96,7 @@ function AlumniList({ users, handleHighlight }) {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
 

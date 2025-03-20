@@ -35,7 +35,7 @@ function ForgotPassword() {
       )}
       {loading && <Loader />}
 
-      <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-gray-900 to-black">
+      <div className="flex flex-col md:flex-row h-[90vh] w-full bg-gradient-to-br from-gray-900 to-black rounded-md">
         {/* Left side */}
         <LeftSide />
 

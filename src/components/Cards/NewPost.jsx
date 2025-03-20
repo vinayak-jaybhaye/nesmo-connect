@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import appwriteStorage from "../../appwrite/appwriteStorage";
 import dbServices from "../../firebase/firebaseDb";
 
-function NewPost({ user }) {
+function NewPost({ user, setPosts }) {
   const [image, setImage] = useState(null);
   const [content, setContent] = useState("");
   const [showDelete, setShowDelete] = useState(false);
@@ -11,32 +11,35 @@ function NewPost({ user }) {
     if (content.trim() === "") {
       return;
     }
-  
+
     let imageUrl = null;
     let fileId = null;
-  
+
     if (image) {
       const fileData = await appwriteStorage.uploadFile(image);
       fileId = fileData["$id"];
-  
+
       const isWebP = image.type === "image/webp";
       imageUrl = isWebP
         ? appwriteStorage.getFileView(fileId)
         : appwriteStorage.getFilePreview(fileId);
     }
-  
+
     const newPost = {
       content,
       ...(imageUrl && { imageUrl, fileId }),
       createdBy: user.uid,
     };
-  
-      await dbServices.createPost(newPost, user.uid);
-      setContent("");
-      setImage(null);
-  
+
+    const response = await dbServices.createPost(newPost, user.uid);
+    newPost.id = response.id;
+    newPost.createdAt = response.createdAt;
+    newPost.createdBy = { ...user, id: user.uid };
+    setPosts((prev) => [newPost, ...prev]);
+    setContent("");
+    setImage(null);
   };
-  
+
   const handleAddImage = () => {
     const input = document.createElement("input");
     input.type = "file";
@@ -56,7 +59,7 @@ function NewPost({ user }) {
   };
 
   return (
-    <div className="bg-gray-800/80 p-4 rounded-xl shadow-xl border border-gray-700/50 backdrop-blur-sm">
+    <div className="bg-gray-800/80 p-4 w-full rounded-xl shadow-xl border border-gray-700/50 backdrop-blur-sm">
       <div className="flex items-center gap-2 text-gray-100 mb-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -112,7 +115,7 @@ function NewPost({ user }) {
         )}
 
         <textarea
-          className="w-full bg-gray-800/60 p-3 rounded-xl  text-gray-200 placeholder-gray-500 resize-none scrollbar-hide 
+          className="bg-gray-800/60 p-3 rounded-xl  text-gray-200 placeholder-gray-500 resize-none scrollbar-hide 
                     focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:bg-gray-800/80 transition-all"
           placeholder="Share your thoughts..."
           onChange={(e) => {

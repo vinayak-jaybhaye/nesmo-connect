@@ -229,6 +229,9 @@ class DB {
             const userPostRef = doc(dbServices.db, `users/${userId}/myPosts`, postRef.id);
             await setDoc(userPostRef, { postRef, createdAt: newPost.createdAt });
             console.log("Post added successfully!", postRef.id, newPost);
+            // return post
+            const createdPost = await getDoc(postRef);
+            return { id: createdPost.id, ...createdPost.data() };
         } catch (error) {
             console.error("Error adding post:", error);
         }
@@ -1172,9 +1175,18 @@ class DB {
 
 
     async createAchievement(newAchievement) {
-        newAchievement.createdAt = serverTimestamp();
-        const res = addDoc(collection(this.db, "achievements"), newAchievement);
-        return res;
+        try {
+            newAchievement.createdAt = serverTimestamp();
+            const achievementRef = await addDoc(collection(this.db, "achievements"), newAchievement);
+
+            //Fetch the created achievement and return it
+            const createdAchievement = await getDoc(achievementRef);
+            return { id: achievementRef.id, ...createdAchievement.data() };
+
+        } catch (error) {
+            console.error("Error creating achievement:", error);
+            throw error;
+        }
     }
 
     // delete achievement
@@ -1241,10 +1253,19 @@ class DB {
 
     // Create a new opportunity
     async createOpportunity(newOpportunity) {
-        newOpportunity.createdAt = serverTimestamp();
-        const res = await addDoc(collection(this.db, "opportunities"), newOpportunity);
-        return res;
+        try {
+            newOpportunity.createdAt = serverTimestamp();
+            const opportunityRef = await addDoc(collection(this.db, "opportunities"), newOpportunity);
+
+            const createdOpportunity = await getDoc(opportunityRef);
+            return { id: createdOpportunity.id, ...createdOpportunity.data() };
+
+        } catch (error) {
+            console.error("Error creating opportunity:", error);
+            throw error;
+        }
     }
+
 
     // Delete an opportunity
     async deleteOpportunity(opportunityId) {

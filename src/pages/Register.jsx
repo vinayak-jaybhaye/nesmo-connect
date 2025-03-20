@@ -87,7 +87,7 @@ function Register() {
 
       {/* Register form */}
       <div
-        className="flex justify-evenly bg-black-600 h-[100vh] box-content overflow-hidden "
+        className="flex justify-evenly bg-black-600  box-content overflow-auto rounded-md"
         onClick={() => setError(null)}
       >
         {/* left side */}

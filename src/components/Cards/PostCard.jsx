@@ -7,7 +7,7 @@ import dbServices from "../../firebase/firebaseDb";
 
 import { toast } from "react-toastify";
 
-function PostCard({ post }) {
+function PostCard({ post, setPosts }) {
   const { content, createdAt, imageUrl } = post;
   const navigate = useNavigate();
 
@@ -18,7 +18,6 @@ function PostCard({ post }) {
   const [likedStatus, setLikedStatus] = useState(null);
   const [showAllLikes, setShowAllLikes] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [deleted, setDeleted] = useState(false);
   const [lastVisible, setLastVisible] = useState({ likedUsers: null });
   const [{ likes, dislikes }, setLikesAndDislikes] = useState({
     likes: 0,
@@ -109,7 +108,7 @@ function PostCard({ post }) {
     }
     await dbServices.deletePost(post.id, userData.uid);
 
-    setDeleted(true);
+    setPosts((prev) => prev.filter((p) => p.id !== post.id));
     toast.success("Post Deleted Successfully!");
   };
 
@@ -197,9 +196,7 @@ function PostCard({ post }) {
 
   return (
     <div
-      className={`w-full flex-1 bg-gray-800 p-4 rounded-xl shadow-lg shadow-black/40 border border-gray-700 transition-all transform hover:scale-[1.01] hover:shadow-xl hover:border-gray-600 ${
-        deleted ? "hidden" : ""
-      }`}
+      className={`w-full flex-1 bg-gray-800 p-4 rounded-xl shadow-lg shadow-black/40 border border-gray-700 transition-all transform hover:scale-[1.01] hover:shadow-xl hover:border-gray-600`}
       onClick={() => (showMenu ? setShowMenu(false) : null)}
     >
       <div

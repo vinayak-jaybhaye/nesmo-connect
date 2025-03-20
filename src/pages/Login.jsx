@@ -32,7 +32,7 @@ function Login() {
               userData: userData,
             })
           );
-          navigate("/dashboard");
+          navigate("/");
         } catch (error) {
           console.error("Error fetching user data:", error);
         }
@@ -42,11 +42,11 @@ function Login() {
     return () => unsubscribe();
   }, [dispatch, navigate]);
 
-   useEffect(() => {
-      if (location) {
-        console.log("User Location:", location);
-      }
-    }, [location]);
+  useEffect(() => {
+    if (location) {
+      console.log("User Location:", location);
+    }
+  }, [location]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -75,7 +75,7 @@ function Login() {
 
       {/* Login form */}
       <div
-        className="flex justify-evenly bg-black-600 h-[100vh] box-content overflow-hidden "
+        className="flex justify-evenly bg-black-600 min-h-screen box-content overflow-auto rounded-md"
         onClick={() => setError(null)}
       >
         {/* left side */}

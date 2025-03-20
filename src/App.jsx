@@ -1,7 +1,7 @@
 import React from "react";
 
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import {
   createBrowserRouter,
@@ -13,7 +13,6 @@ import {
 import {
   Login,
   Register,
-  Dashboard,
   ForgotPassword,
   VerfiyEmail,
   Profile,
@@ -22,55 +21,57 @@ import {
   AlumniLocations,
   AboutUs,
   Error,
-  UnverifiedUsers
+  UnverifiedUsers,
+  Home,
 } from "./pages";
 
-import { GroupChat, Achievements, Opportunities } from "./components";
+import { Achievements, Opportunities, Layout } from "./components";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-      <Route path="/" element={<Dashboard />} />
-      <Route path="signup" element={<Register />} />
-      <Route path="login" element={<Login />} />
-      <Route path="dashboard" element={<Dashboard />} />
-      <Route path="profile" element={<Profile />} />
-      <Route path = 'edit-profile/:profileId' element = {<EditProfile />} />
-      <Route path="profile/:profileId" element={<Profile />} />
-      <Route path="chats/:chatId" element={<ChatPage />} />
-      <Route path="chats" element={<ChatPage />} />
-      <Route path="forgot-password" element={<ForgotPassword />} />
-      <Route path="verify-email" element={<VerfiyEmail />} />
-      <Route path= 'all-users' element = {<AlumniLocations />} />
-      <Route path= 'group-chat' element = {<GroupChat />} />
-      <Route path='about-us' element = {<AboutUs />} />
-      <Route path='unverified-users' element = {<UnverifiedUsers />} />
-      <Route path='achievements' element = {<Achievements />} />
-      <Route path='opportunities' element = {<Opportunities />} />
+      <Route element={<Layout />}>
+        {/* Protected routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/Achievements" element={<Achievements />} />
+        <Route path="edit-profile/:profileId" element={<EditProfile />} />
+        <Route path="profile/:profileId" element={<Profile />} />
+        <Route path="/Opportunities" element={<Opportunities />} />
+        <Route path="chats/:chatId" element={<ChatPage />} />
+        <Route path="chats" element={<ChatPage />} />
+        <Route path="/alumni-map" element={<AlumniLocations />} />
+        <Route path="unverified-users" element={<UnverifiedUsers />} />
 
-      
+        {/* Public routes */}
+        <Route path="about" element={<AboutUs />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="verify-email" element={<VerfiyEmail />} />
+        <Route path="/signup" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+      </Route>
 
       {/* error page */}
-      <Route path="*" element = {<Error />} />
+      <Route path="*" element={<Error />} />
     </>
   )
 );
 
 function App() {
   return (
-    <div className="text-xl bg-blue-600">
+    <div className="font-sans">
       <ToastContainer
-  position="top-right"
-  autoClose={1000}
-  hideProgressBar={true}
-  newestOnTop={true}
-  closeOnClick
-  closeButton={false}
-  rtl={false}
-  pauseOnFocusLoss
-  draggable
-  theme="dark" 
-/>
+        position="top-right"
+        autoClose={1000}
+        hideProgressBar={true}
+        newestOnTop={true}
+        closeOnClick
+        closeButton={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        theme="dark"
+      />
 
       <RouterProvider router={router} />
     </div>

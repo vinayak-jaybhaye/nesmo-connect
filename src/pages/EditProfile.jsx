@@ -11,7 +11,7 @@ function EditProfile() {
 
   useEffect(() => {
     if (!userData) {
-      navigate("/dashboard");
+      navigate("/");
     }
   }, []);
 
@@ -48,7 +48,7 @@ function EditProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-gray-100 p-6 md:p-8">
+    <div className="h-[90vh] w-full rounded-md overflow-auto bg-gradient-to-br from-gray-900 to-black text-gray-100 p-6 md:p-8">
       <form className="max-w-3xl mx-auto space-y-8" onSubmit={handleSubmit}>
         <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 pb-2 border-b border-gray-700">
           Edit Profile

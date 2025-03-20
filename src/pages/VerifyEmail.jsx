@@ -57,7 +57,7 @@ function VerifyEmail() {
       )}
       {(loading || isResending) && <Loader />}
 
-      <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-gray-900 to-black">
+      <div className="flex flex-col md:flex-row h-[90vh] w-full bg-gradient-to-br from-gray-900 to-black rounded-md overflow-auto">
         <LeftSide />
 
         <div className="flex-1 flex items-center justify-center p-8 animate-fade-in">

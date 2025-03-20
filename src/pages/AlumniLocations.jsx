@@ -32,7 +32,7 @@ function AlumniLocations() {
   }, []);
 
   return (
-    <div className="flex h-screen gap-4 p-4 bg-gradient-to-br from-gray-900 via-gray-850 to-gray-900 text-gray-100">
+    <div className="flex gap-4 p-2 w-full rounded-xl h-[90vh] bg-gray-800/80 border border-gray-700/50 backdrop-blur-sm shadow-inner overflow-auto">
       {/* Left Side - User List */}
       <div className="w-1/3 bg-gray-800/70 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700/50 hover:border-gray-600/50 transition-all">
         <div className="mb-6">
@@ -71,7 +71,7 @@ function AlumniLocations() {
       </div>
 
       {/* Right Side - Map */}
-      <div className="flex-1 bg-gray-800/70 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700/50 hover:border-gray-600/50 transition-all">
+      <div className="flex-1 h-full bg-gray-800/70 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700/50 hover:border-gray-600/50 transition-all overflow-auto">
         <div className="flex items-center gap-3 pb-4 mb-4 border-b border-gray-700/70">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -88,7 +88,6 @@ function AlumniLocations() {
             Global Network
           </h2>
         </div>
-
         <AlumniMap
           users={users}
           highlightedUser={highlightedLocation}

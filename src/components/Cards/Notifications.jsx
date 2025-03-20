@@ -82,7 +82,7 @@ function Notifications({ userId }) {
   }
 
   return (
-    <div className="notifications max-h-[40vh] overflow-scroll scrollbar-hide bg-gray-900 rounded-md p-2">
+    <div className="notifications max-h-[40vh] overflow-scroll scrollbar-hide bg-gray-900 rounded-xl border p-2">
       <div className="font-bold text-sm mb-4 px-4">Notifications</div>
       {notifications.length > 0 ? (
         notifications.map((notification) => (

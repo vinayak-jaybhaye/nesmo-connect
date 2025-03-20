@@ -46,54 +46,52 @@ function Achievements() {
   // Initial load
   useEffect(() => {
     fetchAchievements();
-  }, []); // ✅ Only called on mount
+  }, []);
 
   // console.log(achievements);
 
   if (error) return <div className="text-red-400">{error}</div>;
 
   return (
-    <div className="flex flex-col gap-1 h-[100vh] relative overflow-auto">
-      <Navbar />
-      <div className="flex gap-2">
-        <LeftSidebar />
-        <div className="flex flex-col gap-4 p-2 w-full rounded-xl h-[90vh] bg-gray-800/80 border border-gray-700/50 backdrop-blur-sm shadow-inner overflow-auto">
-          <NewAchievement />
+    <div className="flex flex-col gap-4 p-2 w-full rounded-xl h-[90vh] bg-gray-800/80 border border-gray-700/50 backdrop-blur-sm shadow-inner overflow-auto">
+      <NewAchievement
+        onAdd={(newAchievement) =>
+          setAchievements((prev) => [newAchievement, ...prev])
+        }
+      />
 
-          {achievements.length === 0 && !loading ? (
-            <div className="flex flex-col items-center justify-center h-[50vh] text-gray-400/80">
-              <p className="text-lg font-medium">No achievements to show</p>
-            </div>
-          ) : (
-            <div className="flex gap-2 flex-wrap justify-between p-5">
-              {achievements.map((achievement) => (
-                <AchievementCard
-                  key={achievement.id}
-                  achievement={achievement}
-                  onDelete={(deletedId) =>
-                    setAchievements((prev) =>
-                      prev.filter((a) => a.id !== deletedId)
-                    )
-                  }
-                  className="hover:ring-1 hover:ring-gray-600/50 transition-all"
-                />
-              ))}
-            </div>
-          )}
-
-          {loading && (
-            <div className="p-4 text-center text-gray-400">
-              Loading achievements...
-            </div>
-          )}
-
-          {!hasMore && !loading && achievements.length > 0 && (
-            <div className="p-4 text-center text-gray-400">
-              No more achievements to load
-            </div>
-          )}
+      {achievements.length === 0 && !loading ? (
+        <div className="flex flex-col items-center justify-center h-[50vh] text-gray-400/80">
+          <p className="text-lg font-medium">No achievements to show</p>
         </div>
-      </div>
+      ) : (
+        <div className="flex gap-2 flex-wrap justify-between p-5">
+          {achievements.map((achievement) => (
+            <AchievementCard
+              key={achievement.id}
+              achievement={achievement}
+              onDelete={(deletedId) =>
+                setAchievements((prev) =>
+                  prev.filter((a) => a.id !== deletedId)
+                )
+              }
+              className="hover:ring-1 hover:ring-gray-600/50 transition-all"
+            />
+          ))}
+        </div>
+      )}
+
+      {loading && (
+        <div className="p-4 text-center text-gray-400">
+          Loading achievements...
+        </div>
+      )}
+
+      {!hasMore && !loading && achievements.length > 0 && (
+        <div className="p-4 text-center text-gray-400">
+          No more achievements to load
+        </div>
+      )}
     </div>
   );
 }

@@ -157,7 +157,7 @@ function Profile() {
 
   return (
     <div
-      className="flex flex-col lg:h-screen md:h-auto bg-black overflow-auto scrollbar-hide"
+      className="flex flex-col lg:h-screen md:h-auto bg-black w-full rounded-md overflow-auto scrollbar-hide"
       onClick={() => setShowConnections(false)}
     >
       {/* Banner Section */}
@@ -178,12 +178,6 @@ function Profile() {
             </div>
           )}
         </>
-        <div
-          onClick={() => navigate("/")}
-          className="absolute cursor-pointer bg-blue-500 rounded-lg px-2 late-600 m-5  hover:scale-105 hover:opacity-90 transition-all opacity-50"
-        >
-          Dashboard
-        </div>
       </div>
 
       {/* Profile Content */}

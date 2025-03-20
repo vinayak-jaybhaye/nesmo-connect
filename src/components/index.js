@@ -19,6 +19,9 @@ import UserList from "./Cards/UserList";
 import Achievements from "./Cards/Achievements";
 import Opportunities from "./Cards/Opportunities";
 import Navbar from "./Navbar";
+import LeftSidebar from "./LeftSidebar";
+import Layout from "./Layout";
+import RightSidebar from "./RightSidebar";
 
 export {
     Loader,
@@ -39,5 +42,8 @@ export {
     UserList,
     Achievements,
     Opportunities,
-    Navbar
+    Navbar,
+    LeftSidebar,
+    Layout,
+    RightSidebar
 };
