@@ -57,8 +57,19 @@ function AllPosts({ user }) {
       ? myPosts
       : savedPosts;
 
-  if (loading) return <div className="text-gray-400">Loading...</div>;
-  if (error) return <div className="text-red-400">Error: {error}</div>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center text-gray-400">
+        <span className="animate-pulse">Loading...</span>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="text-red-400 text-center">
+        ⚠️ Error: {error.message || "Something went wrong"}
+      </div>
+    );
 
   return (
     <div className="flex flex-col max-h-[100vh] w-full overflow-scroll scrollbar-hide gap-4 p-2 bg-gray-800/80 rounded-xl border border-gray-700/50 backdrop-blur-sm shadow-inner">

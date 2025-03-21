@@ -115,7 +115,7 @@ function NewPost({ user, setPosts }) {
         )}
 
         <textarea
-          className="bg-gray-800/60 p-3 rounded-xl  text-gray-200 placeholder-gray-500 resize-none scrollbar-hide 
+          className="bg-gray-800/60 p-3 rounded-xl w-full  text-gray-200 placeholder-gray-500 resize-none scrollbar-hide 
                     focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:bg-gray-800/80 transition-all"
           placeholder="Share your thoughts..."
           onChange={(e) => {

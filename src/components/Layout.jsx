@@ -1,11 +1,13 @@
 import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import Navbar from "./Navbar";
 import LeftSidebar from "./LeftSidebar";
 
 const Layout = () => {
   const location = useLocation();
+  const user = useSelector((state) => state.auth.userData);
 
   // Determine active route based on pathname
   const getActiveRoute = () => {
@@ -20,7 +22,7 @@ const Layout = () => {
     <div className="flex flex-col h-[100vh] gap-2 relative overflow-auto p-2">
       <Navbar />
       <div className="flex gap-2">
-        {true && <LeftSidebar active={getActiveRoute()} />}
+        {user && <LeftSidebar active={getActiveRoute()} />}
         <Outlet />
       </div>
     </div>
