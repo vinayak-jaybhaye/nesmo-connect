@@ -1,6 +1,6 @@
 import Loader from "./blocks/Loader"
-import ErrorAlert from "./blocks/ErrorAlert";
-import LeftSide from "./blocks/LeftSide";
+import ErrorAlert from "../components/ErrorAlert"
+import LeftSide from "./LeftSide";
 import SuccessAlert from "./blocks/SuccessAlert";
 
 import PostCard from "./Cards/PostCard"

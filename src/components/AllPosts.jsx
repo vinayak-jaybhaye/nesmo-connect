@@ -3,6 +3,7 @@ import PostCard from "./Cards/PostCard";
 import dbServices from "../firebase/firebaseDb";
 import { useSelector } from "react-redux";
 import NewPost from "./Cards/NewPost";
+import Loader from "../components/Loader";
 
 function AllPosts({ user }) {
   const [allPosts, setAllPosts] = useState([]);
@@ -57,12 +58,7 @@ function AllPosts({ user }) {
       ? myPosts
       : savedPosts;
 
-  if (loading)
-    return (
-      <div className="flex justify-center items-center text-gray-400">
-        <span className="animate-pulse">Loading...</span>
-      </div>
-    );
+  if (loading) return <Loader />;
 
   if (error)
     return (

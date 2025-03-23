@@ -4,17 +4,8 @@ import { useSelector, useDispatch } from "react-redux";
 import userAuth from "../firebase/firebaseAuth";
 import dbServices from "../firebase/firebaseDb";
 import { login, logout } from "../store/authSlice";
-import {
-  AllPosts,
-  Loader,
-  Connections,
-  UserList,
-  Chats,
-  RightSidebar,
-} from "../components";
+import { AllPosts, Loader, RightSidebar } from "../components";
 import { setVars } from "../store/varSlice";
-
-import { NewPost } from "../components";
 
 function Dashboard() {
   const navigate = useNavigate();

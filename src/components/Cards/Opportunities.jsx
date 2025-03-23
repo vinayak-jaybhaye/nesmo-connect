@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import OpportunityCard from "./OpportunityCard";
 import dbServices from "../../firebase/firebaseDb";
 import NewOpportunity from "./NewOpportunity";
-import Navbar from "../Navbar";
-import LeftSidebar from "../LeftSidebar";
+import Loader from "../Loader";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -86,11 +85,7 @@ function Opportunities() {
       )}
 
       {/* Loading State */}
-      {loading && (
-        <div className="p-4 text-center text-gray-400">
-          Loading opportunities...
-        </div>
-      )}
+      {loading && <Loader />}
 
       {/* No More Opportunities */}
       {!hasMore && !loading && opportunities.length > 0 && (

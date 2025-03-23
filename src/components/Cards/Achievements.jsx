@@ -4,8 +4,7 @@ import dbServices from "../../firebase/firebaseDb";
 import NewAchievement from "./NewAchievement";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../Navbar";
-import LeftSidebar from "../LeftSidebar";
+import Loader from "../Loader";
 
 function Achievements() {
   const [achievements, setAchievements] = useState([]);
@@ -81,11 +80,7 @@ function Achievements() {
         </div>
       )}
 
-      {loading && (
-        <div className="p-4 text-center text-gray-400">
-          Loading achievements...
-        </div>
-      )}
+      {loading && <Loader />}
 
       {!hasMore && !loading && achievements.length > 0 && (
         <div className="p-4 text-center text-gray-400">

@@ -331,7 +331,7 @@ function Profile() {
         </div>
 
         {/* Profile Details */}
-        <div className="bg-gradient-to-b from-gray-900 to-gray-800 p-6 flex flex-col justify-evenly shadow-2xl h-[65%]">
+        <div className="bg-gradient-to-b from-gray-900 to-gray-800 p-6 flex flex-col justify-evenly shadow-2xl ">
           <div className="py-2 flex flex-col justify-evenly overflow-auto scrollbar-hide space-y-6">
             <div className="flex flex-col md:flex-row justify-around text-white text-center md:text-left space-y-6 md:space-y-0 p-2">
               <div className="space-y-4">
@@ -364,7 +364,7 @@ function Profile() {
             </div>
 
             <div className="space-y-4 px-4 md:pl-6">
-              <h2 className="text-2xl font-bold text-white">About</h2>
+              <h2 className="text-2xl font-bold text-white">Bio</h2>
               <div className="overflow-auto scrollbar-hide p-4 bg-gray-800/50 rounded-lg">
                 <p className="text-gray-300 leading-relaxed max-h-[40vh]">
                   {profileData?.personalData?.about ||

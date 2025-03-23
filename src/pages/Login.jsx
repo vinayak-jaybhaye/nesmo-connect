@@ -4,8 +4,20 @@ import userAuth from "../firebase/firebaseAuth";
 import dbServices from "../firebase/firebaseDb";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../store/authSlice";
-import { Loader, ErrorAlert, LeftSide } from "../components";
 import { useUserLocation } from "../components/helpers";
+
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { LeftSide } from "../components";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -62,109 +74,112 @@ function Login() {
   };
 
   if (isUserLoggedIn) {
-    return null; // Already handled by useEffect redirect
+    return null;
   }
 
   return (
-    <>
-      {/* Error message */}
-      {error && <ErrorAlert message={error} />}
+    <div
+      className="flex flex-col  items-center justify-around md:flex-row w-full h-[90vh]  text-white"
+      onClick={() => setError(null)}
+    >
+      <LeftSide />
+      {/* Left side - visible on medium screens and up */}
 
-      {/* Loading spinner */}
-      {loading && <Loader />}
+      {/* Right side - login form */}
+      <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8">
+        <Card className="w-full max-w-md border-gray-800 bg-gray-950 shadow-xl">
+          {error && (
+            <Alert
+              variant="destructive"
+              className="mb-4 border-red-900 bg-red-950"
+            >
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-      {/* Login form */}
-      <div
-        className="flex justify-evenly bg-black-600 min-h-screen box-content overflow-auto rounded-md"
-        onClick={() => setError(null)}
-      >
-        {/* left side */}
-        <LeftSide />
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold">
+              Login to your account
+            </CardTitle>
+            <CardDescription className="text-gray-400">
+              Enter your credentials to access the NGO connection platform
+            </CardDescription>
+          </CardHeader>
 
-        {/* right side login form */}
-        <div className="w-[70vw] bg-black text-white">
-          <div className="p-14 text-start">
-            <div className="text-3xl mb-6 font-bold">
-              <p>Login to your account</p>
-            </div>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="email" className="text-sm font-medium">
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="bg-gray-900 border-gray-800 text-white"
+                />
+              </div>
 
-            <div className="text-white">
-              <form onSubmit={handleLogin} className="flex flex-col gap-5">
-                <div className="mb-4">
-                  <div className="text-start">
-                    <label
-                      htmlFor="email"
-                      className="block text-white text-xl font-medium"
-                    >
-                      Email
-                    </label>
-                  </div>
-                  <input
-                    type="email"
-                    id="email"
-                    className="w-[60%] p-1 mt-2 text-black border bg-gray-300 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="mb-4">
-                  <div className="text-start">
-                    <label
-                      htmlFor="password"
-                      className="block text-white text-xl font-medium"
-                    >
-                      Password
-                    </label>
-                  </div>
-                  <input
-                    type="password"
-                    id="password"
-                    className="w-[60%] p-1 mt-2 border bg-gray-300 text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
+              <div className="space-y-2">
+                <label htmlFor="password" className="text-sm font-medium">
+                  Password
+                </label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="bg-gray-900 border-gray-800 text-white"
+                />
+              </div>
 
-                <div className="flex justify-start">
-                  <button
-                    type="submit"
-                    className="w-[60%] px-4 py-1 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200"
-                  >
-                    Login
-                  </button>
-                </div>
-                <div className="mt-4 text-start flex">
-                  <p className="text-sm text-gray-500">
-                    Forgot your password?{" "}
-                    <Link
-                      to="/forgot-password"
-                      className="font-medium text-blue-500 transition-all duration-200 hover:underline"
-                    >
-                      Reset here
-                    </Link>
-                  </p>
-                </div>
-              </form>
-              <div className="mt-7 text-start ">
-                <p className="text-sm text-gray-500">
+              <Button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Logging in...
+                  </>
+                ) : (
+                  "Login"
+                )}
+              </Button>
+
+              <div className="text-sm text-gray-400">
+                Forgot your password?{" "}
+                <Link
+                  to="/forgot-password"
+                  className="text-blue-400 hover:text-blue-300 hover:underline"
+                >
+                  Reset here
+                </Link>
+              </div>
+
+              <div className="pt-4 text-center border-t border-gray-800">
+                <p className="text-sm text-gray-400">
                   Don't have an account?{" "}
                   <Link
                     to="/signup"
-                    className="font-medium text-blue-500 transition-all duration-200 hover:underline"
+                    className="text-blue-400 hover:text-blue-300 hover:underline"
                   >
                     Sign up
                   </Link>
                 </p>
               </div>
-            </div>
-          </div>
-        </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
-    </>
+    </div>
   );
 }
 

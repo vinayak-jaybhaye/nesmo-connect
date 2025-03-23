@@ -8,6 +8,18 @@ import { login } from "../store/authSlice";
 import { Loader, ErrorAlert, LeftSide } from "../components";
 import { useUserLocation } from "../components/helpers";
 
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import { AlertCircle, Loader2 } from "lucide-react";
+
 function Register() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -87,229 +99,161 @@ function Register() {
 
       {/* Register form */}
       <div
-        className="flex justify-evenly bg-black-600  box-content overflow-auto rounded-md"
+        className="flex flex-col justify-around items-center md:flex-row w-full  h-[90vh] text-white"
         onClick={() => setError(null)}
       >
         {/* left side */}
         <LeftSide />
 
         {/* right side register form */}
-        <div className="w-[70vw] bg-black text-white">
-          <div className="p-14 text-start">
-            <div className="text-3xl mb-6 font-bold">
-              <p>Let's get started</p>
-            </div>
+        <div className="w-full md:w-1/2 flex items-center justify-center p-4 md:p-8">
+          <Card className="w-full max-w-md border-gray-800 bg-gray-950 shadow-xl">
+            {error && (
+              <Alert
+                variant="destructive"
+                className="mb-4 border-red-900 bg-red-950"
+              >
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-            <div className="text-white">
-              <form onSubmit={handleRegister} className="flex flex-col gap-5">
-                <div className="mb-4">
-                  <div className="mb-4 text-start ">
-                    <label
-                      htmlFor="userRole"
-                      className="block text-white text-xl font-medium"
-                    >
-                      Sign up as :
-                    </label>
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-2xl font-bold">
+                Create an Account
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Join the NGO connection platform
+              </CardDescription>
+            </CardHeader>
 
-                    <div className="flex justify-between items-center mt-3 w-[70%]">
-                      <div
-                        className={`cursor-pointer flex justify-evenly ${
-                          userRole === "student"
-                            ? "bg-blue-500 text-white"
-                            : "bg-gray-300 text-gray-800"
-                        } py-1 px-2 rounded-md w-32 transition-colors`}
-                      >
-                        <input
-                          type="radio"
-                          name="userRole"
-                          className="hidden peer"
-                          id="student"
-                          value="student"
-                          onChange={(e) => setUserRole(e.target.value)}
-                          checked={userRole === "student"}
-                        />
-                        <label htmlFor="student" className="cursor-pointer">
-                          Student
-                        </label>
-                      </div>
-
-                      <div
-                        className={`cursor-pointer flex justify-evenly ${
-                          userRole === "alumnus"
-                            ? "bg-blue-500 text-white"
-                            : "bg-gray-300 text-gray-800"
-                        } py-1 px-2 rounded-md w-32 transition-colors`}
-                      >
-                        <input
-                          type="radio"
-                          name="userRole"
-                          className="hidden peer"
-                          id="alumnus"
-                          value="alumnus"
-                          onChange={(e) => setUserRole(e.target.value)}
-                          checked={userRole === "alumnus"}
-                        />
-                        <label htmlFor="alumnus" className="cursor-pointer">
-                          Alumnus
-                        </label>
-                      </div>
-
-                      <div
-                        className={`cursor-pointer flex justify-evenly ${
-                          userRole === "admin"
-                            ? "bg-blue-500 text-white"
-                            : "bg-gray-300 text-gray-800"
-                        } py-1 px-2 rounded-md w-32 transition-colors`}
-                      >
-                        <input
-                          type="radio"
-                          name="userRole"
-                          className="hidden peer"
-                          id="admin"
-                          value="admin"
-                          onChange={(e) => setUserRole(e.target.value)}
-                          checked={userRole === "admin"}
-                        />
-                        <label htmlFor="admin" className="cursor-pointer">
-                          Admin
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  {userRole === "admin" && (
-                    <div className="mb-4">
-                      <div className="text-start">
-                        <label
-                          htmlFor="adminCode"
-                          className="block text-white text-xl font-medium"
-                        >
-                          Admin Code
-                        </label>
-                      </div>
-                      <input
-                        type="text"
-                        id="adminCode"
-                        className="w-[60%] p-1 mt-2 text-black border bg-gray-300 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Admin Code"
-                        value={adminCode}
-                        onChange={(e) => setAdminCode(e.target.value)}
-                        required
-                      />
-                    </div>
-                  )}
-
-                  {userRole !== "admin" && (
-                    <div className="mb-4">
-                      <div className="text-start">
-                        <label
-                          htmlFor="school"
-                          className="block text-white text-xl font-medium"
-                        >
-                          School Name
-                        </label>
-                      </div>
-                      <input
-                        type="text"
-                        id="school"
-                        className="w-[60%] p-1 mt-2 text-black border bg-gray-300 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter Your School Name"
-                        value={school}
-                        onChange={(e) => setSchool(e.target.value)}
-                        required
-                      />
-                    </div>
-                  )}
-
-                  <div className="text-start">
-                    <label
-                      htmlFor="name"
-                      className="block text-white text-xl font-medium"
-                    >
-                      Name
-                    </label>
-                  </div>
-                  <input
-                    type="text"
+            <CardContent>
+              <form onSubmit={handleRegister} className="space-y-4">
+                <div className="space-y-2">
+                  <label htmlFor="name" className="text-sm font-medium">
+                    Name
+                  </label>
+                  <Input
                     id="name"
-                    className="w-[60%] p-1 text-black bg-gray-300 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    type="text"
                     placeholder="Enter your name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
+                    className="bg-gray-900 border-gray-800 text-white"
                   />
                 </div>
 
-                <div className="mb-4">
-                  <div className="text-start">
-                    <label
-                      htmlFor="email"
-                      className="block text-white text-xl font-medium"
-                    >
-                      Email
-                    </label>
-                  </div>
-                  <input
-                    type="email"
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium">
+                    Email
+                  </label>
+                  <Input
                     id="email"
-                    className="w-[60%] p-1 mt-2 text-black border bg-gray-300 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    type="email"
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    className="bg-gray-900 border-gray-800 text-white"
                   />
-                </div>
-                <div className="mb-4">
-                  <div className="text-start">
-                    <label
-                      htmlFor="password"
-                      className="block text-white text-xl font-medium"
-                    >
-                      Password
-                    </label>
-                  </div>
-                  <input
-                    type="password"
-                    id="password"
-                    className="w-[60%] p-1 mt-2 border bg-gray-300 text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter your password"
-                    value={password}
-                    minLength={6}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="flex justify-start">
-                  <button
-                    onClick={() => setOtpSent(true)}
-                    className="w-[60%] px-4 py-1 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200"
-                  >
-                    Get OTP
-                  </button>
                 </div>
 
-                <div className="flex justify-start">
-                  <button
-                    type="submit"
-                    className="w-[60%] px-4 py-1 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200"
-                  >
-                    Sign up
-                  </button>
+                <div className="space-y-2">
+                  <label htmlFor="password" className="text-sm font-medium">
+                    Password
+                  </label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="bg-gray-900 border-gray-800 text-white"
+                  />
                 </div>
-              </form>
-              <div className="mt-7 text-start ">
-                <p className="text-sm text-gray-500">
+
+                {/* Role Selection */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Sign up as</label>
+                  <div className="flex justify-between">
+                    {["student", "alumnus", "admin"].map((role) => (
+                      <div
+                        key={role}
+                        className={`cursor-pointer p-1 rounded-md w-20 sm:w-32 md:w-34 text-center transition-colors ${
+                          userRole === role
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-300 text-gray-800"
+                        }`}
+                        onClick={() => setUserRole(role)}
+                      >
+                        {role.charAt(0).toUpperCase() + role.slice(1)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Additional Fields */}
+                {userRole === "admin" && (
+                  <div className="space-y-2">
+                    <label htmlFor="adminCode" className="text-sm font-medium">
+                      Admin Code
+                    </label>
+                    <Input
+                      id="adminCode"
+                      type="text"
+                      placeholder="Enter admin code"
+                      value={adminCode}
+                      onChange={(e) => setAdminCode(e.target.value)}
+                      className="bg-gray-900 border-gray-800 text-white"
+                    />
+                  </div>
+                )}
+
+                {userRole !== "admin" && (
+                  <div className="space-y-2">
+                    <label htmlFor="school" className="text-sm font-medium">
+                      School
+                    </label>
+                    <Input
+                      id="school"
+                      type="text"
+                      placeholder="Enter your school name"
+                      value={school}
+                      onChange={(e) => setSchool(e.target.value)}
+                      className="bg-gray-900 border-gray-800 text-white"
+                    />
+                  </div>
+                )}
+
+                <Button
+                  type="submit"
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing up...
+                    </>
+                  ) : (
+                    "Sign Up"
+                  )}
+                </Button>
+
+                <div className="text-sm text-gray-400">
                   Already have an account?{" "}
                   <Link
                     to="/login"
-                    className="font-medium text-blue-500 transition-all duration-200 hover:underline"
+                    className="text-blue-400 hover:text-blue-300 hover:underline"
                   >
-                    Login
+                    Login here
                   </Link>
-                </p>
-              </div>
-            </div>
-          </div>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </>
