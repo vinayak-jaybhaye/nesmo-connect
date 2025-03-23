@@ -196,18 +196,18 @@ function PostCard({ post, setPosts }) {
 
   return (
     <div
-      className={`w-full flex-1 bg-gray-800 p-4 rounded-xl shadow-lg shadow-black/40 border border-gray-700 transition-all transform hover:scale-[1.01] hover:shadow-xl hover:border-gray-600`}
+      className={`w-full flex-1 bg-gray-800  rounded-xl shadow-lg shadow-black/40 border border-gray-700 transition-all transform hover:scale-[1.01] hover:shadow-xl hover:border-gray-600`}
       onClick={() => (showMenu ? setShowMenu(false) : null)}
     >
       <div
-        className="bg-gray-900/80 p-4 rounded-xl shadow-inner space-y-4 h-full backdrop-blur-sm"
+        className="bg-gray-900/80 p-2 md:p-4 rounded-xl shadow-inner space-y-4 h-full backdrop-blur-sm"
         // onDoubleClick={() => setShowAllLikes((prev) => false)}
       >
-        <div className="p-4 border-b border-gray-700/50">
-          <div className="flex justify-between space-x-3 mb-3">
+        <div className=" border-b border-gray-700/50">
+          <div className="flex justify-between ">
             <div className="flex items-center space-x-3 mb-3">
               <div
-                className="h-12 w-12 rounded-full overflow-hidden bg-gray-600/80 cursor-pointer ring-2 ring-gray-600 hover:ring-green-500 transition-all"
+                className="h-8 w-8 md:h-10 md:w-10  rounded-full  overflow-hidden bg-gray-600/80 cursor-pointer ring-2 ring-gray-600 hover:ring-green-500 transition-all"
                 onClick={() => {
                   console.log(post.createdBy);
                   navigate(`/profile/${createdBy?.id}`);
@@ -220,13 +220,15 @@ function PostCard({ post, setPosts }) {
                 />
               </div>
               <div className="flex flex-col">
-                <div className="font-semibold text-gray-100 text-lg hover:text-green-400 transition-colors cursor-pointer">
+                <div className="font-semibold text-gray-100 text-sm md:text-md hover:text-green-400 transition-colors cursor-pointer">
                   {createdBy.name || "Anonymous"}
                 </div>
-                <div className="text-sm text-gray-400/90">{formattedDate}</div>
+                <div className="text-sm md:text-md text-gray-400/90">
+                  {formattedDate}
+                </div>
               </div>
             </div>
-            <div className="flex items-center space-x-3 p-2 w-[30%] justify-around">
+            <div className="flex items-center space-x-3 p-2 md:gap-2 justify-around">
               <div
                 className="h-10 w-10 cursor-pointer p-2 hover:bg-gray-700/50 rounded-xl flex items-center justify-around gap-2 transition-all duration-200 group"
                 onClick={handleLike}

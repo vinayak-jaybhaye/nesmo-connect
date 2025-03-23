@@ -15,14 +15,14 @@ const Layout = () => {
     if (location.pathname.startsWith("/achievements")) return "Achievements";
     if (location.pathname.startsWith("/opportunities")) return "Opportunities";
     if (location.pathname.startsWith("/alumni-map")) return "Alumni Map";
-    if(location.pathname.startsWith("/profile")) return "Profile";
+    if (location.pathname.startsWith("/profile")) return "Profile";
     return "";
   };
 
   return (
     <div className="flex flex-col h-[100vh] gap-2 relative overflow-auto p-2">
       <Navbar />
-      <div className="flex gap-2">
+      <div className="flex flex-col-reverse gap-2 md:flex md:flex-row">
         {user && <LeftSidebar active={getActiveRoute()} />}
         <Outlet />
       </div>

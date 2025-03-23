@@ -107,7 +107,7 @@ function RightSidebar() {
       {!sidebarHidden ? (
         <div className="flex flex-col h-full w-auto space-y-4 px-2 pb-4">
           <div className="space-y-4 h-full overflow-y-auto w-auto scrollbar-hide">
-            {sidebarItems.map((item) => item.component)}
+            {sidebarItems.map((item) => <div key={item.name}>{item.component}</div>)}
           </div>
         </div>
       ) : (

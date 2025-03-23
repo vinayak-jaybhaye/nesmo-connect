@@ -50,7 +50,7 @@ function Dashboard() {
 
   return (
     <div className="flex justify-between gap-2 w-full relative">
-      <div className={`space-y-4 w-full overflow-scroll scrollbar-hide`}>
+      <div className={`space-y-4 w-full`}>
         {/* Post Selection */}
         <div className="flex justify-start gap-2 items-center mt-3 sticky top-0 bg-gray-900/80 p-2 rounded-lg shadow-lg border border-gray-800/50 backdrop-blur-sm">
           {["allPosts", "myPosts", "savedPosts"].map((option) => (
@@ -85,7 +85,9 @@ function Dashboard() {
       </div>
 
       {/* Right Column */}
-      <RightSidebar />
+      <div className="hidden lg:block">
+        <RightSidebar />
+      </div>
     </div>
   );
 }

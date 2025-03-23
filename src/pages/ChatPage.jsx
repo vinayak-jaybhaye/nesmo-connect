@@ -21,6 +21,7 @@ function ChatPage() {
   const [showMenu, setShowMenu] = useState(true);
   const userData = useSelector((state) => state.auth.userData);
   const selectChat = useSelector((state) => state.vars.selectChat);
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     const unsubscribe = userAuth.auth.onAuthStateChanged(
@@ -72,7 +73,9 @@ function ChatPage() {
     <div className="flex h-[90vh] w-full gap-2 justify-start text-gray-100 overflow-scroll scrollbar-hide">
       {/* Left Sidebar */}
       <div
-        className={`bg-gray-800/80 p-4 rounded-md space-y-4 border-r border-gray-700/50 backdrop-blur-md 
+        className={`${
+          selectChat && "hidden"
+        } md:block bg-gray-800/80 w-full md:w-fit rounded-md space-y-4 border-r border-gray-700/50 backdrop-blur-md
         ${
           showMenu ? "translate-x-0" : "-translate-x-[70%]"
         } transition-transform duration-300`}
@@ -86,11 +89,13 @@ function ChatPage() {
 
       {/* Main Content Area */}
       <div
-        className={`w-full bg-black-900/95 backdrop-blur-sm h-full overflow-clip
+        className={`${
+          !selectChat && "hidden"
+        } w-full bg-black-900/95 backdrop-blur-sm h-full overflow-clip
           bg-black rounded-md `}
       >
         {/* Main Content */}
-        <div className="flex justify-around p-2 h-full sticky">
+        <div className="flex justify-around p-2 h-[90%] md:h-full sticky">
           {selectChat && userData ? (
             <GroupChat
               chatId={selectChat}

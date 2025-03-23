@@ -27,7 +27,7 @@ function AlumniList({ users, handleHighlight }) {
           </h2>
         )}
         <div
-          className="cursor-pointer"
+          className="hidden md:block cursor-pointer"
           onClick={() => setListHidden(!listHidden)}
         >
           {!listHidden ? (

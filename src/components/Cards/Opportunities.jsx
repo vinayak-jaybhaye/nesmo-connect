@@ -68,7 +68,7 @@ function Opportunities() {
       ) : (
         <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 p-2 space-y-4">
           {opportunities.map((opportunity) => (
-            <div className="break-inside-avoid">
+            <div className="break-inside-avoid" key={opportunity.id}>
               <OpportunityCard
                 key={opportunity.id}
                 opportunity={opportunity}

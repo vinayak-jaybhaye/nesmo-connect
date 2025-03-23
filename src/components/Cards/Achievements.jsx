@@ -52,38 +52,46 @@ function Achievements() {
   if (error) return <div className="text-red-400">{error}</div>;
 
   return (
-    <div className="flex flex-col gap-4 p-2 w-full rounded-xl h-[90vh] bg-gray-800/80 border border-gray-700/50 backdrop-blur-sm shadow-inner overflow-auto">
-      <NewAchievement
-        onAdd={(newAchievement) =>
-          setAchievements((prev) => [newAchievement, ...prev])
-        }
-      />
+    <div className="flex flex-col gap-4 p-2 w-full rounded-xl h-[90vh]  border bg-gray-800/80 border-gray-700/50 backdrop-blur-sm shadow-inner overflow-auto">
+      {/* New Achievement Form  */}
+      <div>
+        <NewAchievement
+          onAdd={(newAchievement) =>
+            setAchievements((prev) => [newAchievement, ...prev])
+          }
+        />
+      </div>
 
       {achievements.length === 0 && !loading ? (
         <div className="flex flex-col items-center justify-center h-[50vh] text-gray-400/80">
-          <p className="text-lg font-medium">No achievements to show</p>
+          <p className="text-lg md:text-xl font-medium">
+            No achievements to show
+          </p>
         </div>
       ) : (
-        <div className="flex gap-2 flex-wrap justify-between p-5">
+        // Responsive grid layout
+        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 p-2 space-y-4">
           {achievements.map((achievement) => (
-            <AchievementCard
-              key={achievement.id}
-              achievement={achievement}
-              onDelete={(deletedId) =>
-                setAchievements((prev) =>
-                  prev.filter((a) => a.id !== deletedId)
-                )
-              }
-              className="hover:ring-1 hover:ring-gray-600/50 transition-all"
-            />
+            <div className="break-inside-avoid" key={achievement.id}>
+              <AchievementCard
+                key={achievement.id}
+                achievement={achievement}
+                onDelete={(deletedId) =>
+                  setAchievements((prev) =>
+                    prev.filter((a) => a.id !== deletedId)
+                  )
+                }
+                className="hover:ring-1 hover:ring-gray-600/50 transition-all mb-4"
+              />
+            </div>
           ))}
         </div>
       )}
 
-      {loading && <Loader />}
+      {loading && <Loader className="mx-auto" />}
 
       {!hasMore && !loading && achievements.length > 0 && (
-        <div className="p-4 text-center text-gray-400">
+        <div className="p-4 text-center text-gray-400 text-sm md:text-base">
           No more achievements to load
         </div>
       )}

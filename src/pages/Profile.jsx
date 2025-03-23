@@ -157,224 +157,169 @@ function Profile() {
 
   return (
     <div
-      className="flex flex-col lg:h-screen md:h-auto bg-black w-full rounded-md overflow-auto scrollbar-hide"
+      className="flex flex-col h-full bg-black w-full overflow-auto scrollbar-hide"
       onClick={() => setShowConnections(false)}
     >
       {/* Banner Section */}
-      <div className="flex h-[30%] bg-gray-800 overflow-hidden relative opacity-80">
+      <div className="h-48 sm:h-56 md:h-64 bg-gray-800 overflow-hidden relative opacity-80">
         <img
           src={profileData?.coverUrl || "/cover.png"}
-          className="w-full h-[100%]  opacity-40"
+          className="w-full h-full object-cover opacity-40"
           alt="Banner"
         />
-        <>
-          {" "}
-          {amIOwner && (
-            <div
-              className="absolute h-12 w-12 right-5 bottom-5 cursor-pointer bg-green-500 rounded-full p-2 border border-gray-800"
-              onClick={() => handleChangeImage("cover")}
-            >
-              <img src="/editImg.svg" alt="Edit" />
-            </div>
-          )}
-        </>
+        {amIOwner && (
+          <div
+            className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 h-6 w-6 sm:h-8 sm:w-8 bg-green-500 rounded-full p-1 border border-gray-800 cursor-pointer"
+            onClick={() => handleChangeImage("cover")}
+          >
+            <img src="/editImg.svg" alt="Edit" className="w-full h-full" />
+          </div>
+        )}
       </div>
 
       {/* Profile Content */}
-      <div className="flex flex-col lg:h-[65%] md:h-auto-gradient-to-b from-gray-900 to-gray-800">
+      <div className="flex flex-col bg-gradient-to-b from-gray-900 to-gray-800">
         {/* Profile Header */}
-        <div className="flex flex-col md:flex-row relative justify-end lg:items-center md:items-start h-auto md:h-[40%] lg:h-[45%] bg-gradient-to-r from-blue-800/80 to-indigo-900/80 shadow-lg p-4 md:p-6">
+        <div className="relative flex flex-col items-center  md:flex-row md:items-start md:justify-end px-4 pt-20 md:pt-2 pb-6 bg-gradient-to-r from-blue-800/80 to-indigo-900/80">
           {/* Profile Avatar */}
-          <div className="absolute rounded-full h-33 w-33 md:h-[280px] md:w-[280px] -top-28 md:-top-36 left-1/2 md:left-20 transform -translate-x-1/2 md:translate-x-0 shadow-2xl z-[1] border-4 border-white/20 hover:border-white/30 transition-all duration-300">
+          <div className="absolute -top-16 md:-top-24 left-1/2 md:left-6 transform -translate-x-1/2 md:translate-x-0 w-32 h-32 md:w-48 md:h-48 border-4 border-white/20 rounded-full shadow-2xl z-[1]">
             <img
               src={profileData?.avatarUrl || "/avatar.png"}
-              className="rounded-full w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              className="rounded-full w-full h-full object-cover"
               alt="Profile"
             />
-            <div className="absolute bottom-2 right-2">
-              {amIOwner && (
-                <div
-                  className="absolute h-12 w-12 right-5 bottom-5 cursor-pointer bg-green-500 rounded-full p-2 border border-gray-800"
-                  onClick={() => handleChangeImage("avatar")}
-                >
-                  <img src="/editImg.svg" alt="Edit" />
-                </div>
-              )}
-            </div>
+            {amIOwner && (
+              <div
+                className="absolute bottom-0 right-4 h-6 w-6 md:h-8 md:w-8 bg-green-500 rounded-full p-1 border border-gray-800 cursor-pointer"
+                onClick={() => handleChangeImage("avatar")}
+              >
+                <img src="/editImg.svg" alt="Edit" className="w-full h-full" />
+              </div>
+            )}
           </div>
 
           {/* Profile Info */}
-          <div className="flex flex-col md:flex-row w-full md:w-[65%] justify-between items-center md:items-start p-2 rounded-tl-xl mt-14 md:mt-0">
-            <div className="w-full md:w-[70%] text-center md:text-left space-y-4">
-              <div className="flex items-center gap-2  justify-evenly">
-                <h1 className="text-xl md:text-2xl font-bold text-white">
+          <div className="w-full md:w-[70%] flex flex-col md:flex-row items-center md:items-start justify-between md:justify-center lg:justify-between mt-4 md:mt-0 space-y-4 md:space-y-0">
+            <div className="w-full md:w-[60%] text-center md:text-left space-y-4">
+              <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-2">
+                <h1 className="text-2xl md:text-3xl font-bold text-white">
                   {profileData?.name}
                 </h1>
                 {!amIOwner && (
                   <button
-                    className="rounded-mdpx-4 p-1 h-8 w-8 cursor-pointer shadow-sm transition duration-300 hover:shadow-lg hover:scale-125"
+                    className="p-1 hover:scale-110 transition-transform"
                     onClick={handleMessage}
                   >
-                    <img src="/chat.svg" />
+                    <img src="/chat.svg" alt="Chat" className="w-6 h-6" />
                   </button>
                 )}
               </div>
 
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
-                <span className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full text-sm shadow-md">
+              <div className="flex flex-wrap justify-center md:justify-start items-center gap-2">
+                <span className="px-3 py-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md text-sm">
                   {profileData?.userRole || "User"}
                 </span>
-                {amIOwner ? null : (
+                {!amIOwner && (
                   <button
-                    className={`w-40 h-10 py-1 bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0 ${
-                      connectionStatus === "received"
-                        ? "rounded-md text-sm bg-gray-700"
-                        : ""
+                    className={`px-4 py-1 bg-gray-800 border border-gray-600 text-gray-100 rounded-full hover:bg-gray-700 text-sm ${
+                      connectionStatus === "received" ? "bg-gray-700" : ""
                     }`}
-                    onClick={() => {
-                      handleConnect(profileData);
-                    }}
-                    disabled={
-                      connectionStatus === "sent" ||
-                      connectionStatus === "received" ||
-                      connectionStatus === "connected"
-                    }
+                    onClick={() => handleConnect(profileData)}
+                    disabled={["sent", "received", "connected"].includes(
+                      connectionStatus
+                    )}
                   >
-                    {connectionStatus || "Loading..."}{" "}
+                    {connectionStatus || "Connect"}
                   </button>
                 )}
-                <div>
-                  <button
-                    className="px-4 py-2 rounded-md font-medium transition bg-gray-300 text-gray-700"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setShowConnections((prev) => !prev);
-                    }}
-                  >
-                    Connections
-                  </button>
-                </div>
+                <button
+                  className="px-3 py-1 bg-gray-300 text-gray-700 rounded-md text-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowConnections(!showConnections);
+                  }}
+                >
+                  Connections
+                </button>
               </div>
 
-              <div className="flex gap-5 text-gray-300 justify-center md:justify-start items-center pl-2 h-7">
+              <div className="flex justify-center md:justify-start gap-3">
                 {profileData.personalData?.linkedin && (
                   <a
-                    href={
-                      profileData?.personalData?.linkedin ||
-                      "https://in.linkedin.com/"
-                    }
-                    className="hover:text-blue-400 transition-colors duration-300"
+                    href={profileData.personalData.linkedin}
+                    className="hover:scale-110"
                   >
                     <img
                       src="/linkedin.svg"
                       alt="LinkedIn"
-                      className="w-7 h-7 hover:scale-110 transition-transform"
+                      className="w-6 h-6"
                     />
                   </a>
                 )}
-                {profileData.personalData?.email && (
-                  <a
-                    href={
-                      `https://mail.google.com/mail/?view=cm&fs=1&to=${profileData?.personalData?.email}&su=Hello%20there&body=Hi%20there,%20I%20wanted%20to%20reach%20out%20about%20...` ||
-                      "#"
-                    }
-                    className="hover:text-blue-400 transition-colors duration-300"
-                  >
-                    <img
-                      src="/gmail.svg"
-                      alt="Email"
-                      className="w-7 h-7 hover:scale-110 transition-transform"
-                    />
-                  </a>
-                )}
-                {profileData.personalData?.twitter && (
-                  <a
-                    href={
-                      profileData?.personalData?.twitter ||
-                      "https://x.com/home?lang=en"
-                    }
-                    className="hover:text-blue-400 transition-colors duration-300"
-                  >
-                    <img
-                      src="/twitter.svg"
-                      alt="Twitter"
-                      className="w-7 h-7 hover:scale-110 transition-transform"
-                    />
-                  </a>
-                )}
+                {/* Add similar conditional rendering for other social links */}
               </div>
             </div>
-            {/* connections goes here */}
-            {showConnections && (
-              <ProfileConnections
-                profileData={profileData}
-                profileId={profileId}
-              />
-            )}
-            <div className="flex flex-col size-full items-end p-2 space-y-3">
+
+            <div className="flex flex-col items-center gap-3 w-full md:w-auto">
               {amIOwner && (
                 <button
-                  className="w-full md:w-[30%] h-fit px-6 py-2 bg-[#181818] border border-gray-600 text-gray-100 rounded-full hover:bg-gray-600 transition mt-4 md:mt-0"
+                  className="w-full md:w-32 px-4 py-2 bg-gray-800 border border-gray-600 text-gray-100 rounded-full hover:bg-gray-700 text-sm"
                   onClick={() => navigate(`/edit-profile/${userData.uid}`)}
                 >
                   Edit Profile
                 </button>
               )}
-              <div
-                onClick={() => navigate("/")}
-                className="cursor-pointer bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-lg px-4 py-2 shadow-md hover:scale-105 transition-all duration-300"
+              <button
+                className="w-full md:w-32 px-4 py-2 bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-lg text-sm hover:scale-105"
+                onClick={() => handleLogout()}
               >
-                To Dashboard
-              </div>
+                Logout
+              </button>
             </div>
           </div>
         </div>
 
         {/* Profile Details */}
-        <div className="bg-gradient-to-b from-gray-900 to-gray-800 p-6 flex flex-col justify-evenly shadow-2xl ">
-          <div className="py-2 flex flex-col justify-evenly overflow-auto scrollbar-hide space-y-6">
-            <div className="flex flex-col md:flex-row justify-around text-white text-center md:text-left space-y-6 md:space-y-0 p-2">
-              <div className="space-y-4">
-                <div className="bg-gray-800/50 p-4 rounded-lg">
-                  <label className="text-blue-400 text-sm font-medium">
-                    Education
-                  </label>
-                  <p className="font-semibold mt-1">
-                    {profileData?.personalData?.education || "Not Specified"}
-                  </p>
-                </div>
-                <div className="bg-gray-800/50 p-4 rounded-lg">
-                  <label className="text-blue-400 text-sm font-medium">
-                    Location
-                  </label>
-                  <p className="font-semibold mt-1">
-                    {profileData?.personalData?.city || "Not Specified"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-gray-800/50 p-4 rounded-lg">
-                <label className="text-blue-400 text-sm font-medium">
-                  Current Position
-                </label>
-                <p className="font-semibold mt-1">
-                  {profileData?.personalData?.position || "Not Specified"}
-                </p>
-              </div>
+        <div className="p-4 md:p-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="bg-gray-800/50 p-4 rounded-lg">
+              <label className="text-blue-400 text-sm">Education</label>
+              <p className="text-white mt-1">
+                {profileData?.personalData?.education || "Not Specified"}
+              </p>
             </div>
+            <div className="bg-gray-800/50 p-4 rounded-lg">
+              <label className="text-blue-400 text-sm">Location</label>
+              <p className="text-white mt-1">
+                {profileData?.personalData?.city || "Not Specified"}
+              </p>
+            </div>
+            <div className="bg-gray-800/50 p-4 rounded-lg">
+              <label className="text-blue-400 text-sm">Current Position</label>
+              <p className="text-white mt-1">
+                {profileData?.personalData?.position || "Not Specified"}
+              </p>
+            </div>
+          </div>
 
-            <div className="space-y-4 px-4 md:pl-6">
-              <h2 className="text-2xl font-bold text-white">Bio</h2>
-              <div className="overflow-auto scrollbar-hide p-4 bg-gray-800/50 rounded-lg">
-                <p className="text-gray-300 leading-relaxed max-h-[40vh]">
-                  {profileData?.personalData?.about ||
-                    "User has not provided any information about themselves"}
-                </p>
-              </div>
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-white">Bio</h2>
+            <div className="bg-gray-800/50 p-4 rounded-lg">
+              <p className="text-gray-300 leading-relaxed">
+                {profileData?.personalData?.about || "No bio provided"}
+              </p>
             </div>
           </div>
         </div>
       </div>
+
+      {showConnections && (
+        <ProfileConnections
+          profileData={profileData}
+          profileId={profileId}
+          onClose={() => setShowConnections(false)}
+        />
+      )}
     </div>
   );
 }

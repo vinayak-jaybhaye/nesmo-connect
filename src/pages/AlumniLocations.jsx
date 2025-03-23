@@ -6,10 +6,11 @@ import firebaseDb from "../firebase/firebaseDb";
 function AlumniLocations() {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
-  const [highlightedLocation, setHighlightedLocation] = useState(
-    [20.5937, 78.9629],
-    null
-  );
+  const [highlightedLocation, setHighlightedLocation] = useState({
+    location: [20.5937, 78.9629],
+    userId: null,
+  });
+  const [showList, setShowList] = useState(false);
 
   const handleHighlight = (user) => {
     if (user?.personalData?.location) {
@@ -19,7 +20,7 @@ function AlumniLocations() {
         userId: user.id,
       });
     } else {
-      setHighlightedLocation({ userId: user.id, location: [20.5937, 78.9629] });
+      setHighlightedLocation((prev) => ({ ...prev, userId: user.id }));
     }
   };
 
@@ -32,10 +33,35 @@ function AlumniLocations() {
   }, []);
 
   return (
-    <div className="flex gap-4 p-2 w-full rounded-xl h-[90vh] bg-gray-800/80 border border-gray-700/50 backdrop-blur-sm shadow-inner overflow-auto">
+    <div className="flex flex-col md:flex-row gap-2 md:gap-4 p-2 w-full h-[90vh]">
+      {/* Mobile Toggle Button */}
+      <button
+        onClick={() => setShowList(!showList)}
+        className="md:hidden fixed bottom-16 right-4 z-10 p-3 bg-gray-700/80 rounded-full backdrop-blur-sm border border-gray-600/50 hover:border-gray-500/50 shadow-lg"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-6 h-6 text-white"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d={showList ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+          />
+        </svg>
+      </button>
+
       {/* Left Side - User List */}
-      <div className="bg-gray-800/70 backdrop-blur-sm p-2 rounded-2xl shadow-2xl border border-gray-700/50 hover:border-gray-600/50 transition-all">
-        <div className="overflow-y-auto h-[calc(100vh-9rem)] scrollbar-thin scrollbar-track-gray-800/50 scrollbar-thumb-gray-600/70 hover:scrollbar-thumb-gray-500/80 scrollbar-rounded-full">
+      <div
+        className={`${
+          showList ? "block" : "hidden"
+        } md:block bg-gray-800/70 backdrop-blur-sm p-2 rounded-xl border border-gray-700/50 transition-all`}
+      >
+        <div className="overflow-y-auto h-[300px] md:h-[calc(100vh-9rem)] scrollbar-thin scrollbar-track-gray-800/50 scrollbar-thumb-gray-600/70">
           <AlumniList
             users={users}
             handleHighlight={handleHighlight}
@@ -45,11 +71,11 @@ function AlumniLocations() {
       </div>
 
       {/* Right Side - Map */}
-      <div className="flex-1 h-full bg-gray-800/70 backdrop-blur-sm p-6 rounded-2xl shadow-2xl border border-gray-700/50 hover:border-gray-600/50 transition-all overflow-auto">
-        <div className="flex items-center gap-3 pb-4 mb-4 border-b border-gray-700/70">
+      <div className="flex-1 h-[60vh] md:h-full bg-gray-800/70 backdrop-blur-sm p-2 md:p-4 rounded-xl border border-gray-700/50">
+        <div className="flex items-center gap-2 md:gap-3 pb-2 md:pb-4 mb-2 md:mb-4 border-b border-gray-700/70">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6"
+            className="w-5 h-5 md:w-6 md:h-6"
             viewBox="0 0 24 24"
             strokeWidth="1.5"
             stroke="skyblue"
@@ -58,14 +84,14 @@ function AlumniLocations() {
             <path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
             <path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" />
           </svg>
-          <h2 className="text-md font-bold text-white bg-clip-text">
+          <h2 className="text-sm md:text-base font-semibold text-white">
             Global Network
           </h2>
         </div>
         <AlumniMap
           users={users}
           highlightedUser={highlightedLocation}
-          className="rounded-xl overflow-hidden border border-gray-700/50 hover:border-gray-600/50 transition-all h-[calc(100vh-9rem)]"
+          className="rounded-lg md:rounded-xl border border-gray-700/50 h-[calc(100%-40px)]"
         />
       </div>
     </div>

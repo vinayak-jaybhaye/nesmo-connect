@@ -31,7 +31,7 @@ function Navbar({ isUnreadNotification, onNotificationsToggle }) {
           if (userData) navigate("/");
         }}
       >
-        <span className="text-lg font-semibold text-gray-100 hidden md:inline-block">
+        <span className="text-sm md:text-lg font-bold text-gray-100">
           NESMO Connect
         </span>
       </div>
@@ -41,7 +41,7 @@ function Navbar({ isUnreadNotification, onNotificationsToggle }) {
         {/* Logout Button */}
         {userData ? (
           <>
-            <button
+            {/* <button
               onClick={handleLogout}
               className="flex items-center space-x-1.5 bg-blue-600 hover:bg-blue-500 rounded-xl  px-8 py-1.5 transition-all duration-200 text-sm hover:ring-1 hover:ring-gray-500"
             >
@@ -60,7 +60,7 @@ function Navbar({ isUnreadNotification, onNotificationsToggle }) {
                 />
               </svg>
               <span className="hidden sm:inline">Logout</span>
-            </button>
+            </button> */}
 
             {/* Notifications Button */}
             <div className="relative">
@@ -175,7 +175,7 @@ function Navbar({ isUnreadNotification, onNotificationsToggle }) {
 
       {/* Notifications Dropdown */}
       {showNotifications && (
-        <div className="absolute top-20 right-4 z-20 p-1 w-96">
+        <div className="absolute top-20 md:right-4 z-20 p-1 w-80 md:w-96">
           <Notifications
             onClose={() => setShowNotifications(false)}
             onNotificationsToggle={() => setShowNotifications((prev) => !prev)}

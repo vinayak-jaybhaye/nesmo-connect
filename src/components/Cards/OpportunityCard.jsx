@@ -61,7 +61,7 @@ function OpportunityCard({ opportunity, onDelete }) {
         </div>
 
         {/* Description */}
-        <pre className="text-gray-300/85 leading-relaxed text-lg border-l-4 border-blue-500/30 pl-4 ml-2 italic font-light whitespace-pre-wrap overflow-x-auto">
+        <pre className="text-gray-300/85 leading-relaxed text-lg max-h-[50vh] border-l-4 border-blue-500/30 pl-4 ml-2 italic font-light whitespace-pre-wrap overflow-auto">
           {opportunity.description}
         </pre>
 

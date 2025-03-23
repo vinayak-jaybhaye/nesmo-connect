@@ -69,7 +69,7 @@ function ProfileConnections({ profileData, profileId }) {
 
   return (
     <div
-      className="absolute z-10 bg-gray-100 p-4 rounded-lg shadow-lg"
+      className="absolute z-10 md:left-40 bg-gray-100 p-4 rounded-lg shadow-lg"
       onClick={(e) => e.stopPropagation()}
     >
       {/* Tabs for switching between Connections and Requests */}
