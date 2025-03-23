@@ -38,15 +38,15 @@ const router = createBrowserRouter(
         <Route path="edit-profile/:profileId" element={<EditProfile />} />
         <Route path="profile/:profileId" element={<Profile />} />
         <Route path="/Opportunities" element={<Opportunities />} />
-        <Route path="chats/:chatId" element={<ChatPage />} />
-        <Route path="chats" element={<ChatPage />} />
+        <Route path="/chats/:chatId" element={<ChatPage />} />
+        <Route path="/chats" element={<ChatPage />} />
         <Route path="/alumni-map" element={<AlumniLocations />} />
         <Route path="unverified-users" element={<UnverifiedUsers />} />
 
         {/* Public routes */}
-        <Route path="about" element={<AboutUs />} />
+        <Route path="/about" element={<AboutUs />} />
         <Route path="/login" element={<Login />} />
-        <Route path="verify-email" element={<VerfiyEmail />} />
+        <Route path="/verify-email" element={<VerfiyEmail />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Route>

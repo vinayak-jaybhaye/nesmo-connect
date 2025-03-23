@@ -13,7 +13,7 @@ function ConnectionItem({ connection }) {
 
   return (
     <div
-      className="flex items-center gap-3 p-3 border border-gray-700/50 bg-green-800/90 hover:bg-green-700/80 
+      className="w-full flex items-center gap-3 p-1 border border-gray-700/50 bg-green-800/90 hover:bg-green-700/80 
                transition-all duration-200 cursor-pointer rounded-md backdrop-blur-sm
                shadow-sm hover:shadow-green-500/10 hover:border-gray-600"
       onClick={() => navigate("/profile/" + connection.id)}
@@ -41,7 +41,8 @@ function Connections() {
   const [lastVisible, setLastVisible] = useState(null);
 
   async function getConnections() {
-    const {connections, lastVisible : newLastVisible} = await dbServices.getConnections(userData.uid);
+    const { connections, lastVisible: newLastVisible } =
+      await dbServices.getConnections(userData.uid);
     setConnections(connections);
     setLastVisible(newLastVisible);
   }
@@ -51,7 +52,7 @@ function Connections() {
   }, []);
 
   return (
-    <div className="p-4 bg-gray-900 shadow-lg shadow-black/40 rounded-lg border border-gray-800">
+    <div className="p-2 w-auto bg-gray-900 shadow-lg shadow-black/40 rounded-lg border border-gray-800">
       <h2 className="text-sm font-bold mb-4 text-gray-100 flex items-center gap-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -69,7 +70,7 @@ function Connections() {
         Your Connections
       </h2>
       {connections.length > 0 ? (
-        <div className="space-y-2 h-auto max-h-[40vh] overflow-scroll scrollbar-hide">
+        <div className="space-y-2 h-auto max-h-[40vh] w-full overflow-scroll scrollbar-hide">
           {connections.map((connection) => (
             <ConnectionItem key={connection.id} connection={connection} />
           ))}

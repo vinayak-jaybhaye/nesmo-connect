@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Communities } from "../components";
+import { useSelector } from "react-redux";
 
 function LeftSidebar({ userData, active = "Home" }) {
   const [sidebarHidden, setSidebarHidden] = useState(false);
   const navigate = useNavigate();
+  const user = useSelector((state) => state.auth.userData);
 
   // Navigation items with icons
   const navItems = [
@@ -61,6 +63,45 @@ function LeftSidebar({ userData, active = "Home" }) {
             strokeLinejoin="round"
             strokeWidth={2}
             d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+          />
+        </svg>
+      ),
+    },
+    {
+      name: "Profile",
+      action: () => navigate(`/profile/${user?.uid}`),
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="w-5 h-5"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0"
+          />
+        </svg>
+      ),
+    },
+    {
+      name: "Chats",
+      action: () => navigate("/chats"),
+      icon: (
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
           />
         </svg>
       ),

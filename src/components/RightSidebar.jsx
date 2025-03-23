@@ -66,7 +66,7 @@ function RightSidebar() {
 
   return (
     <div
-      className={`sticky top-20 h-[90vh] rounded-xl bg-gray-800/80 border-l border-gray-700/50 backdrop-blur-md flex flex-col transition-all duration-300`}
+      className={`sticky top-20 h-[90vh] rounded-xl max-w-[90%] bg-gray-800/80 border-l border-gray-700/50 backdrop-blur-md p-2 flex flex-col transition-all duration-300 overflow-auto`}
     >
       {/* Toggle Button */}
       <button
@@ -105,16 +105,9 @@ function RightSidebar() {
       </button>
 
       {!sidebarHidden ? (
-        <div className="flex flex-col h-full space-y-4 px-2 pb-4">
-          <div className="space-y-4 h-full overflow-y-auto scrollbar-hide">
-            {sidebarItems.map((item) => (
-              <div
-                key={item.name}
-                className="bg-gray-800/80 border border-gray-700/50 rounded-xl p-4 shadow-xl backdrop-blur-sm"
-              >
-                {item.component}
-              </div>
-            ))}
+        <div className="flex flex-col h-full w-auto space-y-4 px-2 pb-4">
+          <div className="space-y-4 h-full overflow-y-auto w-auto scrollbar-hide">
+            {sidebarItems.map((item) => item.component)}
           </div>
         </div>
       ) : (

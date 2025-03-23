@@ -15,6 +15,7 @@ const Layout = () => {
     if (location.pathname.startsWith("/achievements")) return "Achievements";
     if (location.pathname.startsWith("/opportunities")) return "Opportunities";
     if (location.pathname.startsWith("/alumni-map")) return "Alumni Map";
+    if(location.pathname.startsWith("/profile")) return "Profile";
     return "";
   };
 
