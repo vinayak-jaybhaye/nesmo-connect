@@ -25,7 +25,7 @@ function Navbar({ isUnreadNotification, onNotificationsToggle }) {
   return (
     <div className="bg-gray-800/80 sticky top-0 z-10 shadow-lg py-2 px-4 flex justify-between items-center  border-b border-gray-600/50 backdrop-blur-sm">
       {/* Left Section - Brand Logo */}
-      <div
+      {/* <div
         className="flex items-center space-x-2 cursor-pointer group"
         onClick={() => {
           if (userData) navigate("/");
@@ -33,6 +33,19 @@ function Navbar({ isUnreadNotification, onNotificationsToggle }) {
       >
         <span className="text-sm md:text-lg font-bold text-gray-100">
           NESMO Connect
+        </span>
+      </div> */}
+      <div className="flex items-center space-x-2"
+        onClick={() =>{
+          if(userData) navigate("/");
+          else navigate("/landing");
+        }}
+      >
+        <span className="text-sm lg:text-xl text-white font-semibold uppercase tracking-wider">
+          NESMO
+        </span>
+        <span className="text-sm lg:text-xl font-semibold uppercase tracking-wider text-indigo-600">
+          CONNECT
         </span>
       </div>
 
@@ -148,7 +161,7 @@ function Navbar({ isUnreadNotification, onNotificationsToggle }) {
               </button>
 
               {/* About Button */}
-              <button
+              {/* <button
                 onClick={() => navigate("/about")}
                 className="flex items-center space-x-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl px-6 py-1.5 transition-all duration-200 text-sm text-gray-200"
               >
@@ -167,7 +180,7 @@ function Navbar({ isUnreadNotification, onNotificationsToggle }) {
                   />
                 </svg>
                 <span className="hidden sm:inline">About</span>
-              </button>
+              </button> */}
             </>
           </>
         )}

@@ -61,7 +61,7 @@ function ForgotPassword() {
           )}
           {loading && <Loader />}
 
-          <CardHeader className="space-y-1">
+          <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold">
               Forgot Password
             </CardTitle>

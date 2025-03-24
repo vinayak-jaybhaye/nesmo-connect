@@ -10,6 +10,7 @@ import AboutUs from './AboutUs'
 import Error from './Error'
 import UnverifiedUsers from './UnverifiedUsers'
 import Home from './Home'
+import LandingPage from './LandingPage'
 
 export {
     Login,
@@ -23,5 +24,6 @@ export {
     AboutUs,
     Error,
     UnverifiedUsers,
-    Home
+    Home,
+    LandingPage
 }

@@ -93,10 +93,11 @@ function AchievementCard({ achievement, onDelete }) {
       {isCreator && (
         <button
           onClick={handleDelete}
-          className="absolute bottom-2 right-2 md:bottom-4 md:right-4 p-1.5 md:p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400/90 hover:text-red-300 rounded-md md:rounded-lg backdrop-blur-sm transition-all shadow-sm hover:shadow-red-500/20"
+          className="absolute bottom-2 right-2 md:bottom-4 md:right-4 p-1.5 md:p-2  hover:bg-gray-500/30 text-red-600 rounded-md md:rounded-lg backdrop-blur-sm transition-all shadow-sm hover:shadow-red-500/20"
           title="Delete achievement"
         >
-          <FaTrash className="text-base md:text-lg" />
+          {/* <FaTrash className="text-base md:text-lg" /> */}
+          <img src="delete.svg" className="h-5 w-5" />
         </button>
       )}
     </div>

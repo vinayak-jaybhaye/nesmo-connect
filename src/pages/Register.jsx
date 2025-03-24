@@ -118,12 +118,12 @@ function Register() {
               </Alert>
             )}
 
-            <CardHeader className="space-y-1">
+            <CardHeader className="space-y-1 text-center">
               <CardTitle className="text-2xl font-bold">
                 Create an Account
               </CardTitle>
               <CardDescription className="text-gray-400">
-                Join the NGO connection platform
+                Join the Nesmo Connect
               </CardDescription>
             </CardHeader>
 

@@ -98,12 +98,12 @@ function Login() {
             </Alert>
           )}
 
-          <CardHeader className="space-y-1">
+          <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold">
               Login to your account
             </CardTitle>
             <CardDescription className="text-gray-400">
-              Enter your credentials to access the NGO connection platform
+              Enter your credentials to access the Nesmo Connect platform
             </CardDescription>
           </CardHeader>
 

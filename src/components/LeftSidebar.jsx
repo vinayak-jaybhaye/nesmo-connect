@@ -68,7 +68,10 @@ function LeftSidebar({ userData, active = "Home" }) {
     },
     {
       name: "Profile",
-      action: () => navigate(`/profile/${user?.uid}`),
+      action: () => {
+        setSidebarHidden(true);
+        navigate(`/profile/${user?.uid}`);
+      },
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -88,7 +91,10 @@ function LeftSidebar({ userData, active = "Home" }) {
     },
     {
       name: "Chats",
-      action: () => navigate("/chats"),
+      action: () => {
+        setSidebarHidden(true);
+        navigate("/chats");
+      },
       icon: (
         <svg
           className="w-5 h-5"
@@ -351,7 +357,10 @@ function LeftSidebar({ userData, active = "Home" }) {
                 </p>
                 <p>
                   <span
-                    onClick={() => navigate("/about")}
+                    onClick={() => {
+                      setSidebarHidden(true);
+                      navigate("/about");
+                    }}
                     className="hover:underline hover:text-gray-200 cursor-pointer"
                   >
                     About Us

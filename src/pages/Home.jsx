@@ -37,7 +37,7 @@ function Dashboard() {
             navigate("/login");
           }
         } else {
-          navigate("/login");
+          navigate("/landing");
         }
       }
     );

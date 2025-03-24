@@ -263,7 +263,7 @@ function Profile() {
             <div className="flex flex-col items-center gap-3 w-full md:w-auto">
               {amIOwner && (
                 <button
-                  className="w-full md:w-32 px-4 py-2 bg-gray-800 border border-gray-600 text-gray-100 rounded-full hover:bg-gray-700 text-sm"
+                  className="w-full md:w-32 px-4 py-2 bg-gray-800 border border-gray-600 text-gray-100 rounded-md hover:bg-gray-700 text-sm"
                   onClick={() => navigate(`/edit-profile/${userData.uid}`)}
                 >
                   Edit Profile

@@ -93,10 +93,11 @@ function OpportunityCard({ opportunity, onDelete }) {
       {isCreator && (
         <button
           onClick={handleDelete}
-          className="absolute bottom-6 right-6 p-2 bg-red-500/20 hover:bg-red-500/30 text-red-400/90 hover:text-red-300 rounded-lg backdrop-blur-sm transition-all shadow-sm hover:shadow-red-500/20"
+          className="absolute bottom-6 right-6 p-2  hover:bg-gray-500/30 text-red-600  rounded-lg backdrop-blur-sm transition-all shadow-sm hover:shadow-red-500/20"
           title="Delete opportunity"
         >
-          <FaTrash className="text-lg" />
+          {/* <FaTrash className="text-lg" /> */}
+          <img src="delete.svg" className="h-5 w-5" />
         </button>
       )}
     </div>

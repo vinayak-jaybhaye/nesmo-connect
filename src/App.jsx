@@ -23,6 +23,7 @@ import {
   Error,
   UnverifiedUsers,
   Home,
+  LandingPage
 } from "./pages";
 
 import { Achievements, Opportunities, Layout } from "./components";
@@ -49,6 +50,7 @@ const router = createBrowserRouter(
         <Route path="/verify-email" element={<VerfiyEmail />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/landing" element={<LandingPage />} />
       </Route>
 
       {/* error page */}
