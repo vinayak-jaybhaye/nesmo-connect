@@ -35,7 +35,7 @@ function Navbar({ isUnreadNotification, onNotificationsToggle }) {
           NESMO Connect
         </span>
       </div> */}
-      <div className="flex items-center space-x-2"
+      <div className="flex items-center space-x-2 cursor-pointer group" 
         onClick={() =>{
           if(userData) navigate("/");
           else navigate("/landing");
