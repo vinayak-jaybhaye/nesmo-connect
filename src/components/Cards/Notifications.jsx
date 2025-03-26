@@ -1,29 +1,38 @@
 import React, { useEffect, useState } from "react";
 import dbServices from "../../firebase/firebaseDb";
 
-function Notification({ notification, userId }) {
-  const [deleted, setDeleted] = useState(false);
-
+function Notification({
+  notification,
+  userId,
+  setNotifications,
+  setNotificationCount,
+}) {
   async function handleMarkAsRead(notificationId) {
     await dbServices.deleteNotification(notificationId, userId);
-    setDeleted(true);
+    setNotifications((prev) =>
+      prev.filter((item) => item.id !== notificationId)
+    );
+    setNotificationCount((prev) => prev - 1);
   }
 
   async function deleteConnectionRequest(status, notificationId) {
+    console.log(status, notificationId);
     await dbServices.handleConnectionRequest(
       status,
       notification.other,
       userId
     );
+    // notifiactionId is other user's id
     await dbServices.deleteNotification(notificationId, userId);
-    setDeleted(true);
+    setNotifications((prev) =>
+      prev.filter((item) => item.id !== notificationId)
+    );
+    setNotificationCount((prev) => prev - 1);
   }
 
   return (
     <div
-      className={`flex items-start flex-col gap-3 p-4 bg-gray-900 hover:bg-gray-800 shadow-md rounded-lg w-full max-w-md ${
-        deleted ? "hidden" : ""
-      }`}
+      className={`flex items-start flex-col gap-3 p-4 bg-gray-900 hover:bg-gray-800 shadow-md rounded-lg w-full max-w-md`}
     >
       <div className="flex items-center gap-3 justify-between w-full">
         {notification.type === "connectionRequest" && (
@@ -69,9 +78,8 @@ function Notification({ notification, userId }) {
   );
 }
 
-function Notifications({ userId }) {
+function Notifications({ userId, setNotificationCount }) {
   const [notifications, setNotifications] = useState([]);
-
   useEffect(() => {
     getNotifications();
   }, []);
@@ -83,13 +91,17 @@ function Notifications({ userId }) {
 
   return (
     <div className="notifications max-h-[40vh] overflow-scroll scrollbar-hide bg-gray-900 rounded-xl border p-2">
-      <div className="font-bold text-sm text-white mb-4 px-4">Notifications</div>
+      <div className="font-bold text-sm text-white mb-4 px-4">
+        Notifications
+      </div>
       {notifications.length > 0 ? (
         notifications.map((notification) => (
           <Notification
             key={notification.id}
             notification={notification}
             userId={userId}
+            setNotifications={setNotifications}
+            setNotificationCount={setNotificationCount}
           />
         ))
       ) : (

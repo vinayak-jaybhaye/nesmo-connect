@@ -155,8 +155,8 @@ class DB {
 
             let usersQuery = query(
                 unverifiedUsersCollection,
-                where("verified", "==", false),
-                orderBy("createdAt", "desc"),
+                // where("verified", "==", false),
+                // orderBy("createdAt", "desc"),
                 limit(pageSize)
             );
 
@@ -735,6 +735,18 @@ class DB {
         }
     }
 
+    async getNotificationCount(userId) {
+        try {
+            const notificationsCollection = collection(this.db, `users/${userId}/notifications`);
+            const notificationsQuery = query(notificationsCollection);
+            const querySnapshot = await getDocs(notificationsQuery);
+            return querySnapshot.size;
+        } catch (error) {
+            console.error("Error fetching notification count:", error);
+            return 0;
+        }
+    }
+
     async getNotifications(userId) {
         try {
             const notificationsCollection = collection(this.db, `users/${userId}/notifications`);
@@ -1301,6 +1313,93 @@ class DB {
             }
         } catch (error) {
             console.error(`Error fetching document from ${collectionName}`, error);
+            throw error;
+        }
+    }
+
+    async fetchPendingUsers(lastVisible = null) {
+        try {
+            let usersQuery = query(
+                collection(this.db, "pendingUsers"),
+                where("emailVerified", "==", true),
+                where("userVerificationStatus", "==", "pending"),
+                orderBy("createdAt", "desc"),
+                limit(10)
+            );
+
+            if (lastVisible) {
+                usersQuery = query(usersQuery, startAfter(lastVisible));
+            }
+
+            const querySnapshot = await getDocs(usersQuery);
+
+            if (querySnapshot.empty) {
+                return { users: [], lastVisible: null };
+            }
+
+            const users = querySnapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+
+            const newLastVisible = querySnapshot.docs.length > 0 ? querySnapshot.docs[querySnapshot.docs.length - 1] : null;
+            // console.log(users)
+
+            return { users, lastVisible: newLastVisible };
+        } catch (error) {
+            console.error("Error fetching pending users:", error);
+            throw error;
+        }
+    }
+
+    async acceptPendingUser(userId) {
+        try {
+            const pendingUserRef = doc(dbServices.db, "pendingUsers", userId);
+            const userRef = doc(dbServices.db, "users", userId);
+
+            // Fetch pending user data
+            const pendingUserSnap = await getDoc(pendingUserRef);
+
+            if (!pendingUserSnap.exists()) {
+                throw new Error("User not found in pending users.");
+            }
+
+            const userData = pendingUserSnap.data();
+
+            // Remove remark field before moving
+            delete userData.remark;
+
+            // Move user to 'users' collection
+            await setDoc(userRef, {
+                ...userData,
+                userVerificationStatus: "verified",
+                createdAt: serverTimestamp(),
+            });
+
+            // Delete from pendingUsers
+            await deleteDoc(pendingUserRef);
+
+            console.log(`User ${userId} accepted and moved to users collection.`);
+        } catch (error) {
+            console.error("Error accepting user:", error);
+            throw error;
+        }
+    }
+
+
+    // reject pending user
+    async rejectPendingUser(userId, remark = "No reason provided") {
+        try {
+            const userRef = doc(dbServices.db, "pendingUsers", userId);
+
+            await updateDoc(userRef, {
+                userVerificationStatus: "rejected",
+                verificationRemark: remark.trim() || "No reason provided",
+            });
+
+            console.log(`User with ID ${userId} rejected successfully.`);
+        } catch (error) {
+            console.error("Error rejecting user:", error);
             throw error;
         }
     }

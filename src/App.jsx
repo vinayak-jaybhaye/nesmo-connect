@@ -23,7 +23,9 @@ import {
   Error,
   UnverifiedUsers,
   Home,
-  LandingPage
+  LandingPage,
+  PendingUser,
+  AdminDashboard,
 } from "./pages";
 
 import { Achievements, Opportunities, Layout } from "./components";
@@ -43,6 +45,8 @@ const router = createBrowserRouter(
         <Route path="/chats" element={<ChatPage />} />
         <Route path="/alumni-map" element={<AlumniLocations />} />
         <Route path="unverified-users" element={<UnverifiedUsers />} />
+        <Route path="/pending-user" element={<PendingUser />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
 
         {/* Public routes */}
         <Route path="/about" element={<AboutUs />} />

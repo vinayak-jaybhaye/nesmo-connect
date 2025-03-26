@@ -26,11 +26,9 @@ function Dashboard() {
       async (firebaseUser) => {
         if (firebaseUser) {
           try {
-            const user = await dbServices.getDocument(
-              "users",
-              firebaseUser.uid
-            );
+            const user = await userAuth.getCurrentUserData();
             user.uid = firebaseUser.uid;
+            delete user.createdAt;
             dispatch(login({ userData: user }));
           } catch (error) {
             console.error("Error fetching user data:", error);
@@ -49,7 +47,7 @@ function Dashboard() {
   }
 
   return (
-    <div className="flex justify-between gap-2 w-full relative">
+    <div className="flex gap-2 w-full relative">
       <div className={`space-y-4 w-full`}>
         {/* Post Selection */}
         <div className="flex justify-start gap-2 items-center mt-3 sticky top-0 bg-gray-900/80 p-2 rounded-lg shadow-lg border border-gray-800/50 backdrop-blur-sm">
@@ -79,13 +77,13 @@ function Dashboard() {
         </div>
 
         {/* New Post & Feed */}
-        <div className="space-y-6">
+        <div className="space-y-6 w-full">
           <AllPosts user={userData} />
         </div>
       </div>
 
       {/* Right Column */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:flex justify-center">
         <RightSidebar />
       </div>
     </div>

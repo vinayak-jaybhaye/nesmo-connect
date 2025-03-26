@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import Navbar from "./Navbar";
 import LeftSidebar from "./LeftSidebar";
@@ -8,6 +9,8 @@ import LeftSidebar from "./LeftSidebar";
 const Layout = () => {
   const location = useLocation();
   const user = useSelector((state) => state.auth.userData);
+
+  const navigate = useNavigate();
 
   // Determine active route based on pathname
   const getActiveRoute = () => {
@@ -19,11 +22,19 @@ const Layout = () => {
     return "";
   };
 
+  useEffect(() => {
+    if (!user) navigate("/login");
+    if (user && user?.userVerificationStatus !== "verified")
+      navigate("/pending-user");
+  }, [user]);
+
   return (
     <div className="flex flex-col h-[100vh] gap-2 relative overflow-auto p-2">
       <Navbar />
       <div className="flex flex-col-reverse gap-2 md:flex md:flex-row">
-        {user && <LeftSidebar active={getActiveRoute()} />}
+        {user && user?.userVerificationStatus == "verified" && (
+          <LeftSidebar active={getActiveRoute()} />
+        )}
         <Outlet />
       </div>
     </div>

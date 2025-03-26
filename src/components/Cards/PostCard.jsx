@@ -196,14 +196,14 @@ function PostCard({ post, setPosts }) {
 
   return (
     <div
-      className={`w-full flex-1 bg-gray-800  rounded-xl shadow-lg shadow-black/40 border border-gray-700 transition-all transform hover:scale-[1.01] hover:shadow-xl hover:border-gray-600`}
+      className={`w-full flex-1 bg-gray-800  rounded-xl shadow-lg shadow-black/40 border border-gray-700 transition-all transform hover:shadow-xl hover:border-gray-600`}
       onClick={() => (showMenu ? setShowMenu(false) : null)}
     >
       <div
         className="bg-gray-900/80 p-2 md:p-4 rounded-xl shadow-inner space-y-4 h-full backdrop-blur-sm"
         // onDoubleClick={() => setShowAllLikes((prev) => false)}
       >
-        <div className=" border-b border-gray-700/50">
+        <div className=" border-b border-gray-700/50 bg-black p-2 rounded-md">
           <div className="flex justify-between ">
             <div className="flex items-center space-x-3 mb-3">
               <div
@@ -335,7 +335,7 @@ function PostCard({ post, setPosts }) {
           </div>
 
           <div
-            className="relative group"
+            className="relative group "
             onClick={() => setShowAllLikes(false)}
           >
             {showAllLikes && (renderLikedByList() || null)}
@@ -350,7 +350,7 @@ function PostCard({ post, setPosts }) {
             )}
           </div>
 
-          <pre className="text-gray-300/85 leading-relaxed text-lg border-l-4 border-green-500/30 pl-4 ml-2 italic font-light whitespace-pre-wrap overflow-x-auto">
+          <pre className="text-gray-300/85 max-h-96 bg-black leading-relaxed text-lg border-l-4 border-green-500/30 pl-4 ml-2 italic font-light whitespace-pre-wrap overflow-auto">
             {content}
           </pre>
         </div>

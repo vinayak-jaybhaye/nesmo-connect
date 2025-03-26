@@ -31,7 +31,7 @@ function OpportunityCard({ opportunity, onDelete }) {
   };
 
   return (
-    <div className="group h-fit  relative p-6 bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out hover:-translate-y-1 border border-gray-700/50 hover:border-gray-600/50">
+    <div className="group h-fit  relative p-2 bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out hover:-translate-y-1 border border-gray-700/50 hover:border-gray-600/50">
       {/* Image Section */}
       {opportunity.imageUrl && (
         <div className="mb-6 -mx-2 overflow-hidden rounded-xl border border-gray-700/50 group-hover:border-gray-600/50 transition-all">
@@ -44,7 +44,7 @@ function OpportunityCard({ opportunity, onDelete }) {
       )}
 
       {/* Content Section */}
-      <div className="space-y-4">
+      <div className="space-y-4 bg-gray-950 p-2 rounded-md">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
@@ -61,7 +61,7 @@ function OpportunityCard({ opportunity, onDelete }) {
         </div>
 
         {/* Description */}
-        <pre className="text-gray-300/85 leading-relaxed text-lg max-h-[50vh] border-l-4 border-blue-500/30 pl-4 ml-2 italic font-light whitespace-pre-wrap overflow-auto">
+        <pre className="text-gray-300/85 bg-black leading-relaxed text-lg max-h-[50vh] border-l-4 border-blue-500/30 pl-4 ml-2 italic font-light whitespace-pre-wrap overflow-auto">
           {opportunity.description}
         </pre>
 

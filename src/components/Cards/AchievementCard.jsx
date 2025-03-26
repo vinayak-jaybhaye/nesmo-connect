@@ -31,7 +31,7 @@ function AchievementCard({ achievement, onDelete }) {
   };
 
   return (
-    <div className="group h-fit  relative p-6 bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out hover:-translate-y-1 border border-gray-700/50 hover:border-gray-600/50">
+    <div className="group h-fit  relative p-2 bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out hover:-translate-y-1 border border-gray-700/50 hover:border-gray-600/50">
       {/* Image Section */}
       {achievement.imageUrl && (
         <div className="mb-4 md:mb-6 -mx-2 md:-mx-4 overflow-hidden rounded-lg md:rounded-xl border border-gray-700/50 group-hover:border-gray-600/50 transition-all">
@@ -44,7 +44,7 @@ function AchievementCard({ achievement, onDelete }) {
       )}
 
       {/* Content Section */}
-      <div className="space-y-2 md:space-y-4">
+      <div className="space-y-2 md:space-y-4 bg-slate-950 p-2 rounded-md">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-2">
           <div className="flex items-center gap-2 md:gap-3">
@@ -61,7 +61,7 @@ function AchievementCard({ achievement, onDelete }) {
         </div>
 
         {/* Description */}
-        <pre className="text-sm md:text-base text-gray-300/85 max-h-[50vh] leading-relaxed border-l-2 md:border-l-4 border-amber-500/30 pl-2 md:pl-4 ml-1 md:ml-2 italic font-light whitespace-pre-wrap overflow-auto">
+        <pre className="text-sm md:text-base bg-black text-gray-300/85 max-h-[50vh] leading-relaxed border-l-2 md:border-l-4 border-amber-500/30 pl-2 md:pl-4 ml-1 md:ml-2 italic font-light whitespace-pre-wrap overflow-auto">
           {achievement.description}
         </pre>
 

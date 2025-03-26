@@ -121,3 +121,20 @@ html {
     page-break-inside: avoid;
   }
 }
+
+
+/* // Marquee animation */
+@keyframes marquee {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  display: inline-block;
+  animation: marquee 5s linear infinite;
+}

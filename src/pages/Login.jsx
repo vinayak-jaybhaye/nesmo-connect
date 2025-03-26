@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import userAuth from "../firebase/firebaseAuth";
 import dbServices from "../firebase/firebaseDb";
+
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../store/authSlice";
 import { useUserLocation } from "../components/helpers";
+
+import { FcGoogle } from "react-icons/fc";
 
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -34,17 +37,23 @@ function Login() {
     const unsubscribe = userAuth.auth.onAuthStateChanged(async (user) => {
       if (user) {
         try {
-          const userData = await dbServices.getDocument("users", user.uid);
-          console.log(userData);
-          delete userData.posts;
+          const userData = await userAuth.getCurrentUserData();
+
+          // console.log(userData);
+          // delete userData.posts;
           userData.uid = user.uid;
+          delete userData.createdAt;
 
           dispatch(
             login({
               userData: userData,
             })
           );
-          navigate("/");
+          if (userData.userVerificationStatus === "pending") {
+            navigate("/verify-email");
+          } else {
+            navigate("/");
+          }
         } catch (error) {
           console.error("Error fetching user data:", error);
         }
@@ -54,22 +63,30 @@ function Login() {
     return () => unsubscribe();
   }, [dispatch, navigate]);
 
-  useEffect(() => {
-    if (location) {
-      console.log("User Location:", location);
-    }
-  }, [location]);
-
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       setError(null);
       setLoading(true);
       await userAuth.login(email, password, location);
+      navigate("/");
     } catch (error) {
       setLoading(false);
       setError("Invalid email or password");
       console.error("Error:", error.message);
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    try {
+      setError(null);
+      setLoading(true);
+      await userAuth.signInWithGoogle(location);
+      navigate("/");
+    } catch (error) {
+      setError(error.message || "Google Sign-In failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -151,6 +168,21 @@ function Login() {
                   </>
                 ) : (
                   "Login"
+                )}
+              </Button>
+              <Button
+                type="button"
+                className="w-full bg-red-600 hover:bg-red-700 flex items-center justify-center"
+                onClick={handleGoogleSignup}
+                disabled={loading}
+              >
+                {loading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <FcGoogle className="h-6 w-6" />
+                    Continue with Google
+                  </div>
                 )}
               </Button>
 

@@ -8,6 +8,8 @@ import { login } from "../store/authSlice";
 import { Loader, ErrorAlert, LeftSide } from "../components";
 import { useUserLocation } from "../components/helpers";
 
+import { FcGoogle } from "react-icons/fc";
+
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import {
@@ -24,12 +26,12 @@ function Register() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [userRole, setUserRole] = useState("student");
+  // const [userRole, setUserRole] = useState("student");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const { location, locationErr } = useUserLocation();
-  const [adminCode, setAdminCode] = useState("");
-  const [school, setSchool] = useState("");
+  // const [adminCode, setAdminCode] = useState("");
+  // const [school, setSchool] = useState("");
   const [otpSent, setOtpSent] = useState(false);
 
   const dispatch = useDispatch();
@@ -43,6 +45,7 @@ function Register() {
           const userData = await dbServices.getDocument("users", user.uid);
           console.log(userData);
           delete userData.posts;
+          delete userData.createdAt;
           userData.uid = user.uid;
 
           dispatch(
@@ -50,7 +53,7 @@ function Register() {
               userData: userData,
             })
           );
-          navigate("/dashboard");
+          navigate("/");
         } catch (error) {
           console.error("Error fetching user data:", error);
         }
@@ -60,11 +63,11 @@ function Register() {
     return () => unsubscribe();
   }, [dispatch, navigate]);
 
-  useEffect(() => {
-    if (location) {
-      console.log("User Location:", location);
-    }
-  }, [location]);
+  // useEffect(() => {
+  //   if (location) {
+  //     console.log("User Location:", location);
+  //   }
+  // }, [location]);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -72,16 +75,39 @@ function Register() {
       setError(null);
       setLoading(true);
 
+      // if userRole is admin, check for admin code
+      // if (
+      //   userRole === "admin" &&
+      //   adminCode !== import.meta.env.VITE_ADMIN_SECRET_CODE
+      // ) {
+      //   throw new Error("Invalid admin code");
+      // }
+
       const isEmailTaken = await userAuth.isUserExists(email);
       if (isEmailTaken) {
         throw new Error("Email already in use");
       }
 
-      await userAuth.register(email, password, name, userRole, location);
+      await userAuth.register(email, password, name, location);
+      setLoading(false);
+      navigate("/pending-user");
     } catch (error) {
       setLoading(false);
       setError(error.message || "Registration failed");
       console.error("Error:", error.message);
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    try {
+      setError(null);
+      setLoading(true);
+      await userAuth.signInWithGoogle(location);
+      navigate("/");
+    } catch (error) {
+      setError(error.message || "Google Sign-In failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -175,7 +201,7 @@ function Register() {
                 </div>
 
                 {/* Role Selection */}
-                <div className="space-y-2">
+                {/* <div className="space-y-2">
                   <label className="text-sm font-medium">Sign up as</label>
                   <div className="flex justify-between">
                     {["student", "alumnus", "admin"].map((role) => (
@@ -192,10 +218,10 @@ function Register() {
                       </div>
                     ))}
                   </div>
-                </div>
+                </div> */}
 
                 {/* Additional Fields */}
-                {userRole === "admin" && (
+                {/* {userRole === "admin" && (
                   <div className="space-y-2">
                     <label htmlFor="adminCode" className="text-sm font-medium">
                       Admin Code
@@ -209,9 +235,9 @@ function Register() {
                       className="bg-gray-900 border-gray-800 text-white"
                     />
                   </div>
-                )}
+                )} */}
 
-                {userRole !== "admin" && (
+                {/* {userRole !== "admin" && (
                   <div className="space-y-2">
                     <label htmlFor="school" className="text-sm font-medium">
                       School
@@ -225,7 +251,7 @@ function Register() {
                       className="bg-gray-900 border-gray-800 text-white"
                     />
                   </div>
-                )}
+                )} */}
 
                 <Button
                   type="submit"
@@ -239,6 +265,21 @@ function Register() {
                     </>
                   ) : (
                     "Sign Up"
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  className="w-full bg-red-600 hover:bg-red-700 flex items-center justify-center"
+                  onClick={handleGoogleSignup}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <div className="flex items-center justify-center gap-2">
+                      <FcGoogle className="h-6 w-6" />
+                      Continue with Google
+                    </div>
                   )}
                 </Button>
 

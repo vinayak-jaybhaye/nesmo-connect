@@ -1,42 +1,132 @@
-import { createUserWithEmailAndPassword, setPersistence, browserLocalPersistence, sendEmailVerification, fetchSignInMethodsForEmail, updatePassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from "firebase/auth";
+import {
+    createUserWithEmailAndPassword,
+    setPersistence,
+    browserLocalPersistence,
+    sendEmailVerification,
+    fetchSignInMethodsForEmail,
+    updatePassword,
+    signInWithEmailAndPassword,
+    signOut,
+    sendPasswordResetEmail,
+    signInWithPopup,
+    GoogleAuthProvider
+} from "firebase/auth";
+
+import { serverTimestamp, doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
+
 import app from './firebaseConfig.js'
 import { getAuth } from "firebase/auth";
 import dbServices from './firebaseDb.js'
-import { connect } from "react-redux";
 
 class Auth {
     auth;
+    googleProvider;
     constructor() {
         this.auth = getAuth(app)
         this.auth.setPersistence(browserLocalPersistence);
+        this.googleProvider = new GoogleAuthProvider();
     }
 
     // Register new user
-    async register(email, password, name, userRole, location) {
+    async register(email, password, name, location) {
         try {
             const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
             const user = userCredential.user;
-            console.log("User registered:", user.uid, user.email);
-            console.log(user.id, user)
-            await dbServices.addDocument('users', user.uid, {
+            // console.log("User registered:", user.uid, user.email);
+            await dbServices.addDocument("pendingUsers", user.uid, {
                 email: user.email,
                 name: name,
-                userRole: userRole,
-                verified : userRole === 'admin' ? true : false,
+                emailVerified: user.emailVerified,
                 avatarUrl: "",
                 avatarFileId: "",
                 coverFileId: "",
                 coverUrl: "",
-                personalData:{
-                    location: location
-                }
+                personalData: {
+                    location: location,
+                },
+                createdAt: serverTimestamp()
             });
+            await this.sendVerificationEmail()
             return user;
         } catch (error) {
             console.error("Firebase Auth : register() ::", error.message);
             throw error;
         }
     };
+
+    async signInWithGoogle(location) {
+        try {
+            this.googleProvider.setCustomParameters({ prompt: "select_account" });
+
+            const result = await signInWithPopup(this.auth, this.googleProvider);
+            const googleUser = result.user;
+            // console.log("Google Login Successful:", googleUser);
+
+            const userRef = doc(dbServices.db, "users", googleUser.uid);
+            const pendingUserRef = doc(dbServices.db, "pendingUsers", googleUser.uid);
+
+            // Check if user exists
+            const existingUser = await getDoc(userRef);
+            const existingPendingUser = await getDoc(pendingUserRef);
+
+            // Get email credential to link accounts
+            const credential = GoogleAuthProvider.credentialFromResult(result);
+
+            if (existingUser.exists()) {
+                // Check if the user previously signed in with email/password
+                const currentUser = this.auth.currentUser;
+                const signInMethods = await fetchSignInMethodsForEmail(this.auth, googleUser.email);
+
+                if (signInMethods.includes("password")) {
+                    try {
+                        // Link Google sign-in to the email/password account
+                        if (currentUser) {
+                            await linkWithCredential(currentUser, credential);
+                            console.log("Google account linked with email/password.");
+                        }
+                    } catch (linkError) {
+                        console.error("Error linking Google account:", linkError.message);
+                    }
+                }
+
+                // Update user location and avatar
+                await updateDoc(userRef, {
+                    "personalData.location": location,
+                    avatarUrl: existingUser.data().avatarUrl || googleUser.photoURL || ""
+                });
+
+                return googleUser;
+            }
+
+            if (existingPendingUser.exists()) {
+                // Update pending user location and avatar
+                await updateDoc(pendingUserRef, {
+                    "personalData.location": location,
+                    avatarUrl: existingPendingUser.data().avatarUrl || googleUser.photoURL || ""
+                });
+
+                return googleUser;
+            }
+
+            // If user is new, create in pendingUsers
+            await setDoc(pendingUserRef, {
+                email: googleUser.email,
+                name: googleUser.displayName || "",
+                userVerificationStatus: "pending",
+                emailVerified: googleUser.emailVerified,
+                avatarUrl: googleUser.photoURL || "",
+                avatarFileId: "",
+                personalData: { location },
+                createdAt: serverTimestamp()
+            });
+
+            return googleUser;
+        } catch (error) {
+            console.error("Google Sign-In Error:", error.message);
+            throw error;
+        }
+    }
+
 
     // Check if user already exists
     async isUserExists(email) {
@@ -96,6 +186,22 @@ class Auth {
             return null;
         }
     };
+
+    async getCurrentUserData() {
+        const user = this.auth.currentUser;
+        if (user) {
+            console.log("Current logged-in user:", user.uid);
+            const userData = await dbServices.getDocument("users", user.uid);
+            if (!userData) {
+                return await dbServices.getDocument("pendingUsers", user.uid);
+            }
+            // console.log("Current logged-in user:", userData);
+            return userData;
+        } else {
+            console.log("No user is logged in");
+            return null;
+        }
+    }
 
     // forget password
     async sendPasswordReset(email) {

@@ -11,6 +11,8 @@ import Error from './Error'
 import UnverifiedUsers from './UnverifiedUsers'
 import Home from './Home'
 import LandingPage from './LandingPage'
+import PendingUser from './PendingUser'
+import AdminDashboard from './AdminDashboard'
 
 export {
     Login,
@@ -25,5 +27,7 @@ export {
     Error,
     UnverifiedUsers,
     Home,
-    LandingPage
+    LandingPage,
+    PendingUser,
+    AdminDashboard,
 }

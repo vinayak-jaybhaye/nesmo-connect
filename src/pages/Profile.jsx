@@ -41,6 +41,7 @@ function Profile() {
               firebaseUser.uid
             );
             delete user.posts;
+            delete user.createdAt;
             user.uid = firebaseUser.uid;
 
             dispatch(login({ userData: user }));
@@ -217,11 +218,11 @@ function Profile() {
 
               <div className="flex flex-wrap justify-center md:justify-start items-center gap-2">
                 <span className="px-3 py-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md text-sm">
-                  {profileData?.userRole || "User"}
+                  {profileData?.userRole?.toUpperCase() || "User"}
                 </span>
                 {!amIOwner && (
                   <button
-                    className={`px-4 py-1 bg-gray-800 border border-gray-600 text-gray-100 rounded-full hover:bg-gray-700 text-sm ${
+                    className={`px-4 py-1 bg-gray-800 border border-gray-600 text-gray-100 rounded-md hover:bg-gray-700 text-sm ${
                       connectionStatus === "received" ? "bg-gray-700" : ""
                     }`}
                     onClick={() => handleConnect(profileData)}
