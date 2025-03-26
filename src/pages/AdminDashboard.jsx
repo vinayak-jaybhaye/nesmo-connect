@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import dbServices from "../firebase/firebaseDb";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/textarea";
+import { Textarea } from "../components/ui/Textarea"
 import {
   AlertDialog,
   AlertDialogAction,
