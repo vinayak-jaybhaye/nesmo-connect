@@ -46,7 +46,7 @@ function OpportunityCard({ opportunity, onDelete }) {
       {/* Content Section */}
       <div className="space-y-4 bg-gray-950 p-2 rounded-md">
         {/* Header */}
-        <div className="flex items-start justify-between">
+        <div className="flex-col items-start justify-between">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-blue-500/20 rounded-xl shadow-lg">
               <FaSuitcase className="text-2xl text-blue-400 animate-pulse" />

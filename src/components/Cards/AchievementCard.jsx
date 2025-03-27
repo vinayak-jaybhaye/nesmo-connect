@@ -46,7 +46,7 @@ function AchievementCard({ achievement, onDelete }) {
       {/* Content Section */}
       <div className="space-y-2 md:space-y-4 bg-slate-950 p-2 rounded-md">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-start justify-between gap-2">
+        <div className="flex flex-col justify-between gap-2">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="p-2 md:p-3 bg-amber-500/20 rounded-lg md:rounded-xl shadow">
               <FaTrophy className="text-xl md:text-2xl text-amber-400 animate-pulse" />

@@ -212,7 +212,7 @@ function PendingUser() {
                 </Button>
               </Alert>
             ) : (
-              <Alert className="mb-4 items-center border-green-800 bg-green-900 text-green-400">
+              <Alert className="mb-4 border-green-800 bg-green-900 text-green-400">
                 <CheckCircle className="h-4 w-4 mr-2" />
                 <AlertDescription>Email Verified ✅</AlertDescription>
               </Alert>
@@ -227,7 +227,7 @@ function PendingUser() {
               </Alert>
             )}
 
-            {!user?.userRole ? (
+            {user?.userVerificationStatus === "incomplete" ? (
               <Alert className="mb-4 border-yellow-800 bg-yellow-900 text-yellow-400">
                 <AlertCircle className="h-4 w-4 mr-2" />
                 <AlertDescription>

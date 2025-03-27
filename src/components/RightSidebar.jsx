@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Chats, Connections, UserList } from "./";
 
 function RightSidebar() {
-  const [sidebarHidden, setSidebarHidden] = useState(false);
+  const [sidebarHidden, setSidebarHidden] = useState(true);
 
   const sidebarItems = [
     {

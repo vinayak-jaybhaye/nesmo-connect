@@ -1367,7 +1367,7 @@ class DB {
             const userData = pendingUserSnap.data();
 
             // Remove remark field before moving
-            delete userData.remark;
+            delete userData.verificationRemark;
 
             // Move user to 'users' collection
             await setDoc(userRef, {

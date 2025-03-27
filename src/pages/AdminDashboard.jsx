@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import dbServices from "../firebase/firebaseDb";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/Textarea"
+import { Textarea } from "../components/ui/Textarea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -406,7 +406,8 @@ function AdminDashboard() {
                     <div className="space-y-1 p-2 bg-gray-800/50 rounded-md">
                       <p className="text-gray-400 text-xs">Role</p>
                       <p>
-                        {selectedUser.userRole.toUpperCase() || "Not specified"}
+                        {selectedUser.userRole?.toUpperCase() ||
+                          "Not specified"}
                       </p>
                     </div>
                     <div className="space-y-1 p-2 bg-gray-800/50 rounded-md">
