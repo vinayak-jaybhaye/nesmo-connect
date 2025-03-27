@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import dbServices from "../firebase/firebaseDb";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Textarea } from "../components/ui/Textarea";
+import { Textarea } from "../components/ui/textarea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -420,12 +420,14 @@ function AdminDashboard() {
                         className="truncate"
                         title={selectedUser.organization || "Not specified"}
                       >
-                        {selectedUser.organization || "Not specified"}
+                        {selectedUser.personalData.school || "Not specified"}
                       </p>
                     </div>
                     <div className="space-y-1 p-2 bg-gray-800/50 rounded-md">
                       <p className="text-gray-400 text-xs">Phone</p>
-                      <p>{selectedUser.phone || "Not provided"}</p>
+                      <p>
+                        {selectedUser?.personalData?.phone || "Not provided"}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -437,7 +439,7 @@ function AdminDashboard() {
                   About
                 </h4>
                 <p className="text-gray-300 text-sm">
-                  {selectedUser.bio ||
+                  {selectedUser?.personalData?.about ||
                     selectedUser.about ||
                     "No additional information provided."}
                 </p>

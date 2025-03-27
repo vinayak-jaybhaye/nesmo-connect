@@ -32,17 +32,6 @@ function OpportunityCard({ opportunity, onDelete }) {
 
   return (
     <div className="group h-fit  relative p-2 bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out hover:-translate-y-1 border border-gray-700/50 hover:border-gray-600/50">
-      {/* Image Section */}
-      {opportunity.imageUrl && (
-        <div className="mb-6 -mx-2 overflow-hidden rounded-xl border border-gray-700/50 group-hover:border-gray-600/50 transition-all">
-          <img
-            src={opportunity.imageUrl}
-            alt={opportunity.title}
-            className="w-full h-60 object-cover transform transition-transform duration-500 hover:scale-105"
-          />
-        </div>
-      )}
-
       {/* Content Section */}
       <div className="space-y-4 bg-gray-950 p-2 rounded-md">
         {/* Header */}
@@ -60,10 +49,24 @@ function OpportunityCard({ opportunity, onDelete }) {
           </span>
         </div>
 
-        {/* Description */}
-        <pre className="text-gray-300/85 bg-black leading-relaxed text-lg max-h-[50vh] border-l-4 border-blue-500/30 pl-4 ml-2 italic font-light whitespace-pre-wrap overflow-auto">
-          {opportunity.description}
-        </pre>
+        {/* Actual content */}
+        <div className="max-h-[50vh] overflow-auto">
+          {/* Image Section */}
+          {opportunity.imageUrl && (
+            <div className="mb-4 overflow-auto rounded-xl border border-gray-700/50 group-hover:border-gray-600/50 transition-all">
+              <img
+                src={opportunity.imageUrl}
+                alt={opportunity.title}
+                className="object-cover transform transition-transform duration-500 hover:scale-105"
+              />
+            </div>
+          )}
+
+          {/* Description */}
+          <pre className="text-gray-300/85 bg-black leading-relaxed text-lg border-l-4 border-blue-500/30 pl-4 ml-2 italic font-light whitespace-pre-wrap overflow-auto">
+            {opportunity.description}
+          </pre>
+        </div>
 
         {/* Author Section */}
         <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-700/50">

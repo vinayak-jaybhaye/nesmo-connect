@@ -52,7 +52,7 @@ function Opportunities() {
   if (error) return <div className="text-red-400">{error}</div>;
 
   return (
-    <div className="flex flex-col gap-4 p-2 w-full rounded-xl h-[90vh] bg-gray-800/80 border border-gray-700/50 backdrop-blur-sm shadow-inner overflow-auto">
+    <div className="flex flex-col gap-4 w-full rounded-xl h-[90vh] bg-gray-800/80 border border-gray-700/50 backdrop-blur-sm shadow-inner overflow-auto">
       {/* New Opportunity Form */}
       <NewOpportunity
         onNewOpportunity={(newOpportunity) =>

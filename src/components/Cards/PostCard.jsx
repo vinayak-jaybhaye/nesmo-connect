@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useMemo } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-
+import { toast } from "react-toastify";
 import appwriteStorage from "../../appwrite/appwriteStorage";
 import dbServices from "../../firebase/firebaseDb";
-
-import { toast } from "react-toastify";
 
 function PostCard({ post, setPosts }) {
   const { content, createdAt, imageUrl } = post;
@@ -124,7 +124,7 @@ function PostCard({ post, setPosts }) {
 
     return (
       <div
-        className="text-sm text-gray-400 cursor-pointer"
+        className="text-sm text-gray-400 cursor-pointer hover:text-gray-300 transition-colors"
         onClick={() => setShowAllLikes((prev) => !prev)}
       >
         <span className="font-thin text-white">{likedBy[0].name}</span>
@@ -149,11 +149,31 @@ function PostCard({ post, setPosts }) {
 
   const renderLikedByList = () => {
     return (
-      <div className="absolute h-[70%] w-[50%] z-10 top-5 flex flex-col right-0 gap-2 p-4 overscroll-auto bg-transparent rounded-lg shadow-xl backdrop-blur-sm overflow-y-auto">
+      <div className="absolute h-auto max-h-[70%] w-full sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[50%] z-10 top-5 flex flex-col right-0 gap-2 p-3 sm:p-4 overscroll-auto bg-gray-900/95 rounded-lg shadow-xl backdrop-blur-sm overflow-y-auto border border-gray-700">
+        <div className="flex justify-between items-center mb-2 pb-2 border-b border-gray-700">
+          <h3 className="text-white font-semibold">Liked by</h3>
+          <button
+            onClick={() => setShowAllLikes(false)}
+            className="text-gray-400 hover:text-white p-1 rounded-full hover:bg-gray-800 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
         {likedBy.map((user) => (
           <div
             key={user.id}
-            className="flex items-center p-2 gap-3 bg-gray-800/90 rounded-lg shadow-xl backdrop-blur-sm"
+            className="flex items-center p-2 gap-3 bg-gray-800/90 rounded-lg shadow-md hover:bg-gray-700/90 transition-colors"
           >
             <div
               className="h-8 w-8 rounded-full overflow-hidden bg-gray-600/80 cursor-pointer ring-2 ring-gray-600 hover:ring-green-500 transition-all"
@@ -165,7 +185,7 @@ function PostCard({ post, setPosts }) {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="text-gray-300/90">{user.name}</div>
+            <div className="text-gray-300/90 font-medium">{user.name}</div>
           </div>
         ))}
       </div>
@@ -196,20 +216,18 @@ function PostCard({ post, setPosts }) {
 
   return (
     <div
-      className={`w-full flex-1 bg-gray-800  rounded-xl shadow-lg shadow-black/40 border border-gray-700 transition-all transform hover:shadow-xl hover:border-gray-600`}
+      className="w-full flex-1 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-lg shadow-black/40 border border-gray-700 transition-all transform hover:shadow-xl hover:border-gray-600 overflow-auto"
       onClick={() => (showMenu ? setShowMenu(false) : null)}
     >
-      <div
-        className="bg-gray-900/80 p-2 md:p-4 rounded-xl shadow-inner space-y-4 h-full backdrop-blur-sm"
-        // onDoubleClick={() => setShowAllLikes((prev) => false)}
-      >
-        <div className=" border-b border-gray-700/50 bg-black p-2 rounded-md">
-          <div className="flex justify-between ">
-            <div className="flex items-center space-x-3 mb-3">
+      <div className="bg-gray-900/80 p-1 sm:p-2 rounded-xl shadow-inner space-y-3 sm:space-y-4 h-full backdrop-blur-sm">
+        {/* Header section with user info and actions */}
+        <div className="border-b border-gray-700/50 bg-black/40 p-2 sm:p-3 rounded-md">
+          <div className="flex flex-row justify-between items-center gap-2">
+            {/* User info */}
+            <div className="flex items-center space-x-3 mb-2 sm:mb-0">
               <div
-                className="h-8 w-8 md:h-10 md:w-10  rounded-full  overflow-hidden bg-gray-600/80 cursor-pointer ring-2 ring-gray-600 hover:ring-green-500 transition-all"
+                className="h-9 w-9 md:h-10 md:w-10 rounded-full overflow-hidden bg-gray-600/80 cursor-pointer ring-2 ring-gray-600 hover:ring-green-500 transition-all"
                 onClick={() => {
-                  console.log(post.createdBy);
                   navigate(`/profile/${createdBy?.id}`);
                 }}
               >
@@ -220,22 +238,25 @@ function PostCard({ post, setPosts }) {
                 />
               </div>
               <div className="flex flex-col">
-                <div className="font-semibold text-gray-100 text-sm md:text-md hover:text-green-400 transition-colors cursor-pointer">
+                <div className="font-semibold text-gray-100 text-sm md:text-base hover:text-green-400 transition-colors cursor-pointer">
                   {createdBy.name || "Anonymous"}
                 </div>
-                <div className="text-sm md:text-md text-gray-400/90">
+                <div className="text-xs md:text-sm text-gray-400/90">
                   {formattedDate}
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-3 p-2 md:gap-2 justify-around">
+
+            {/* Action buttons */}
+            <div className="flex items-center space-x-1 sm:space-x-2 justify-end">
+              {/* Like button */}
               <div
-                className="h-10 w-10 cursor-pointer p-2 hover:bg-gray-700/50 rounded-xl flex items-center justify-around gap-2 transition-all duration-200 group"
+                className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg hover:bg-gray-700/50 cursor-pointer transition-all duration-200 group"
                 onClick={handleLike}
               >
                 <img
                   src={likedStatus === "liked" ? "liked.svg" : "like.svg"}
-                  className={`w-6 h-6 transition-all ${
+                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-all ${
                     likedStatus === "liked"
                       ? "text-green-500"
                       : "text-gray-400 group-hover:text-green-400"
@@ -243,7 +264,7 @@ function PostCard({ post, setPosts }) {
                   alt="Like"
                 />
                 <span
-                  className={`text-sm ${
+                  className={`text-xs sm:text-sm ${
                     likedStatus === "liked" ? "text-green-500" : "text-gray-400"
                   }`}
                 >
@@ -251,15 +272,16 @@ function PostCard({ post, setPosts }) {
                 </span>
               </div>
 
+              {/* Dislike button */}
               <div
-                className="h-10 w-10 cursor-pointer p-2 hover:bg-gray-700/50 rounded-xl flex items-center justify-around gap-2 transition-all duration-200 group"
+                className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg hover:bg-gray-700/50 cursor-pointer transition-all duration-200 group"
                 onClick={handleDislike}
               >
                 <img
                   src={
                     likedStatus === "disliked" ? "disliked.svg" : "dislike.svg"
                   }
-                  className={`w-6 h-6 transition-all ${
+                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-all ${
                     likedStatus === "disliked"
                       ? "text-red-500"
                       : "text-gray-400 group-hover:text-red-400"
@@ -267,7 +289,7 @@ function PostCard({ post, setPosts }) {
                   alt="Dislike"
                 />
                 <span
-                  className={`text-sm ${
+                  className={`text-xs sm:text-sm ${
                     likedStatus === "disliked"
                       ? "text-red-500"
                       : "text-gray-400"
@@ -277,9 +299,10 @@ function PostCard({ post, setPosts }) {
                 </span>
               </div>
 
+              {/* Menu button */}
               <div className="relative">
                 <div
-                  className="h-10 w-10 cursor-pointer p-2 hover:bg-gray-700/50 rounded-xl transition-all duration-200 flex items-center justify-center"
+                  className="flex items-center justify-center p-1.5 sm:p-2 rounded-lg hover:bg-gray-700/50 cursor-pointer transition-all duration-200"
                   onClick={() =>
                     setShowMenu(async (prev) => {
                       if (!prev && isPostSaved === -1) {
@@ -295,19 +318,24 @@ function PostCard({ post, setPosts }) {
                 >
                   <img
                     src="menu.svg"
-                    className="w-6 h-6 text-gray-400 hover:text-gray-200"
+                    className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 hover:text-gray-200"
                     alt="Menu"
                   />
                 </div>
 
+                {/* Dropdown menu */}
                 {showMenu && (
-                  <div className="absolute top-12 right-0 z-20 w-40 bg-gray-800 border border-gray-700 rounded-xl shadow-xl p-2 space-y-2 backdrop-blur-sm">
+                  <div className="absolute top-10 right-0 z-20 w-40 bg-gray-800 border border-gray-700 rounded-xl shadow-xl p-1.5 space-y-1 backdrop-blur-sm">
                     {post.createdBy.id === userData?.uid && (
                       <div
                         className="cursor-pointer hover:bg-gray-700/50 rounded-lg p-2 flex items-center gap-2 text-sm text-red-400 hover:text-red-300 transition-colors"
                         onClick={handleDeletePost}
                       >
-                        <img src="delete.svg" className="h-5 w-5" />
+                        <img
+                          src="delete.svg"
+                          className="h-4 w-4 sm:h-5 sm:w-5"
+                          alt="Delete"
+                        />
                         <span>Delete</span>
                       </div>
                     )}
@@ -315,7 +343,11 @@ function PostCard({ post, setPosts }) {
                       className="cursor-pointer hover:bg-gray-700/50 rounded-lg p-2 flex items-center gap-2 text-sm text-gray-300 hover:text-gray-100 transition-colors"
                       onClick={handleSharePost}
                     >
-                      <img src="share.svg" className="h-5 w-5" />
+                      <img
+                        src="share.svg"
+                        className="h-4 w-4 sm:h-5 sm:w-5"
+                        alt="Share"
+                      />
                       <span>Share</span>
                     </div>
                     <div
@@ -324,7 +356,8 @@ function PostCard({ post, setPosts }) {
                     >
                       <img
                         src={isPostSaved ? "bookmarked.svg" : "bookmark.svg"}
-                        className="h-5 w-5"
+                        className="h-4 w-4 sm:h-5 sm:w-5"
+                        alt={isPostSaved ? "Saved" : "Save"}
                       />
                       <span>{isPostSaved ? "Saved" : "Save"}</span>
                     </div>
@@ -334,28 +367,34 @@ function PostCard({ post, setPosts }) {
             </div>
           </div>
 
+          {/* Post content */}
           <div
-            className="relative group "
+            className="relative group mt-3"
             onClick={() => setShowAllLikes(false)}
           >
-            {showAllLikes && (renderLikedByList() || null)}
+            {showAllLikes && renderLikedByList()}
+
+            {/* Post image */}
             {imageUrl && (
-              <div className="rounded-xl overflow-hidden ring-1 mb-2 ring-gray-700 transition-all hover:ring-gray-600">
+              <div className="rounded-xl overflow-hidden ring-1 mb-3 ring-gray-700 transition-all hover:ring-gray-600">
                 <img
-                  src={imageUrl}
+                  src={imageUrl || "/placeholder.svg"}
                   alt="Post Image"
-                  className="rounded-lg object-fit w-full h-64  transform transition-all hover:scale-105 duration-700"
+                  className="rounded-lg object-cover w-full h-48 sm:h-56 md:h-64 transform transition-all hover:scale-[1.02] duration-500"
+                  loading="lazy"
                 />
               </div>
             )}
-          </div>
 
-          <pre className="text-gray-300/85 max-h-96 bg-black leading-relaxed text-lg border-l-4 border-green-500/30 pl-4 ml-2 italic font-light whitespace-pre-wrap overflow-auto">
-            {content}
-          </pre>
+            {/* Post text */}
+            <pre className="text-gray-300/85 max-h-96 bg-black/60 leading-relaxed text-sm sm:text-base md:text-lg border-l-4 border-green-500/30 pl-3 sm:pl-4 py-2 ml-0 sm:ml-2 italic font-light whitespace-pre-wrap overflow-auto rounded-r-md">
+              {content}
+            </pre>
+          </div>
         </div>
 
-        <div className="text-gray-400 text-sm rounded-lg transition-colors hover:text-gray-300">
+        {/* Likes section */}
+        <div className="text-gray-400 text-xs sm:text-sm rounded-lg transition-colors hover:text-gray-300 px-1">
           {likedBy && (
             <div className="flex items-center gap-2 flex-wrap">
               {renderLikedBy()}

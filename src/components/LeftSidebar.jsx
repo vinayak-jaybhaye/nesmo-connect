@@ -265,7 +265,7 @@ function LeftSidebar({ userData, active = "Home" }) {
   return (
     <>
       {/* Mobile Bottom Bar */}
-      <div className="fixed md:hidden md:h-[90vh] bottom-0 left-0 right-0 z-10 bg-gray-800/80 border-t border-gray-700/50 backdrop-blur-md">
+      <div className="fixed md:hidden h-14 bottom-0 left-0 right-0 z-10 bg-gray-800/80 border-t border-gray-700/50 backdrop-blur-md">
         <div className="flex items-center p-2 justify-evenly">
           {navItemsMobile.map((item) => (
             <button
@@ -281,7 +281,7 @@ function LeftSidebar({ userData, active = "Home" }) {
           ))}
         </div>
       </div>
-      <div className="md:hidden h-16"></div>
+      <div className="md:hidden h-12"></div>
 
       {/* Desktop Sidebar */}
       <div

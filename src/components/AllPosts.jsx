@@ -85,7 +85,7 @@ function AllPosts({ user }) {
           <p className="text-lg font-medium">No posts to show</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-1 h-[100vh] relative ">
+        <div className="flex flex-col gap-1 relative  ">
           {posts.map((post) => (
             <PostCard
               key={post.id}

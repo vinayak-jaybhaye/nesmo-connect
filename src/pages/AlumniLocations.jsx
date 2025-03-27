@@ -6,10 +6,7 @@ import firebaseDb from "../firebase/firebaseDb";
 function AlumniLocations() {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
-  const [highlightedLocation, setHighlightedLocation] = useState({
-    location: [20.5937, 78.9629],
-    userId: null,
-  });
+  const [highlightedLocation, setHighlightedLocation] = useState(null);
   const [showList, setShowList] = useState(false);
 
   const handleHighlight = (user) => {
@@ -33,7 +30,7 @@ function AlumniLocations() {
   }, []);
 
   return (
-    <div className="flex flex-col md:flex-row gap-2 md:gap-4 p-2 w-full h-[90vh]">
+    <div className="flex flex-col md:flex-row gap-2 md:gap-4 md:p-2 w-full h-[90vh]">
       {/* Mobile Toggle Button */}
       <button
         onClick={() => setShowList(!showList)}

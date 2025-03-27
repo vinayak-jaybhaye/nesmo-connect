@@ -1,7 +1,10 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import { Textarea } from "../components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -19,6 +22,9 @@ import {
   User,
   School,
   Shield,
+  Phone,
+  GraduationCap,
+  FileText,
 } from "lucide-react";
 import { ErrorAlert } from "../components";
 import dbServices from "../firebase/firebaseDb";
@@ -32,6 +38,9 @@ function PendingUser() {
   const [userRole, setUserRole] = useState(user?.userRole || "student");
   const [adminCode, setAdminCode] = useState("");
   const [school, setSchool] = useState(user?.school || "");
+  const [phone, setPhone] = useState(user?.personalData?.phone || "");
+  const [batch, setBatch] = useState(user?.personalData?.batch || "");
+  const [about, setAbout] = useState(user?.personalData?.about || "");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -56,6 +65,9 @@ function PendingUser() {
           setName(userData.name || user?.name || "");
           setUserRole(userData.userRole || user?.userRole || "student");
           setSchool(userData.personalData?.school || user?.school || "");
+          setPhone(userData.personalData?.phone || "");
+          setBatch(userData.personalData?.batch || "");
+          setAbout(userData.personalData?.about || "");
         }
         if (!userData?.emailVerified) {
           if (await userAuth.isEmailVerified()) {
@@ -96,6 +108,9 @@ function PendingUser() {
         userRole: userRole,
         personalData: {
           school: school,
+          phone: phone,
+          batch: batch,
+          about: about,
         },
         userVerificationStatus: "pending",
       };
@@ -170,11 +185,11 @@ function PendingUser() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gray-900 text-white flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen w-full bg-gray-900 text-white flex flex-col items-center justify-center p-2 sm:p-4">
       <div className="w-full max-w-3xl">
         <Card className="bg-gray-800 border-gray-700 shadow-lg">
           <CardHeader className="pb-4 border-b border-gray-700">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
               <div>
                 <CardTitle className="text-xl font-bold text-white">
                   Verification Status
@@ -183,33 +198,35 @@ function PendingUser() {
                   Complete your profile for review
                 </CardDescription>
               </div>
-              {getStatusBadge()}
+              <div className="mt-2 sm:mt-0">{getStatusBadge()}</div>
             </div>
           </CardHeader>
 
-          <CardContent className="pt-6">
+          <CardContent className="pt-4 sm:pt-6 px-3 sm:px-6">
             {error && <ErrorAlert message={error} />}
             {!user?.emailVerified ? (
               <Alert className="mb-4 border-yellow-800 bg-yellow-900 text-yellow-400">
                 <Mail className="h-4 w-4 mr-2" />
-                <AlertDescription>
-                  Your email is not verified. Please verify your email to
-                  proceed.
+                <AlertDescription className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <span>
+                    Your email is not verified. Please verify your email to
+                    proceed.
+                  </span>
+                  <Button
+                    className="mt-2 sm:mt-0 bg-blue-600 hover:bg-blue-700 text-white py-1 px-4 rounded-md w-full sm:w-auto"
+                    onClick={sendVerificationEmail}
+                    disabled={sendingVerification}
+                  >
+                    {sendingVerification ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      "Send Verification Email"
+                    )}
+                  </Button>
                 </AlertDescription>
-                <Button
-                  className="mt-2 bg-blue-600 hover:bg-blue-700 text-white py-1 px-4 rounded-md"
-                  onClick={sendVerificationEmail}
-                  disabled={sendingVerification}
-                >
-                  {sendingVerification ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    "Send Verification Email"
-                  )}
-                </Button>
               </Alert>
             ) : (
               <Alert className="mb-4 border-green-800 bg-green-900 text-green-400">
@@ -265,7 +282,7 @@ function PendingUser() {
               </Alert>
             ) : null}
 
-            <form onSubmit={handleUpdate} className="space-y-5">
+            <form onSubmit={handleUpdate} className="space-y-4 sm:space-y-5">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-300 flex items-center">
                   <User className="h-4 w-4 mr-2 text-gray-400" />
@@ -367,6 +384,55 @@ function PendingUser() {
                 </div>
               )}
 
+              {/* Optional fields */}
+              {userRole != "admin" && (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-300 flex items-center">
+                        <Phone className="h-4 w-4 mr-2 text-gray-400" />
+                        Phone (Optional)
+                      </label>
+                      <Input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="bg-gray-700 border-gray-600 text-white focus:border-indigo-500 focus:ring-indigo-500"
+                        placeholder="Enter your phone number"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-gray-300 flex items-center">
+                        <GraduationCap className="h-4 w-4 mr-2 text-gray-400" />
+                        Batch (Optional)
+                      </label>
+                      <Input
+                        type="text"
+                        value={batch}
+                        onChange={(e) => setBatch(e.target.value)}
+                        className="bg-gray-700 border-gray-600 text-white focus:border-indigo-500 focus:ring-indigo-500"
+                        placeholder="Enter your batch/year"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-300 flex items-center">
+                      <FileText className="h-4 w-4 mr-2 text-gray-400" />
+                      About Yourself (Optional)
+                    </label>
+                    <Textarea
+                      value={about}
+                      onChange={(e) => setAbout(e.target.value)}
+                      className="bg-gray-700 w-full border-gray-600 text-white focus:border-indigo-500 focus:ring-indigo-500"
+                      placeholder="Tell us a bit about yourself to help admins identify you"
+                      rows={3}
+                    />
+                  </div>
+                </>
+              )}
+
               <Button
                 type="submit"
                 className="w-full bg-indigo-600 hover:bg-indigo-700 transition-colors"
@@ -384,7 +450,7 @@ function PendingUser() {
             </form>
           </CardContent>
 
-          <CardFooter className="flex flex-col border-t border-gray-700 pt-4 pb-4 px-6">
+          <CardFooter className="flex flex-col border-t border-gray-700 pt-4 pb-4 px-4 sm:px-6">
             <p className="text-xs text-gray-400 text-center">
               Your profile will be reviewed by an administrator before you can
               access the platform. This process typically takes 1-2 business
@@ -394,11 +460,11 @@ function PendingUser() {
         </Card>
 
         {user?.userVerificationStatus === "pending" ? (
-          <div className="mt-6 bg-gray-800 border border-gray-700 rounded-lg p-4 shadow-lg">
+          <div className="mt-4 sm:mt-6 bg-gray-800 border border-gray-700 rounded-lg p-3 sm:p-4 shadow-lg">
             <h3 className="text-sm font-medium text-gray-300 mb-2">
               What happens next?
             </h3>
-            <ol className="space-y-3 text-sm text-gray-400">
+            <ol className="space-y-2 sm:space-y-3 text-sm text-gray-400">
               <li className="flex items-start">
                 <div className="flex-shrink-0 h-5 w-5 rounded-full bg-indigo-600 flex items-center justify-center mr-2 mt-0.5">
                   <span className="text-xs text-white">1</span>
@@ -428,13 +494,11 @@ function PendingUser() {
             </ol>
           </div>
         ) : (
-          // Tell user to update profile to request verification
-
-          <div className="mt-6 bg-gray-800 border border-gray-700 rounded-lg p-4 shadow-lg">
+          <div className="mt-4 sm:mt-6 bg-gray-800 border border-gray-700 rounded-lg p-3 sm:p-4 shadow-lg">
             <h3 className="text-sm font-medium text-gray-300 mb-2">
               Why your request was rejected?
             </h3>
-            <ol className="space-y-3 text-sm text-gray-400">
+            <ol className="space-y-2 sm:space-y-3 text-sm text-gray-400">
               <li className="flex items-start">
                 <div className="flex-shrink-0 h-5 w-5 rounded-full bg-indigo-600 flex items-center justify-center mr-2 mt-0.5">
                   <span className="text-xs text-white">1</span>
