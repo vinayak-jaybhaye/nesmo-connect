@@ -107,7 +107,7 @@ function LeftSidebar({ userData, active = "Home" }) {
       action: () => navigate("/notifications"),
       icon: <Bell className="w-5 h-5" />,
       description: "View your notifications",
-      badge: 3, // Example badge count
+      badge: 0,
     },
   ];
 
@@ -205,15 +205,20 @@ function LeftSidebar({ userData, active = "Home" }) {
                     <div className="flex items-center">
                       <div className="relative">
                         {item.icon}
-                        {item.badge && (
-                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-3.5 h-3.5 flex items-center justify-center">
+                        {item.badge > 0 && sidebarHidden && (
+                          <span className="absolute -top-1 -right-2  bg-red-500 text-white text-xs rounded-full w-3.5 h-3.5 flex items-center justify-center">
                             {item.badge > 9 ? "9+" : item.badge}
                           </span>
                         )}
                       </div>
                       {!sidebarHidden && (
-                        <span className="ml-3 text-sm font-medium">
-                          {item.name}
+                        <span className="ml-3 text-sm font-medium flex items-center gap-4">
+                          {item.name}{" "}
+                          {item.badge > 0 && (
+                            <span className="bg-red-500 text-white text-xs h-4 w-4 rounded-full">
+                              {item.badge > 9 ? "9+" : item.badge}
+                            </span>
+                          )}
                         </span>
                       )}
                     </div>

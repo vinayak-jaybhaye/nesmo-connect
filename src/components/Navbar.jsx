@@ -1,12 +1,18 @@
-"use client";
-
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import userAuth from "../firebase/firebaseAuth";
 import { logout } from "../store/authSlice";
 import { Notifications } from "./";
-import { Menu, X, LogOut, LogIn, UserPlus, BarChart2 } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  LogIn,
+  UserPlus,
+  BarChart2,
+  Bell,
+} from "lucide-react";
 import dbServices from "../firebase/firebaseDb";
 
 function Navbar() {
@@ -18,6 +24,7 @@ function Navbar() {
   const userData = useSelector((state) => state.auth.userData);
   const notificationRef = useRef(null);
   const mobileMenuRef = useRef(null);
+  const mobileNotificationRef = useRef(null);
 
   // Get notification count
   useEffect(() => {
@@ -31,11 +38,17 @@ function Navbar() {
   useEffect(() => {
     function handleClickOutside(event) {
       if (
+        mobileNotificationRef.current &&
+        mobileNotificationRef.current.contains(event.target)
+      )
+        return;
+      if (
         notificationRef.current &&
         !notificationRef.current.contains(event.target)
       ) {
         setShowNotifications(false);
       }
+
       if (
         mobileMenuRef.current &&
         !mobileMenuRef.current.contains(event.target) &&
@@ -126,20 +139,19 @@ function Navbar() {
               {/* Notifications Button */}
               <div className="relative" ref={notificationRef}>
                 <button
-                  className="p-2 hover:bg-gray-700/50 rounded-full size-12 transition-all duration-200"
                   onClick={() => setShowNotifications((prev) => !prev)}
-                  aria-label={`Notifications ${
-                    notificationCount > 0 ? `(${notificationCount} unread)` : ""
-                  }`}
+                  className={`w-full flex items-center text-white mr-4`}
                 >
-                  <img
-                    src={"/notification.svg"}
-                    alt="Notifications"
-                    className="w-6 h-6 mx-auto transition-transform hover:scale-110"
-                  />
-                  {notificationCount > 0 && (
-                    <div className="absolute top-2 right-2 size-2.5 bg-red-500 rounded-full ring-1 ring-red-400 animate-pulse"></div>
-                  )}
+                  <div className="flex items-center">
+                    <div className="relative">
+                      <Bell className="w-6 h-6" />{" "}
+                      {notificationCount > 0 && (
+                        <span className="absolute z-20 -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-3.5 h-3.5 flex items-center justify-center">
+                          {notificationCount > 9 ? "9+" : notificationCount}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </button>
 
                 {/* Notifications Dropdown */}
@@ -243,14 +255,7 @@ function Navbar() {
                       className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
                     >
                       <div className="relative">
-                        <img
-                          src={"/notification.svg"}
-                          alt="Notifications"
-                          className="h-5 w-5"
-                        />
-                        {notificationCount > 0 && (
-                          <div className="absolute -top-1 -right-1 size-2 bg-red-500 rounded-full"></div>
-                        )}
+                        <Bell className="w-6 h-6" />
                       </div>
                       <span>Notifications</span>
                       {notificationCount > 0 && (
@@ -322,12 +327,15 @@ function Navbar() {
 
       {/* Notifications Dropdown for Mobile (outside the mobile menu) */}
       {showNotifications && !showMobileMenu && (
-        <div className="md:hidden absolute top-16 left-4 right-4 md:left-auto md:right-4 z-20 p-1 md:w-96 md:transform-none">
+        <div
+          ref={mobileNotificationRef}
+          className="md:hidden absolute top-16 left-4 right-4 md:left-auto md:right-4 z-20 p-1 md:w-96 md:transform-none"
+        >
           <Notifications
             onClose={() => setShowNotifications(false)}
             onNotificationsToggle={() => setShowNotifications((prev) => !prev)}
-            userId={userData?.uid}
             setNotificationCount={setNotificationCount}
+            userId={userData?.uid}
           />
         </div>
       )}
