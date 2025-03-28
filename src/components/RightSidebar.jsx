@@ -67,7 +67,7 @@ function RightSidebar() {
 
   return (
     <div
-      className={`sticky top-20 h-[90vh] rounded-xl max-w-[90%] bg-gray-800/80 border-l border-gray-700/50 backdrop-blur-md p-2 flex flex-col transition-all duration-300 overflow-auto`}
+      className={`sticky top-20 h-[90vh] rounded-xl bg-gray-800/80 border-l border-gray-700/50 backdrop-blur-md p-2 flex flex-col transition-all duration-300 overflow-auto`}
     >
       {/* Toggle Button */}
       <button

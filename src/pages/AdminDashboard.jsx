@@ -271,12 +271,12 @@ function AdminDashboard() {
                             </AvatarFallback>
                             {user?.avatarUrl && (
                               <AvatarImage
-                                src={user.avatarUrl}
+                                src={user?.avatarUrl}
                                 alt={user.name}
                               />
                             )}
                           </Avatar>
-                          <div className="overflow-hidden">
+                          <div className="flex flex-col overflow-hidden">
                             <CardTitle className="text-lg animate-marquee sm:animate-none">
                               {user.name || "Unnamed User"}
                             </CardTitle>

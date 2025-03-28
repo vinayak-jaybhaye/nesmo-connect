@@ -286,10 +286,7 @@ function Profile() {
             <div className="relative">
               <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-gray-900 shadow-2xl">
                 <img
-                  src={
-                    profileData?.avatarUrl ||
-                    "/placeholder.svg?height=200&width=200"
-                  }
+                  src={profileData?.avatarUrl || "/avatar.png"}
                   className="w-full h-full object-cover transition-opacity duration-300"
                   alt="Profile"
                   onLoad={() =>
@@ -316,7 +313,7 @@ function Profile() {
           </div>
 
           {/* Profile Info */}
-          <div className="w-full md:ml-48 md:pl-8 flex flex-col md:flex-row items-center md:items-start justify-between mt-4 md:mt-0 space-y-4 md:space-y-0">
+          <div className="md:ml-48 md:pl-8 flex flex-col md:flex-row items-center md:items-start justify-between mt-4 md:mt-0 space-y-4 md:space-y-0">
             <div className="w-full md:w-[60%] text-center md:text-left space-y-4">
               <div className="flex items-center justify-center md:justify-start gap-2">
                 <h1 className="text-2xl md:text-3xl font-bold text-white">
@@ -424,8 +421,8 @@ function Profile() {
             </div>
 
             {/* Action buttons */}
-            <div className="flex flex-col items-center gap-3 w-full md:w-auto">
-              {amIOwner && (
+            {amIOwner && (
+              <div className="flex flex-col items-center gap-3 w-full md:w-auto">
                 <button
                   className="w-full md:w-auto px-6 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors shadow-md flex items-center justify-center"
                   onClick={() => navigate(`/edit-profile/${userData.uid}`)}
@@ -433,8 +430,6 @@ function Profile() {
                   <Edit2 className="w-4 h-4 mr-2" />
                   Edit Profile
                 </button>
-              )}
-              {amIOwner && (
                 <button
                   className="w-full md:w-auto px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg text-sm font-medium transition-colors shadow-md flex items-center justify-center"
                   onClick={handleLogout}
@@ -442,8 +437,8 @@ function Profile() {
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
 

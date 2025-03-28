@@ -119,10 +119,8 @@ function Dashboard() {
       </div>
 
       {/* Right Sidebar */}
-      <div className="hidden lg:flex sticky top-20">
-        <div className="transition-all duration-300 transform hover:translate-y-[-2px]">
-          <RightSidebar />
-        </div>
+      <div className="hidden lg:flex sticky top-20 max-w-[30%]">
+        <RightSidebar />
       </div>
     </div>
   );

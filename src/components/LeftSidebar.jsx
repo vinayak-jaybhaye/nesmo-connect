@@ -161,7 +161,7 @@ function LeftSidebar({ userData, active = "Home" }) {
 
       {/* Desktop Sidebar */}
       <div
-        className={`hidden md:flex flex-col sticky left-0 top-[4rem] h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out
+        className={`hidden md:flex mr-2 flex-col sticky left-0 top-[4rem] h-[calc(100vh-4rem)] transition-all duration-300 ease-in-out
           ${sidebarHidden ? "w-[4.5rem]" : "w-64"}
           bg-gray-900/95 border-r border-gray-700/50 backdrop-blur-md shadow-xl z-10`}
       >
@@ -185,14 +185,6 @@ function LeftSidebar({ userData, active = "Home" }) {
               sidebarHidden ? "px-2" : "px-3"
             }`}
           >
-            {/* Logo/Brand - visible in both states */}
-            {/* <div className={`flex items-center mb-6 ${sidebarHidden ? "justify-center" : "px-2"}`}>
-              <div className="flex-shrink-0 w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold">N</span>
-              </div>
-              {!sidebarHidden && <span className="ml-2 text-lg font-semibold text-white">NESMO Connect</span>}
-            </div> */}
-
             {/* Navigation Menu */}
             <nav className="flex-1">
               <div className={`space-y-1 ${sidebarHidden ? "" : "pr-2"}`}>
