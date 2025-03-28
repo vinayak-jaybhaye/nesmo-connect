@@ -66,7 +66,7 @@ function Navbar() {
   };
 
   return (
-    <div className="bg-gray-800/80 sticky top-0 z-10 shadow-lg py-2 px-4 flex justify-between items-center border-b border-gray-600/50 backdrop-blur-sm">
+    <div className="bg-gray-800/80 sticky top-0 z-20 shadow-lg py-2 px-4 flex justify-between items-center border-b border-gray-600/50 backdrop-blur-sm">
       {/* Left Section - Brand Logo */}
       <div
         className="flex items-center space-x-2 cursor-pointer group"

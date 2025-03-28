@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Chats, Connections, UserList } from "./";
+import { MenuIcon } from "lucide-react";
 
 function RightSidebar() {
   const [sidebarHidden, setSidebarHidden] = useState(true);
@@ -71,37 +72,9 @@ function RightSidebar() {
       {/* Toggle Button */}
       <button
         onClick={() => setSidebarHidden(!sidebarHidden)}
-        className="p-3 hover:bg-gray-700/50 transition-colors duration-200 flex items-center justify-center"
+        className="p-3 mb-2 hover:bg-gray-700/50 transition-colors duration-200 flex items-center justify-center"
       >
-        {sidebarHidden ? (
-          <svg
-            className="w-6 h-6"
-            fill="white"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        ) : (
-          <svg
-            className="w-6 h-6"
-            fill="white"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        )}
+        <MenuIcon className="w-5 h-5 text-gray-300" />
       </button>
 
       {!sidebarHidden ? (

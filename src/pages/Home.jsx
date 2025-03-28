@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import userAuth from "../firebase/firebaseAuth";
-import dbServices from "../firebase/firebaseDb";
-import { login, logout } from "../store/authSlice";
+import { login } from "../store/authSlice";
 import { AllPosts, Loader, RightSidebar } from "../components";
 import { setVars } from "../store/varSlice";
+import { Home, User, Bookmark } from "lucide-react";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -46,45 +48,81 @@ function Dashboard() {
     return <Loader />;
   }
 
+  // Map options to their respective icons
+  const optionIcons = {
+    allPosts: <Home className="w-4 h-4 mr-1.5" />,
+    myPosts: <User className="w-4 h-4 mr-1.5" />,
+    savedPosts: <Bookmark className="w-4 h-4 mr-1.5" />,
+  };
+
+  // Helper function to format option labels
+  const formatOptionLabel = (option) => {
+    return option
+      .replace(/([A-Z])/g, " $1")
+      .replace(/^./, (str) => str.toUpperCase())
+      .trim();
+  };
+
   return (
-    <div className="flex gap-2 w-full relative">
-      <div className={`space-y-4 w-full`}>
-        {/* Post Selection */}
-        <div className="flex justify-start gap-2 items-center mt-3 sticky top-0 bg-gray-900/80 p-2 rounded-lg shadow-lg border border-gray-800/50 backdrop-blur-sm">
-          {["allPosts", "myPosts", "savedPosts"].map((option) => (
-            <div
-              key={option}
-              className={`cursor-pointer flex justify-evenly items-center ${
-                selectPost === option
-                  ? "bg-gradient-to-br from-gray-600/50 to-gray-700/50 ring-1 ring-gray-500/50 bg-blue-700"
-                  : "bg-gray-700/50 hover:bg-gray-600/60"
-              } py-1.5 px-3 rounded-2xl transition-all duration-200 text-sm text-white/90 hover:text-white ring-transparent`}
-            >
-              <input
-                type="radio"
-                name="selectPost"
-                className="hidden"
-                id={option}
-                value={option}
-                onChange={onSelectionChange}
-                checked={selectPost === option}
-              />
-              <label htmlFor={option} className="cursor-pointer capitalize">
-                {option.replace(/([A-Z])/g, " $1").trim()}
-              </label>
-            </div>
-          ))}
+    <div className="flex justify-between gap-4 w-full max-w-screen-2xl">
+      {/* Main Content Area */}
+      <div className="flex-1 min-w-0 space-y-4">
+        {/* Post Selection Filter */}
+        <div className="sticky top-[4.5rem] z-10 bg-gray-900/90 backdrop-blur-md rounded-xl shadow-lg border border-gray-800/50 p-2 sm:p-3 mt-3 transition-all">
+          <div className="flex flex-wrap justify-start gap-2">
+            {["allPosts", "myPosts", "savedPosts"].map((option) => (
+              <div
+                key={option}
+                className={`
+                  flex-1 sm:flex-none cursor-pointer transition-all duration-200
+                  ${
+                    selectPost === option
+                      ? "bg-gradient-to-br from-indigo-600/80 to-indigo-800/80 shadow-md shadow-indigo-900/30"
+                      : "bg-gray-800/80 hover:bg-gray-700/80"
+                  }
+                  rounded-xl overflow-hidden
+                `}
+              >
+                <input
+                  type="radio"
+                  name="selectPost"
+                  className="sr-only"
+                  id={option}
+                  value={option}
+                  onChange={onSelectionChange}
+                  checked={selectPost === option}
+                />
+                <label
+                  htmlFor={option}
+                  className="flex items-center justify-center w-full py-2 px-3 sm:px-4 cursor-pointer text-sm sm:text-base font-medium text-white/90 hover:text-white"
+                >
+                  <span className="hidden sm:inline-flex items-center">
+                    {optionIcons[option]}
+                    {formatOptionLabel(option)}
+                  </span>
+                  <span className="sm:hidden inline-flex items-center">
+                    {optionIcons[option]}
+                    <span className="text-xs">
+                      {formatOptionLabel(option).split(" ")[0]}
+                    </span>
+                  </span>
+                </label>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* New Post & Feed */}
-        <div className="space-y-6 w-full">
+        {/* Posts Feed */}
+        <div className="space-y-6 w-full pb-20">
           <AllPosts user={userData} />
         </div>
       </div>
 
-      {/* Right Column */}
-      <div className="hidden lg:flex justify-center">
-        <RightSidebar />
+      {/* Right Sidebar */}
+      <div className="hidden lg:flex sticky top-20">
+        <div className="transition-all duration-300 transform hover:translate-y-[-2px]">
+          <RightSidebar />
+        </div>
       </div>
     </div>
   );
