@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import appwriteStorage from "../../appwrite/appwriteStorage";
 import dbServices from "../../firebase/firebaseDb";
+import { Image, SendHorizonal, DeleteIcon, Trash } from "lucide-react";
 
 function NewPost({ user, setPosts }) {
   const [image, setImage] = useState(null);
@@ -59,7 +60,7 @@ function NewPost({ user, setPosts }) {
   };
 
   return (
-    <div className="bg-gray-800/80 p-4 w-full rounded-xl shadow-xl border border-gray-700/50 backdrop-blur-sm">
+    <div className="bg-blackbg-gray-800/80 p-4 w-full rounded-t-xl shadow-xl border-b backdrop-blur-sm">
       <div className="flex items-center gap-2 text-gray-100 mb-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -80,7 +81,7 @@ function NewPost({ user, setPosts }) {
           Create a new post
         </span>
       </div>
-      <div className="bg-gray-900/50 p-3 rounded-xl">
+      <div className="bg-gray-900/50 flex flex-col gap-2 mt-4 rounded-xl">
         {image && (
           <div className="relative group">
             <img
@@ -92,23 +93,10 @@ function NewPost({ user, setPosts }) {
 
             {showDelete && (
               <button
-                className="absolute top-3 right-3 p-2 bg-red-600/90 hover:bg-red-700 text-white rounded-full shadow-lg transition-all"
+                className="absolute top-3 right-3 p-2 text-white rounded-full shadow-lg transition-all"
                 onClick={onDelete}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-4 h-4"
-                  viewBox="0 0 24 24"
-                  strokeWidth="2"
-                  stroke="currentColor"
-                  fill="none"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
+                <img src="/delete.svg" className="h-5 w-5" />
               </button>
             )}
           </div>
@@ -128,31 +116,21 @@ function NewPost({ user, setPosts }) {
         />
       </div>
 
-      <div className="flex justify-between items-center mt-3 bg-gray-700/40 p-1 rounded-xl">
+      <div className="flex justify-between items-center mt-3  p-1 rounded-xl">
         <div className="flex gap-2">
           <button
-            className="p-2 hover:bg-gray-600/50 rounded-xl transition-all group"
+            className="flex gap-2 p-1 rounded-xl transition-all group"
             onClick={handleAddImage}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-6 h-6 text-gray-400 group-hover:text-blue-400"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              fill="none"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-              />
-            </svg>
+            <Image className="w-5 h-5 text-gray-200 group-hover:text-gray-100" />
+            <span className="text-gray-200 group-hover:text-gray-100 text-sm font-semibold">
+              Add Image
+            </span>
           </button>
         </div>
 
         <button
-          className={`p-2 rounded-xl transition-all ${
+          className={`flex gap-2 p-2 rounded-md transition-all ${
             content
               ? "bg-blue-600 hover:bg-blue-500"
               : "bg-gray-600/50 cursor-not-allowed"
@@ -160,20 +138,8 @@ function NewPost({ user, setPosts }) {
           onClick={handlePost}
           disabled={!content}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6 text-gray-100"
-            viewBox="0 0 24 24"
-            strokeWidth="2"
-            stroke="currentColor"
-            fill="none"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M13 5l7 7-7 7M5 5l7 7-7 7"
-            />
-          </svg>
+          <span className="text-gray-200 text-sm font-semibold">Post</span>
+          {/* <SendHorizonal className="w-5 h-5 text-gray-200" /> */}
         </button>
       </div>
     </div>

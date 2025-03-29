@@ -19,6 +19,7 @@ function PostCard({ post, setPosts }) {
   const [showAllLikes, setShowAllLikes] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [lastVisible, setLastVisible] = useState({ likedUsers: null });
+  const [showFullContent, setShowFullContent] = useState(false);
   const [{ likes, dislikes }, setLikesAndDislikes] = useState({
     likes: 0,
     dislikes: 0,
@@ -116,9 +117,7 @@ function PostCard({ post, setPosts }) {
     if (likedBy.length === 0)
       return (
         <div className="text-sm text-gray-400">
-          <span className="font-thin text-white">
-            Be first to like this post
-          </span>
+          <span className="font-thin text-white">{/* Like this post */}</span>
         </div>
       );
 
@@ -149,7 +148,7 @@ function PostCard({ post, setPosts }) {
 
   const renderLikedByList = () => {
     return (
-      <div className="absolute h-auto max-h-[70%] w-full sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[50%] z-10 top-5 flex flex-col right-0 gap-2 p-3 sm:p-4 overscroll-auto bg-gray-900/95 rounded-lg shadow-xl backdrop-blur-sm overflow-y-auto border border-gray-700">
+      <div className="absolute h-auto max-h-[70%] w-full sm:w-[80%] md:w-[70%] lg:w-[60%] xl:w-[50%] z-10 bottom-20 flex flex-col right-0 gap-2 p-3 sm:p-4 overscroll-auto bg-gray-900/95 rounded-lg shadow-xl backdrop-blur-sm overflow-y-auto border border-gray-700">
         <div className="flex justify-between items-center mb-2 pb-2 border-b border-gray-700">
           <h3 className="text-white font-semibold">Liked by</h3>
           <button
@@ -216,10 +215,10 @@ function PostCard({ post, setPosts }) {
 
   return (
     <div
-      className="w-full flex-1 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-lg shadow-black/40 border border-gray-700 transition-all transform hover:shadow-xl hover:border-gray-600 overflow-auto"
+      className="w-full flex-1 bg-black shadow-lg shadow-black/40  transition-all transform hover:shadow-xl overflow-auto border-b border-white/40 py-1"
       onClick={() => (showMenu ? setShowMenu(false) : null)}
     >
-      <div className="bg-gray-900/80 p-1 sm:p-2 rounded-xl shadow-inner space-y-3 sm:space-y-4 h-full backdrop-blur-sm">
+      <div className="bg-black rounded-xl shadow-inner space-y-3 sm:space-y-4 h-full backdrop-blur-sm">
         {/* Header section with user info and actions */}
         <div className="border-b border-gray-700/50 bg-black/40 p-2 sm:p-3 rounded-md">
           <div className="flex flex-row justify-between items-center gap-2">
@@ -369,7 +368,7 @@ function PostCard({ post, setPosts }) {
 
           {/* Post content */}
           <div
-            className="relative group mt-3"
+            className="relative group mt-3 pl-8"
             onClick={() => setShowAllLikes(false)}
           >
             {showAllLikes && renderLikedByList()}
@@ -387,14 +386,19 @@ function PostCard({ post, setPosts }) {
             )}
 
             {/* Post text */}
-            <pre className="text-gray-300/85 max-h-96 bg-black/60 leading-relaxed text-sm sm:text-base md:text-lg border-l-4 border-green-500/30 pl-3 sm:pl-4 py-2 ml-0 sm:ml-2 italic font-light whitespace-pre-wrap overflow-auto rounded-r-md">
+            <pre
+              className={`text-gray-300/85 ${
+                showFullContent ? "" : "max-h-96"
+              } bg-black/60 leading-relaxed text-sm sm:text-base md:text-lg border-l-4 border-green-500/30 pl-3 sm:pl-4 py-2 ml-0 sm:ml-2 italic font-light whitespace-pre-wrap overflow-auto rounded-r-md`}
+              onClick={() => setShowFullContent((prev) => !prev)}
+            >
               {content}
             </pre>
           </div>
         </div>
 
         {/* Likes section */}
-        <div className="text-gray-400 text-xs sm:text-sm rounded-lg transition-colors hover:text-gray-300 px-1">
+        <div className="text-gray-400 text-xs sm:text-sm rounded-lg transition-colors hover:text-gray-300 p-1">
           {likedBy && (
             <div className="flex items-center gap-2 flex-wrap">
               {renderLikedBy()}

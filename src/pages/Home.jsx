@@ -68,7 +68,7 @@ function Dashboard() {
       {/* Main Content Area */}
       <div className="flex-1 min-w-0 space-y-4">
         {/* Post Selection Filter */}
-        <div className="sticky top-[4.5rem] z-10 bg-gray-900/90 backdrop-blur-md rounded-xl shadow-lg border border-gray-800/50 p-2 sm:p-3 mt-3 transition-all">
+        <div className="sticky top-[3rem] z-10 bg-gray-900/90 backdrop-blur-md rounded-xl shadow-lg border border-gray-800/50 p-2 sm:p-3 mt-3 transition-all">
           <div className="flex flex-wrap justify-start gap-2">
             {["allPosts", "myPosts", "savedPosts"].map((option) => (
               <div
@@ -113,7 +113,7 @@ function Dashboard() {
         </div>
 
         {/* Posts Feed */}
-        <div className="space-y-6 w-full pb-20">
+        <div className="w-full">
           <AllPosts user={userData} />
         </div>
       </div>

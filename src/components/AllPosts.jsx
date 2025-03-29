@@ -68,7 +68,7 @@ function AllPosts({ user }) {
     );
 
   return (
-    <div className="flex flex-col max-h-[100vh] w-full overflow-scroll scrollbar-hide gap-4 p-2 bg-gray-800/80 rounded-xl border border-gray-700/50 backdrop-blur-sm shadow-inner">
+    <div className="flex flex-col max-h-[100vh] w-full overflow-scroll scrollbar-hide gap-4 rounded-t-md  backdrop-blur-sm shadow-inner">
       <NewPost
         setPosts={
           selectPost === "allPosts"
@@ -81,11 +81,11 @@ function AllPosts({ user }) {
       />
 
       {posts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-[50vh] text-gray-400/80">
+        <div className="flex flex-col items-center justify-center h-[50vh] text-white">
           <p className="text-lg font-medium">No posts to show</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-1 relative  ">
+        <div className="flex flex-col relative ">
           {posts.map((post) => (
             <PostCard
               key={post.id}
@@ -97,7 +97,7 @@ function AllPosts({ user }) {
                   ? setMyPosts
                   : setSavedPosts
               }
-              className="hover:ring-1 hover:ring-gray-600/50 transition-all"
+              // className="hover:ring-1 hover:ring-gray-600/50 transition-all"
             />
           ))}
         </div>
