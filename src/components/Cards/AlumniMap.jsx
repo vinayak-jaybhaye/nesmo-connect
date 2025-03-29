@@ -45,7 +45,7 @@ const AlumniMap = ({ users, highlightedUser }) => {
   // console.log("rendering map");
 
   return (
-    <div className="w-full h-[90%] rounded-xl overflow-hidden shadow-2xl border-2 border-gray-700/50 bg-gray-900">
+    <div className="w-full h-[90%] rounded-sm overflow-hidden shadow-2xl border-2 border-gray-700/50 bg-gray-900">
       <MapContainer
         center={defaultCenter}
         zoom={5}

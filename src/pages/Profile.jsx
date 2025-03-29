@@ -298,7 +298,7 @@ function Profile() {
               {/* Avatar edit button */}
               {amIOwner && (
                 <button
-                  className="absolute bottom-2 right-2 p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full shadow-lg transition-all duration-200"
+                  className="absolute bottom-2 right-2 md:right-6 p-2 bg-indigo-600 hover:bg-indigo-700 rounded-full shadow-lg transition-all duration-200"
                   onClick={() => handleChangeImage("avatar")}
                   disabled={imageLoading.avatar}
                 >

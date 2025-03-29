@@ -31,11 +31,11 @@ function OpportunityCard({ opportunity, onDelete }) {
   };
 
   return (
-    <div className="group h-fit  relative p-2 bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out hover:-translate-y-1 border border-gray-700/50 hover:border-gray-600/50">
+    <div className="group h-fit  relative bg-black shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out hover:-translate-y-1 border border-gray-700/50 hover:border-gray-600/50">
       {/* Content Section */}
-      <div className="space-y-4 bg-gray-950 p-2 rounded-md">
+      <div className="space-y-4 p-2 rounded-md">
         {/* Header */}
-        <div className="flex-col items-start justify-between">
+        <div className="flex-col items-start justify-between pl-4">
           <div className="flex items-center gap-3">
             <div className="p-3 bg-blue-500/20 rounded-xl shadow-lg">
               <FaSuitcase className="text-2xl text-blue-400 animate-pulse" />
@@ -50,10 +50,10 @@ function OpportunityCard({ opportunity, onDelete }) {
         </div>
 
         {/* Actual content */}
-        <div className="max-h-[50vh] overflow-auto">
+        <div className="max-h-[50vh] overflow-auto pl-8">
           {/* Image Section */}
           {opportunity.imageUrl && (
-            <div className="mb-4 overflow-auto rounded-xl border border-gray-700/50 group-hover:border-gray-600/50 transition-all">
+            <div className="mb-4 overflow-auto rounded-sm border border-gray-700/50 group-hover:border-gray-600/50 transition-all">
               <img
                 src={opportunity.imageUrl}
                 alt={opportunity.title}

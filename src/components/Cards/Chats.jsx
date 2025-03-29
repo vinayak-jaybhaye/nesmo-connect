@@ -70,7 +70,7 @@ function Chats() {
             d="M17 6h-2.5a1.5 1.5 0 000 3h1a1.5 1.5 0 011.5 1.5V12"
           />
         </svg>
-        Your Chats
+        Recent conversations
       </h2>
       <div className="bg-gray-900 rounded-lg shadow-lg shadow-black/40 border border-gray-800 overflow-scroll scrollbar-hide max-h-[40vh] p-3">
         {chats.length > 0 ? (

@@ -1,13 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { format } from "date-fns";
 import { FaTrophy, FaUserCircle, FaTrash } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import dbServices from "../../firebase/firebaseDb";
 import appwriteStorage from "../../appwrite/appwriteStorage";
+import { useNavigate } from "react-router-dom";
 
 function AchievementCard({ achievement, onDelete }) {
   const user = useSelector((state) => state.auth.userData);
+  const [showAchievementContent, setShowAchievementContent] = useState(false);
   const isCreator = user?.uid === achievement.createdBy?.id;
+
+  const navigate = useNavigate();
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this achievement?")) {
@@ -31,11 +35,11 @@ function AchievementCard({ achievement, onDelete }) {
   };
 
   return (
-    <div className="group h-fit  relative p-2 bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out hover:-translate-y-1 border border-gray-700/50 hover:border-gray-600/50">
+    <div className="group h-fit  relative bg-gradient-to-br from-gray-800/90 to-gray-900/90 shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out hover:-translate-y-1 border-b md:border border-gray-700/50 hover:border-gray-600/50">
       {/* Content Section */}
       <div className="space-y-2 md:space-y-4 bg-slate-950 p-2 rounded-md">
         {/* Header */}
-        <div className="flex flex-col justify-between gap-2">
+        <div className="flex flex-col justify-between gap-2 pl-4">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="p-2 md:p-3 bg-amber-500/20 rounded-lg md:rounded-xl shadow">
               <FaTrophy className="text-xl md:text-2xl text-amber-400 animate-pulse" />
@@ -50,7 +54,11 @@ function AchievementCard({ achievement, onDelete }) {
         </div>
 
         {/* Actual content */}
-        <div className="max-h-[50vh] overflow-auto">
+        <div
+          className={`${
+            showAchievementContent ? "" : "max-h-[50vh]"
+          } overflow-auto pl-8`}
+        >
           {/* Image Section */}
           {achievement.imageUrl && (
             <div className="mb-4 md:mb-6 overflow-auto rounded-lg md:rounded-xl border border-gray-700/50 group-hover:border-gray-600/50 transition-all">
@@ -63,7 +71,10 @@ function AchievementCard({ achievement, onDelete }) {
           )}
 
           {/* Description */}
-          <pre className="text-sm md:text-base bg-black text-gray-300/85 leading-relaxed border-l-2 md:border-l-4 border-amber-500/30 pl-2 md:pl-4 ml-1 md:ml-2 italic font-light whitespace-pre-wrap overflow-auto">
+          <pre
+            className={`text-sm md:text-base bg-black text-gray-300/85 leading-relaxed border-l-2 md:border-l-4 border-amber-500/30 pl-2 md:pl-4 ml-1 md:ml-2 italic font-light whitespace-pre-wrap overflow-auto`}
+            onClick={() => setShowAchievementContent(!showAchievementContent)}
+          >
             {achievement.description}
           </pre>
         </div>
@@ -84,7 +95,12 @@ function AchievementCard({ achievement, onDelete }) {
             </div>
             <div>
               <p className="text-xs md:text-sm text-gray-400">Achieved by</p>
-              <p className="text-sm md:text-base font-medium text-gray-200">
+              <p
+                className="text-sm md:text-base font-medium text-gray-200"
+                onClick={() =>
+                  navigate(`/profile/${achievement.createdBy?.id}`)
+                }
+              >
                 {achievement.createdBy?.name || "Anonymous"}
               </p>
             </div>

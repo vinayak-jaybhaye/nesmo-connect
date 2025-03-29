@@ -52,7 +52,7 @@ function Achievements() {
   if (error) return <div className="text-red-400">{error}</div>;
 
   return (
-    <div className="flex flex-col gap-4 p-2 w-full rounded-xl h-[90vh]  border bg-gray-800/80 border-gray-700/50 backdrop-blur-sm shadow-inner overflow-auto">
+    <div className="flex flex-col w-full gap-2 h-[90vh] bg-black backdrop-blur-sm shadow-inner overflow-auto">
       {/* New Achievement Form  */}
       <div>
         <NewAchievement
@@ -70,7 +70,7 @@ function Achievements() {
         </div>
       ) : (
         // Responsive grid layout
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 p-2 space-y-4">
+        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 space-y-4">
           {achievements.map((achievement) => (
             <div className="break-inside-avoid" key={achievement.id}>
               <AchievementCard
@@ -81,7 +81,6 @@ function Achievements() {
                     prev.filter((a) => a.id !== deletedId)
                   )
                 }
-                className="hover:ring-1 hover:ring-gray-600/50 transition-all mb-4"
               />
             </div>
           ))}

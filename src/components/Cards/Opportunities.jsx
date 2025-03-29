@@ -52,7 +52,7 @@ function Opportunities() {
   if (error) return <div className="text-red-400">{error}</div>;
 
   return (
-    <div className="flex flex-col gap-4 w-full rounded-xl h-[90vh] bg-gray-800/80 border border-gray-700/50 backdrop-blur-sm shadow-inner overflow-auto">
+    <div className="flex flex-col gap-2 w-full h-[90vh] bg-gray-950 backdrop-blur-sm shadow-inner overflow-auto">
       {/* New Opportunity Form */}
       <NewOpportunity
         onNewOpportunity={(newOpportunity) =>
@@ -66,7 +66,7 @@ function Opportunities() {
           <p className="text-lg font-medium">No opportunities to show</p>
         </div>
       ) : (
-        <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 p-2 space-y-4">
+        <div className="columns-1 sm:columns-2 lg:columns-3 space-y-1">
           {opportunities.map((opportunity) => (
             <div className="break-inside-avoid" key={opportunity.id}>
               <OpportunityCard
@@ -77,7 +77,6 @@ function Opportunities() {
                     prev.filter((o) => o.id !== deletedId)
                   )
                 }
-                className="hover:ring-1 hover:ring-gray-600/50 transition-all mb-4"
               />
             </div>
           ))}

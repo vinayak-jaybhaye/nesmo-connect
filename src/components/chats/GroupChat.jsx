@@ -141,7 +141,7 @@ function GroupChat({ userData, chatId }) {
 
   return (
     <div
-      className="flex flex-col h-full w-full bg-gray-900 rounded-lg shadow-xl overflow-hidden"
+      className="flex flex-col h-full w-full bg-gray-900 shadow-xl overflow-hidden"
       key={chatId}
     >
       {/* Chat Header */}
@@ -220,7 +220,7 @@ function GroupChat({ userData, chatId }) {
               {/* Close button */}
               <button
                 onClick={() => {
-                  if(!isSending) setFile(null);
+                  if (!isSending) setFile(null);
                 }}
                 className="absolute top-1 right-1 p-1 bg-red-600 hover:bg-red-700 text-white rounded-full shadow-lg transition-all duration-150 transform scale-100"
                 aria-label="Remove file"

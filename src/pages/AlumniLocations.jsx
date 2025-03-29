@@ -34,7 +34,7 @@ function AlumniLocations() {
       {/* Mobile Toggle Button */}
       <button
         onClick={() => setShowList(!showList)}
-        className="md:hidden fixed bottom-16 right-4 z-10 p-3 bg-gray-700/80 rounded-full backdrop-blur-sm border border-gray-600/50 hover:border-gray-500/50 shadow-lg"
+        className="md:hidden fixed bottom-20 right-8 z-10 p-3 bg-gray-700/80 rounded-full backdrop-blur-sm border border-gray-600/50 hover:border-gray-500/50 shadow-lg"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -56,7 +56,7 @@ function AlumniLocations() {
       <div
         className={`${
           showList ? "block" : "hidden"
-        } md:block bg-gray-800/70 backdrop-blur-sm p-2 rounded-xl border border-gray-700/50 transition-all`}
+        } md:block bg-gray-800/70 backdrop-blur-sm p-1 rounded-sm border border-gray-700/50 transition-all`}
       >
         <div className="overflow-y-auto h-[300px] md:h-[calc(100vh-9rem)] scrollbar-thin scrollbar-track-gray-800/50 scrollbar-thumb-gray-600/70">
           <AlumniList
@@ -68,8 +68,8 @@ function AlumniLocations() {
       </div>
 
       {/* Right Side - Map */}
-      <div className="flex-1 h-[60vh] md:h-full bg-gray-800/70 backdrop-blur-sm p-2 md:p-4 rounded-xl border border-gray-700/50">
-        <div className="flex items-center gap-2 md:gap-3 pb-2 md:pb-4 mb-2 md:mb-4 border-b border-gray-700/70">
+      <div className="flex-1 pr-4 h-[60vh] md:h-full bg-gray-800/70 backdrop-blur-sm rounded-sm border border-gray-700/50">
+        <div className="flex items-center gap-2 md:gap-3 md:pb-4 m-2 border-b border-gray-700/70">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="w-5 h-5 md:w-6 md:h-6"
@@ -85,11 +85,7 @@ function AlumniLocations() {
             Global Network
           </h2>
         </div>
-        <AlumniMap
-          users={users}
-          highlightedUser={highlightedLocation}
-          className="rounded-lg md:rounded-xl border border-gray-700/50 h-[calc(100%-40px)]"
-        />
+        <AlumniMap users={users} highlightedUser={highlightedLocation} />
       </div>
     </div>
   );

@@ -247,7 +247,7 @@ function PostCard({ post, setPosts }) {
             </div>
 
             {/* Action buttons */}
-            <div className="flex items-center space-x-1 sm:space-x-2 justify-end">
+            <div className="flex items-center lg:pr-12 space-x-1 sm:space-x-2 justify-end">
               {/* Like button */}
               <div
                 className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg hover:bg-gray-700/50 cursor-pointer transition-all duration-200 group"
@@ -368,7 +368,7 @@ function PostCard({ post, setPosts }) {
 
           {/* Post content */}
           <div
-            className="relative group mt-3 pl-8"
+            className="relative group mt-3 pl-8 md:pl-12 lg:px-16"
             onClick={() => setShowAllLikes(false)}
           >
             {showAllLikes && renderLikedByList()}
