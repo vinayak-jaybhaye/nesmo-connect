@@ -22,6 +22,8 @@ import Navbar from "./Navbar";
 import LeftSidebar from "./LeftSidebar";
 import Layout from "./Layout";
 import RightSidebar from "./RightSidebar";
+import AchievementCard from "./Cards/AchievementCard";
+import OpportunityCard from "./Cards/OpportunityCard";
 
 export {
     Loader,
@@ -45,5 +47,7 @@ export {
     Navbar,
     LeftSidebar,
     Layout,
-    RightSidebar
+    RightSidebar,
+    AchievementCard,
+    OpportunityCard
 };

@@ -12,6 +12,7 @@ import {
   UserPlus,
   BarChart2,
   Bell,
+  Search,
 } from "lucide-react";
 import dbServices from "../firebase/firebaseDb";
 
@@ -98,17 +99,38 @@ function Navbar() {
         </span>
       </div>
 
-      {/* Mobile Menu Button */}
-      <button
-        className="md:hidden mobile-menu-button p-1 rounded-md text-gray-300 hover:text-white hover:bg-gray-700 focus:outline-none"
-        onClick={() => setShowMobileMenu(!showMobileMenu)}
-        aria-label="Toggle mobile menu"
-      >
-        {showMobileMenu ? <X size={24} /> : <Menu size={24} />}
-      </button>
+      <div className="md:hidden flex items-center space-x-4 md:space-x-6">
+        {/* Search button */}
+        <button
+          onClick={() => navigate("/search")}
+          className="flex items-center space-x-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl px-6 py-1.5 transition-all duration-200 text-sm text-gray-200"
+          aria-label="Search"
+        >
+          <Search className="h-5 w-5" />
+          <span>Search</span>
+        </button>
+
+        {/* Mobile Menu Button */}
+        <button
+          className="mobile-menu-button p-1 rounded-md text-gray-300 hover:text-white hover:bg-gray-700 focus:outline-none"
+          onClick={() => setShowMobileMenu(!showMobileMenu)}
+          aria-label="Toggle mobile menu"
+        >
+          {showMobileMenu ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
 
       {/* Desktop Navigation */}
       <div className="hidden md:flex items-center space-x-4">
+        {/* Search button */}
+        <button
+          onClick={() => navigate("/search")}
+          className="flex items-center space-x-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl px-6 py-1.5 transition-all duration-200 text-sm text-gray-200"
+          aria-label="Search"
+        >
+          <Search className="h-5 w-5" />
+          <span>Search</span>
+        </button>
         {/* Admin Dashboard Button */}
         {userData?.userRole === "admin" && (
           <button

@@ -119,9 +119,9 @@ function Dashboard() {
       </div>
 
       {/* Right Sidebar */}
-      <div className="hidden lg:flex sticky top-20 max-w-[30%]">
+      {/* <div className="hidden lg:flex sticky top-20 max-w-[30%]">
         <RightSidebar />
-      </div>
+      </div> */}
     </div>
   );
 }

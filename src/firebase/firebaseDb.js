@@ -16,7 +16,9 @@ import {
     limit,
     startAfter,
     Timestamp,
-    serverTimestamp
+    serverTimestamp,
+    startAt,
+    endAt
 } from "firebase/firestore";
 import app from "./firebaseConfig.js";
 import { decryptMessage } from "../components/chats/chatUtils.js";
@@ -1271,6 +1273,127 @@ class DB {
         }
     }
 
+    // get one opportunity by id
+    async getOpportunityById(opportunityId) {
+        try {
+            const opportunityRef = doc(this.db, "opportunities", opportunityId);
+            const opportunitySnap = await getDoc(opportunityRef);
+
+            if (opportunitySnap.exists()) {
+                const data = opportunitySnap.data();
+                let createdBy = null;
+
+                if (data.createdBy) {
+                    try {
+                        const userDoc = await this.getDocument("users", data.createdBy);
+                        if (userDoc) {
+                            createdBy = {
+                                id: data.createdBy,
+                                ...userDoc,
+                            };
+                        }
+                    } catch (err) {
+                        console.error(`Failed to fetch user with ID: ${data.createdBy}`, err);
+                    }
+                }
+                return {
+                    id: opportunitySnap.id,
+                    ...data,
+                    createdBy,
+                };
+            } else {
+                console.error("No such opportunity exists!");
+                return null;
+            }
+        } catch (error) {
+            console.error("Error fetching opportunity:", error);
+            throw error;
+        }
+    }
+
+    // get post by id
+    async getPostById(postId) {
+        try {
+            const postRef = doc(this.db, "posts", postId);
+            const postSnap = await getDoc(postRef);
+
+            if (postSnap.exists()) {
+                const data = postSnap.data();
+                let createdBy = null;
+
+                if (data.createdBy) {
+                    try {
+                        const userDoc = await getDoc(data.createdBy); // Fetch document
+
+                        console.log("userDoc", userDoc); // Debugging
+
+                        if (userDoc.exists()) {
+                            createdBy = {
+                                id: userDoc.id,
+                                ...userDoc.data(),
+                            };
+                        }
+                    } catch (err) {
+                        console.error(`Failed to fetch user with ID: ${data.createdBy.id}`, err);
+                    }
+                }
+
+                return {
+                    id: postSnap.id,
+                    ...data,
+                    createdBy,
+                };
+            } else {
+                console.error("No such post exists!");
+                return null;
+            }
+        } catch (error) {
+            console.error("Error fetching post:", error);
+            throw error;
+        }
+    }
+
+    // get achievement by id
+
+    async getAchievementById(achievementId) {
+        try {
+            const achievementRef = doc(this.db, "achievements", achievementId);
+            const achievementSnap = await getDoc(achievementRef);
+
+            if (achievementSnap.exists()) {
+                const data = achievementSnap.data();
+                let createdBy = null;
+
+                if (data.createdBy) {
+                    try {
+                        const userDoc = await this.getDocument("users", data.createdBy);
+                        if (userDoc) {
+                            createdBy = {
+                                id: data.createdBy,
+                                ...userDoc,
+                            };
+                        }
+                    } catch (err) {
+                        console.error(`Failed to fetch user with ID: ${data.createdBy}`, err);
+                    }
+                }
+
+                return {
+                    id: achievementSnap.id,
+                    ...data,
+                    createdBy,
+                };
+            } else {
+                console.error("No such achievement exists!");
+                return null;
+            }
+        } catch (error) {
+            console.error("Error fetching achievement:", error);
+            throw error;
+        }
+    }
+
+
     // Create a new opportunity
     async createOpportunity(newOpportunity) {
         try {
@@ -1403,6 +1526,100 @@ class DB {
             throw error;
         }
     }
+
+    async search(queryText, lastVisible = null, pageSize = 10) {
+        console.log("Searching for:", queryText);
+        try {
+            // queryText = queryText.toLowerCase();
+
+            // Collections
+            const usersCollection = collection(this.db, "users");
+            const postsCollection = collection(this.db, "posts");
+            const opportunitiesCollection = collection(this.db, "opportunities");
+            const achievementsCollection = collection(this.db, "achievements");
+            const communitiesCollection = collection(this.db, "communities");
+
+            // Base queries with search filter
+            let usersQuery = query(
+                usersCollection,
+                orderBy("name"),
+                startAt(queryText),
+                endAt(queryText + "\uf8ff"), // Matches names starting with queryText
+                limit(pageSize)
+            );
+
+            let postsQuery = query(
+                postsCollection,
+                orderBy("content"),
+                startAt(queryText),
+                endAt(queryText + "\uf8ff"),
+                limit(pageSize)
+            );
+
+            let opportunitiesQuery = query(
+                opportunitiesCollection,
+                orderBy("title"),
+                startAt(queryText),
+                endAt(queryText + "\uf8ff"),
+                limit(pageSize)
+            );
+
+            let achievementsQuery = query(
+                achievementsCollection,
+                orderBy("title"),
+                startAt(queryText),
+                endAt(queryText + "\uf8ff"),
+                limit(pageSize)
+            );
+
+            let communitiesQuery = query(
+                communitiesCollection,
+                orderBy("name"),
+                startAt(queryText),
+                endAt(queryText + "\uf8ff"),
+                limit(pageSize)
+            );
+
+            // Pagination
+            if (lastVisible) {
+                usersQuery = query(usersQuery, startAfter(lastVisible));
+                postsQuery = query(postsQuery, startAfter(lastVisible));
+                opportunitiesQuery = query(opportunitiesQuery, startAfter(lastVisible));
+                achievementsQuery = query(achievementsQuery, startAfter(lastVisible));
+                communitiesQuery = query(communitiesQuery, startAfter(lastVisible));
+            }
+
+            // Fetch data
+            const [usersSnap, postsSnap, opportunitiesSnap, achievementsSnap, communitiesSnap] = await Promise.all([
+                getDocs(usersQuery),
+                getDocs(postsQuery),
+                getDocs(opportunitiesQuery),
+                getDocs(achievementsQuery),
+                getDocs(communitiesQuery),
+            ]);
+
+            // Process data
+            const users = usersSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            const posts = postsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            const opportunities = opportunitiesSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            const achievements = achievementsSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            const communities = communitiesSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+            return {
+                users,
+                posts,
+                opportunities,
+                achievements,
+                communities,
+                lastVisible: usersSnap.docs[usersSnap.docs.length - 1] || null,
+            };
+        } catch (error) {
+            console.error("Error searching:", error);
+            return { users: [], posts: [], opportunities: [], achievements: [], communities: [], lastVisible: null };
+        }
+    }
+
+
 }
 
 const dbServices = new DB();

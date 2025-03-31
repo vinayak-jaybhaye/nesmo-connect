@@ -13,6 +13,10 @@ import Home from './Home'
 import LandingPage from './LandingPage'
 import PendingUser from './PendingUser'
 import AdminDashboard from './AdminDashboard'
+import SearchResults from './SearchResults'
+import Opportunity from './Opportunity'
+import Achievement from './Achievement'
+import Post from './Post'
 
 export {
     Login,
@@ -30,4 +34,8 @@ export {
     LandingPage,
     PendingUser,
     AdminDashboard,
+    SearchResults,
+    Opportunity,
+    Achievement,
+    Post,
 }

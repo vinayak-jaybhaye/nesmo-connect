@@ -60,7 +60,7 @@ function NewPost({ user, setPosts }) {
   };
 
   return (
-    <div className="bg-blackbg-gray-800/80 p-4 w-full rounded-t-xl shadow-xl border-b backdrop-blur-sm">
+    <div className="bg-blackbg-gray-800/80 py-4 md:px-12 w-full rounded-t-xl shadow-xl border-b backdrop-blur-sm">
       <div className="flex items-center gap-2 text-gray-100 mb-2">
         <svg
           xmlns="http://www.w3.org/2000/svg"

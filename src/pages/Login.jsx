@@ -33,36 +33,6 @@ function Login() {
   const navigate = useNavigate();
   const isUserLoggedIn = useSelector((state) => state.auth.status);
 
-  useEffect(() => {
-    const unsubscribe = userAuth.auth.onAuthStateChanged(async (user) => {
-      if (user) {
-        try {
-          const userData = await userAuth.getCurrentUserData();
-
-          // console.log(userData);
-          // delete userData.posts;
-          userData.uid = user.uid;
-          delete userData.createdAt;
-
-          dispatch(
-            login({
-              userData: userData,
-            })
-          );
-          if (userData.userVerificationStatus === "pending") {
-            navigate("/verify-email");
-          } else {
-            navigate("/");
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
-      }
-    });
-
-    return () => unsubscribe();
-  }, [dispatch, navigate]);
-
   const handleLogin = async (e) => {
     e.preventDefault();
     try {

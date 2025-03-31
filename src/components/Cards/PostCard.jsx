@@ -1,11 +1,19 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import appwriteStorage from "../../appwrite/appwriteStorage";
 import dbServices from "../../firebase/firebaseDb";
+import {
+  ThumbsUp,
+  ThumbsDown,
+  MoreHorizontal,
+  MoreVertical,
+  ShareIcon,
+  BookmarkCheck,
+  Bookmark,
+  Trash,
+} from "lucide-react";
 
 function PostCard({ post, setPosts }) {
   const { content, createdAt, imageUrl } = post;
@@ -253,15 +261,12 @@ function PostCard({ post, setPosts }) {
                 className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg hover:bg-gray-700/50 cursor-pointer transition-all duration-200 group"
                 onClick={handleLike}
               >
-                <img
-                  src={likedStatus === "liked" ? "liked.svg" : "like.svg"}
-                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-all ${
-                    likedStatus === "liked"
-                      ? "text-green-500"
-                      : "text-gray-400 group-hover:text-green-400"
+                <ThumbsUp
+                  className={`text-blue-500 w-5 h-5 ${
+                    likedStatus === "liked" ? "fill-blue-500" : ""
                   }`}
-                  alt="Like"
                 />
+
                 <span
                   className={`text-xs sm:text-sm ${
                     likedStatus === "liked" ? "text-green-500" : "text-gray-400"
@@ -276,16 +281,10 @@ function PostCard({ post, setPosts }) {
                 className="flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg hover:bg-gray-700/50 cursor-pointer transition-all duration-200 group"
                 onClick={handleDislike}
               >
-                <img
-                  src={
-                    likedStatus === "disliked" ? "disliked.svg" : "dislike.svg"
-                  }
-                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-all ${
-                    likedStatus === "disliked"
-                      ? "text-red-500"
-                      : "text-gray-400 group-hover:text-red-400"
+                <ThumbsDown
+                  className={`text-red-500 w-5 h-5 ${
+                    likedStatus === "disliked" ? "fill-red-500" : ""
                   }`}
-                  alt="Dislike"
                 />
                 <span
                   className={`text-xs sm:text-sm ${
@@ -315,11 +314,7 @@ function PostCard({ post, setPosts }) {
                     })
                   }
                 >
-                  <img
-                    src="menu.svg"
-                    className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 hover:text-gray-200"
-                    alt="Menu"
-                  />
+                  <MoreVertical className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 hover:text-gray-200" />
                 </div>
 
                 {/* Dropdown menu */}
@@ -330,11 +325,7 @@ function PostCard({ post, setPosts }) {
                         className="cursor-pointer hover:bg-gray-700/50 rounded-lg p-2 flex items-center gap-2 text-sm text-red-400 hover:text-red-300 transition-colors"
                         onClick={handleDeletePost}
                       >
-                        <img
-                          src="delete.svg"
-                          className="h-4 w-4 sm:h-5 sm:w-5"
-                          alt="Delete"
-                        />
+                        <Trash className="h-4 w-4 sm:h-5 sm:w-5" />
                         <span>Delete</span>
                       </div>
                     )}
@@ -342,22 +333,18 @@ function PostCard({ post, setPosts }) {
                       className="cursor-pointer hover:bg-gray-700/50 rounded-lg p-2 flex items-center gap-2 text-sm text-gray-300 hover:text-gray-100 transition-colors"
                       onClick={handleSharePost}
                     >
-                      <img
-                        src="share.svg"
-                        className="h-4 w-4 sm:h-5 sm:w-5"
-                        alt="Share"
-                      />
+                      <ShareIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                       <span>Share</span>
                     </div>
                     <div
                       className="cursor-pointer hover:bg-gray-700/50 rounded-lg p-2 flex items-center gap-2 text-sm text-gray-300 hover:text-gray-100 transition-colors"
                       onClick={handleSavePost}
                     >
-                      <img
-                        src={isPostSaved ? "bookmarked.svg" : "bookmark.svg"}
-                        className="h-4 w-4 sm:h-5 sm:w-5"
-                        alt={isPostSaved ? "Saved" : "Save"}
-                      />
+                      {isPostSaved ? (
+                        <BookmarkCheck className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
+                      ) : (
+                        <Bookmark className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
+                      )}
                       <span>{isPostSaved ? "Saved" : "Save"}</span>
                     </div>
                   </div>

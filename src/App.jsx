@@ -26,6 +26,10 @@ import {
   LandingPage,
   PendingUser,
   AdminDashboard,
+  SearchResults,
+  Opportunity,
+  Achievement,
+  Post,
 } from "./pages";
 
 import { Achievements, Opportunities, Layout } from "./components";
@@ -47,6 +51,10 @@ const router = createBrowserRouter(
         <Route path="unverified-users" element={<UnverifiedUsers />} />
         <Route path="/pending-user" element={<PendingUser />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/search" element={<SearchResults />} />
+        <Route path="/opportunity/:opportunityId" element={<Opportunity />} />
+        <Route path="/achievement/:achievementId" element={<Achievement />} />
+        <Route path="/post/:postId" element={<Post />} />
 
         {/* Public routes */}
         <Route path="/about" element={<AboutUs />} />
