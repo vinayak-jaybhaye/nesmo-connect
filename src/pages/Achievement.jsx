@@ -32,7 +32,7 @@ function Achievement() {
   }
 
   return (
-    <div>
+    <div className="w-full h-full flex items-center justify-center p-4">
       <AchievementCard achievement={achievement} />
     </div>
   );

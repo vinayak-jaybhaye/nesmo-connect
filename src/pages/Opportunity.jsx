@@ -32,7 +32,7 @@ function Opportunity() {
   }
 
   return (
-    <div>
+    <div className="w-full h-full flex items-center justify-center p-4">
       <OpportunityCard opportunity={opportunity} />
     </div>
   );

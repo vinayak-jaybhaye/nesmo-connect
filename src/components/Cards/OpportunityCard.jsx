@@ -5,9 +5,14 @@ import { useSelector } from "react-redux";
 import dbServices from "../../firebase/firebaseDb";
 import appwriteStorage from "../../appwrite/appwriteStorage";
 
+import { useNavigate } from "react-router-dom";
+import { Trash } from "lucide-react";
+
 function OpportunityCard({ opportunity, onDelete }) {
   const user = useSelector((state) => state.auth.userData);
   const isCreator = user?.uid === opportunity.createdBy?.id;
+
+  const Navigate = useNavigate();
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this opportunity?")) {
@@ -31,11 +36,14 @@ function OpportunityCard({ opportunity, onDelete }) {
   };
 
   return (
-    <div className="group h-fit  relative bg-black shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out hover:-translate-y-1 border border-gray-700/50 hover:border-gray-600/50">
+    <div className="group h-full w-full relative bg-black shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out hover:-translate-y-1 border border-gray-700/50 hover:border-gray-600/50">
       {/* Content Section */}
       <div className="space-y-4 p-2 rounded-md">
         {/* Header */}
-        <div className="flex-col items-start justify-between pl-4">
+        <div
+          className="flex-col items-start justify-between pl-4 cursor-pointer"
+          onDoubleClick={() => Navigate(`/opportunity/${opportunity.id}`)}
+        >
           <div className="flex items-center gap-3">
             <div className="p-3 bg-blue-500/20 rounded-xl shadow-lg">
               <FaSuitcase className="text-2xl text-blue-400 animate-pulse" />
@@ -89,20 +97,20 @@ function OpportunityCard({ opportunity, onDelete }) {
               </p>
             </div>
           </div>
+          {/* Delete Button */}
+          {isCreator && (
+            <button
+              onClick={handleDelete}
+              className="p-2 hover:bg-gray-500/30 text-red-600  rounded-lg backdrop-blur-sm transition-all shadow-sm hover:shadow-red-500/20"
+              title="Delete opportunity"
+            >
+              {/* <FaTrash className="text-lg" /> */}
+              {/* <img src="delete.svg" className="h-5 w-5" /> */}
+              <Trash className="h-4 w-4 sm:h-5 sm:w-5" />
+            </button>
+          )}
         </div>
       </div>
-
-      {/* Delete Button */}
-      {isCreator && (
-        <button
-          onClick={handleDelete}
-          className="absolute bottom-6 right-6 p-2  hover:bg-gray-500/30 text-red-600  rounded-lg backdrop-blur-sm transition-all shadow-sm hover:shadow-red-500/20"
-          title="Delete opportunity"
-        >
-          {/* <FaTrash className="text-lg" /> */}
-          <img src="delete.svg" className="h-5 w-5" />
-        </button>
-      )}
     </div>
   );
 }

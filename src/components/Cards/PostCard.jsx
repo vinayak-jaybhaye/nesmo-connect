@@ -357,6 +357,7 @@ function PostCard({ post, setPosts }) {
           <div
             className="relative group mt-3 pl-8 md:pl-12 lg:px-16"
             onClick={() => setShowAllLikes(false)}
+            onDoubleClick={() => navigate(`/post/${post.id}`)}
           >
             {showAllLikes && renderLikedByList()}
 

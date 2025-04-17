@@ -6,6 +6,8 @@ import dbServices from "../../firebase/firebaseDb";
 import appwriteStorage from "../../appwrite/appwriteStorage";
 import { useNavigate } from "react-router-dom";
 
+import { Trash } from "lucide-react";
+
 function AchievementCard({ achievement, onDelete }) {
   const user = useSelector((state) => state.auth.userData);
   const [showAchievementContent, setShowAchievementContent] = useState(false);
@@ -35,11 +37,14 @@ function AchievementCard({ achievement, onDelete }) {
   };
 
   return (
-    <div className="group h-fit  relative bg-gradient-to-br from-gray-800/90 to-gray-900/90 shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out hover:-translate-y-1 border-b md:border border-gray-700/50 hover:border-gray-600/50">
+    <div className="group h-full w-full relative bg-gradient-to-br from-gray-800/90 to-gray-900/90 shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out hover:-translate-y-1 border-b md:border border-gray-700/50 hover:border-gray-600/50">
       {/* Content Section */}
       <div className="space-y-2 md:space-y-4 bg-slate-950 p-2 rounded-md">
         {/* Header */}
-        <div className="flex flex-col justify-between gap-2 pl-4">
+        <div
+          className="flex flex-col justify-between gap-2 pl-4 cursor-pointer"
+          onDoubleClick={() => navigate(`/achievement/${achievement.id}`)}
+        >
           <div className="flex items-center gap-2 md:gap-3">
             <div className="p-2 md:p-3 bg-amber-500/20 rounded-lg md:rounded-xl shadow">
               <FaTrophy className="text-xl md:text-2xl text-amber-400 animate-pulse" />
@@ -105,20 +110,19 @@ function AchievementCard({ achievement, onDelete }) {
               </p>
             </div>
           </div>
+          {/* Delete Button */}
+          {isCreator && (
+            <button
+              onClick={handleDelete}
+              className=" md:bottom-4 md:right-4 p-1.5 md:p-2  hover:bg-gray-500/30 text-red-600 rounded-md md:rounded-lg backdrop-blur-sm transition-all shadow-sm hover:shadow-red-500/20"
+              title="Delete achievement"
+            >
+              {/* <FaTrash className="text-base md:text-lg" /> */}
+              <Trash className="h-4 w-4 sm:h-5 sm:w-5" />
+            </button>
+          )}
         </div>
       </div>
-
-      {/* Delete Button */}
-      {isCreator && (
-        <button
-          onClick={handleDelete}
-          className="absolute bottom-2 right-2 md:bottom-4 md:right-4 p-1.5 md:p-2  hover:bg-gray-500/30 text-red-600 rounded-md md:rounded-lg backdrop-blur-sm transition-all shadow-sm hover:shadow-red-500/20"
-          title="Delete achievement"
-        >
-          {/* <FaTrash className="text-base md:text-lg" /> */}
-          <img src="delete.svg" className="h-5 w-5" />
-        </button>
-      )}
     </div>
   );
 }

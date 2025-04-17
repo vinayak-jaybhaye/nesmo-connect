@@ -101,14 +101,16 @@ function Navbar() {
 
       <div className="md:hidden flex items-center space-x-4 md:space-x-6">
         {/* Search button */}
-        <button
-          onClick={() => navigate("/search")}
-          className="flex items-center space-x-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl px-6 py-1.5 transition-all duration-200 text-sm text-gray-200"
-          aria-label="Search"
-        >
-          <Search className="h-5 w-5" />
-          <span>Search</span>
-        </button>
+        {userData?.userVerificationStatus === "verified" && (
+          <button
+            onClick={() => navigate("/search")}
+            className="flex items-center space-x-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl px-6 py-1.5 transition-all duration-200 text-sm text-gray-200"
+            aria-label="Search"
+          >
+            <Search className="h-5 w-5" />
+            <span>Search</span>
+          </button>
+        )}
 
         {/* Mobile Menu Button */}
         <button
@@ -123,14 +125,16 @@ function Navbar() {
       {/* Desktop Navigation */}
       <div className="hidden md:flex items-center space-x-4">
         {/* Search button */}
-        <button
-          onClick={() => navigate("/search")}
-          className="flex items-center space-x-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl px-6 py-1.5 transition-all duration-200 text-sm text-gray-200"
-          aria-label="Search"
-        >
-          <Search className="h-5 w-5" />
-          <span>Search</span>
-        </button>
+        {userData?.userVerificationStatus === "verified" && (
+          <button
+            onClick={() => navigate("/search")}
+            className="flex items-center space-x-1.5 bg-gray-700 hover:bg-gray-600 rounded-xl px-6 py-1.5 transition-all duration-200 text-sm text-gray-200"
+            aria-label="Search"
+          >
+            <Search className="h-5 w-5" />
+            <span>Search</span>
+          </button>
+        )}
         {/* Admin Dashboard Button */}
         {userData?.userRole === "admin" && (
           <button
