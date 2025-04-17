@@ -104,7 +104,7 @@ function LeftSidebar({ userData, active = "Home" }) {
     },
     {
       name: "Notifications",
-      action: () => navigate("/notifications"),
+      action: () => navigate("#"),
       icon: <Bell className="w-5 h-5" />,
       description: "View your notifications",
       badge: 0,

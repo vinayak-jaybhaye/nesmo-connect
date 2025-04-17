@@ -1528,7 +1528,7 @@ class DB {
     }
 
     async search(queryText, lastVisible = null, pageSize = 10) {
-        console.log("Searching for:", queryText);
+        // console.log("Searching for:", queryText);
         try {
             // queryText = queryText.toLowerCase();
 
